@@ -1,4 +1,5 @@
 ---
+import Switcher from '../components/main/Switcher.astro'
 
 ---
 
@@ -9,8 +10,20 @@
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
+		<script is:inline>
+			if (
+			  	localStorage.theme === 'dark' ||
+			  (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+			) {
+			  	document.documentElement.classList.add('dark');
+			} else {
+				document.documentElement.classList.remove('dark');
+			}
+		  </script>
+	
 	</head>
 	<body>
+		<Switcher />
 		<slot />
 	</body>
 </html>
