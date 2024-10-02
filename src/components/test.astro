@@ -1,0 +1,16 @@
+---
+import Wrapper from '../components/main/WidgetWrapper.astro'
+
+const {
+    id,
+    isDark = false,
+    classes = {},
+    bg = await Astro.slots.render('bg')    
+
+} = Astro.props
+
+---
+<Wrapper id={id} isDark={isDark} containerClass={`max-w-7xl mx-auto ${classes?.container ?? ''}`} bg={bg}>
+    <h1>Hello World!</h1>
+</Wrapper>
+
