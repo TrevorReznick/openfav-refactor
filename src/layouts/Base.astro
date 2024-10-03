@@ -1,6 +1,6 @@
 ---
+import '~/assets/styles/tailwind.css'
 import Switcher from '../components/main/Switcher.astro'
-
 ---
 
 <html lang="en">
@@ -22,7 +22,7 @@ import Switcher from '../components/main/Switcher.astro'
 		  </script>
 	
 	</head>
-	<body>
+	<body class="bg-white text-gray-900 dark:bg-black dark:text-gray-100 container mx-auto flex min-h-svh max-w-2xl flex-col">
 		<Switcher />
 		<slot />
 	</body>
