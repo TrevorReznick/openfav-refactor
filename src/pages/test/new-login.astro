@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/Base.astro'
+import HeadlineComponent from '../../components/test-component/MyComponent.astro'
+import SignUpComponent from '../../components/test-form/FormComponent.astro'
+
+---
+
+<BaseLayout>
+    <SignUpComponent 
+        id="form"
+        subtitle="Insert your credentials or connect with belows providers"
+        inputs={[
+           {
+                type: 'email',
+                name: 'email',
+                label: 'Email',
+            },
+            {
+                type: 'password',
+                name: 'password',
+                label: 'Password',
+            },
+        ]}
+    />  
+</BaseLayout>

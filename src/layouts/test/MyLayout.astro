@@ -1,0 +1,42 @@
+---
+const {
+  header = await Astro.slots.render('header'),
+  footer = await Astro.slots.render('footer'),
+  main = await Astro.slots.render('main')
+} = Astro.props
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+		<script is:inline>
+			if (
+			  	localStorage.theme === 'dark' ||
+			  (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+			) {
+			  	document.documentElement.classList.add('dark');
+			} else {
+				document.documentElement.classList.remove('dark');
+			}
+		  </script>
+	
+	</head>
+	<body class="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
+		<slot />
+    <div class="flex flex-col min-h-screen bg-bg-page dark:bg-bg-page-dark">
+      <header class="bg-primary p-4">
+        {header}
+      </header>    
+      <main class="flex-grow">
+        {main}
+      </main>    
+      <footer class="bg-secondary p-4">
+        {footer}
+      </footer>
+    </div>
+</html>
+

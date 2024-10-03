@@ -1,0 +1,29 @@
+---
+import { twMerge } from 'tailwind-merge';
+
+// Props predefiniti e slot di rendering
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  content = await Astro.slots.render('content'),
+  tagline = await Astro.props.tagline,
+  classes = {}
+} = Astro.props
+
+// Definizione delle classi di default
+const {
+  container: containerClass = 'max-w-screen-xl mx-auto p-6',
+  title: titleClass = 'text-3xl md:text-4xl font-heading',
+  subtitle: subtitleClass = 'text-xl text-muted',
+  content: contentClass = 'text-base',
+} = classes
+---
+
+<div class={twMerge('flex flex-col items-center', containerClass)}>
+    {tagline && <p class="text-sm text-accent uppercase font-semibold">{tagline}</p>}
+    {title && (
+        <h1 class={twMerge('font-extrabold tracking-tight text-primary', titleClass)} set:html={title}></h1>
+    )}
+    {subtitle && <h2 class={twMerge('mt-2', subtitleClass)} set:html={subtitle}></h2>}
+    <div class={twMerge('mt-4', contentClass)} set:html={content}></div>
+</div>

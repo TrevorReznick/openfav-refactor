@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/test/MyLayout.astro'
+import HeadlineComponent from '../../components/test-component/MyComponent.astro'
+
+---
+
+<BaseLayout>
+  <slot name="header">
+    <nav class="flex justify-between p-4 bg-primary">
+      <a href="/" class="text-white font-bold">Home</a>
+      <a href="/about" class="text-white">About</a>
+    </nav>
+  </slot>
+
+  <slot name="main">
+    <HeadlineComponent tagline="Welcome" title="Discover the future of Astro" subtitle="Flexible, performant, and modular">
+      <p>Astro is a modern framework that enables server-side rendering and flexible content rendering in your website.</p>
+    </HeadlineComponent>    
+  </slot>
+
+  <slot name="footer">
+    <p class="text-center text-white">© 2024 All Rights Reserved</p>
+  </slot>
+</BaseLayout>
