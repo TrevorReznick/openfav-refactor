@@ -1,5 +1,6 @@
 ---
 import type { Form as Props } from '../../types'
+import Button from '../base/Button.astro'
 const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } = Astro.props
 
 ---
@@ -9,7 +10,7 @@ const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } 
   method="post"
   enctype="application/x-www-form-urlencoded"
 >
-{
+  {
     inputs &&
       inputs.map(
         ({ type = 'text', name, label = '', autocomplete = 'on', placeholder = '' }) =>
@@ -31,5 +32,22 @@ const { inputs, textarea, disclaimer, button = 'Contact us', description = '' } 
             </div>
           )
       )
+  }
+  {
+    button && (
+      <div class="mt-10 grid">
+        <Button variant="primary" type="submit">
+          {button}
+        </Button>
+      </div>
+    )
+  }
+
+  {
+    description && (
+      <div class="mt-3 text-center">
+        <p class="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+      </div>
+    )
   }
 </form>

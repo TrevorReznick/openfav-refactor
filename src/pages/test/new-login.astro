@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '../../layouts/Base.astro'
-import HeadlineComponent from '../../components/test-component/MyComponent.astro'
+import HeadlineComponent from '../../components/base/Headline.astro'
 import SignUpComponent from '../../components/test-form/RefactorFormContainerComponent.astro'
 import HeroText from '../../components/base/HeroText.astro'
 
 ---
 
 <BaseLayout>
+    <HeroText tagline="Log in" />
     <SignUpComponent 
         id="form"
         subtitle="Insert your credentials or connect with belows providers"
