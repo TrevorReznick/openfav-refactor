@@ -2,14 +2,18 @@
 import type { Contact as Props } from '../../types'
 
 import BaseLayout from '../../layouts/test/MyLayout.astro'
-import SignUpForm from './my-form.astro'
+import SignUpForm from './RefactorFormComponent.astro'
 import Wrapper from '../base/Wrapper.astro'
 
 const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
   inputs,
-  
+  disclaimer,
   button,
   description,
+
   id,
   isDark = false,
   classes = {},
@@ -22,7 +26,7 @@ const {
     {
       inputs && (
         
-          <SignUpForm inputs={inputs} button={button} description={description} />
+          <SignUpForm inputs={inputs} disclaimer={disclaimer} button={button} description={description} />
         
       )
     }

@@ -1,8 +1,21 @@
 ---
 import Layout from "../layouts/Login.astro"
-import FormLogin from '../components/main/FormLogin.astro'
+import FormLogin from '../components/main/NewFormLogin.astro'
 ---
 
 <Layout>
-  <FormLogin />  
+  <FormLogin 
+    inputs={[
+      {
+        type: 'email',
+        name: 'email',
+        label: 'Email',
+      },
+      {
+        type: 'password',
+        name: 'password',
+        label: 'Password',
+      },
+    ]}
+  />  
 </Layout>
