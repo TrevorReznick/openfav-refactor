@@ -1,6 +1,7 @@
 ---
 import '../assets/css/tailwind.css'
 import Switcher from '../components/base/Switcher.astro'
+import CustomStyles from '~/components/base/CustomStyles.astro'
 ---
 
 <html lang="en">
@@ -10,6 +11,7 @@ import Switcher from '../components/base/Switcher.astro'
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro</title>
+		<CustomStyles />
 		<script is:inline>
 			if (
 			  	localStorage.theme === 'dark' ||
@@ -19,8 +21,7 @@ import Switcher from '../components/base/Switcher.astro'
 			} else {
 				document.documentElement.classList.remove('dark');
 			}
-		  </script>
-	
+		  </script>	
 	</head>
 	<body class="bg-white text-gray-900 dark:bg-black dark:text-gray-100 container mx-auto flex min-h-svh max-w-2xl flex-col">
 		<Switcher />
