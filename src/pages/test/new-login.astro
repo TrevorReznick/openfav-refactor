@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../../layouts/Base.astro'
 import HeadlineComponent from '../../components/test-component/MyComponent.astro'
-import SignUpComponent from '../../components/test-form/RefactorFromContainerComponent.astro'
+import SignUpComponent from '../../components/test-form/RefactorFormContainerComponent.astro'
+import HeroText from '../../components/base/HeroText.astro'
 
 ---
 
@@ -21,5 +22,10 @@ import SignUpComponent from '../../components/test-form/RefactorFromContainerCom
                 label: 'Password',
             },
         ]}
+        disclaimer={{
+            label:
+              'By submitting this contact form, you acknowledge and agree to the collection of your personal information.',
+        }}
+        description="Our support team typically responds within 24 business hours."
     />  
 </BaseLayout>
