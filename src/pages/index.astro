@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { Button } from '@/components/tsx/ui/button'
+---
+
+<Layout title="Welcome to Your App">
+  <div class="flex flex-col items-center justify-center space-y-8 text-center">
+    <h1
+      class="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl"
+    >
+      Welcome to Your App
+    </h1>
+    <p
+      class="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400"
+    >
+      A modern full-stack application built with Astro, React, and Supabase.
+    </p>
+    <div class="flex gap-4">
+      <a href="/build/users">
+        <Button>Posts Component</Button>
+      </a>
+      <a href="/build/test">
+        <Button variant="outline">Test Nanostore</Button>
+      </a>
+    </div>
+  </div>
+</Layout>

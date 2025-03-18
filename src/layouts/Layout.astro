@@ -1,0 +1,56 @@
+---
+import '@/styles/globals.css'
+import { ThemeProvider } from '@/components/tsx/theme-provider'
+import { ThemeToggle } from '@/components/tsx/theme-toggle'
+
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Modern full-stack application with Astro and React"
+    />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <ThemeProvider client:load>
+      <div class="min-h-screen bg-background">
+        <header
+          class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        >
+          <div class="container flex h-14 items-center">
+            <div class="mr-4 flex">
+              <a href="/" class="mr-6 flex items-center space-x-2">
+                <span class="font-bold">Your App</span>
+              </a>
+            </div>
+            <div
+              class="flex flex-1 items-center justify-between space-x-2 md:justify-end"
+            >
+              <div class="w-full flex-1 md:w-auto md:flex-none">
+                <!-- Add search component here later -->
+              </div>
+              <nav class="flex items-center">
+                <ThemeToggle client:load />
+              </nav>
+            </div>
+          </div>
+        </header>
+        <main class="container py-6">
+          <slot />
+        </main>
+      </div>
+    </ThemeProvider>
+  </body>
+</html>
