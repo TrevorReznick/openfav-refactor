@@ -1,0 +1,33 @@
+---
+import '@/styles/globals.css'
+import { ThemeProvider } from '@/components/tsx/theme-provider'
+import { ThemeToggle } from '@/components/tsx/theme-toggle'
+
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Modern full-stack application with Astro and React"
+    />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <ThemeProvider client:load>
+      <main class="container py-6">
+        <slot />
+      </main>
+    </ThemeProvider>
+  </body>
+</html>
