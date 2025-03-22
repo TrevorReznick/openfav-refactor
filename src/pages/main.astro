@@ -1,9 +1,11 @@
 ---
 import Layout from '@/layouts/MainLayout.astro'
 import Hero from '@/components/home/HeaderHero.astro'
+import HeroGrid from '@/components/tsx/home/HeroGrid.tsx'
 ---
 
 <Layout title="Your App">
   <!--<Landing client:only /> -->
   <Hero />
+  <HeroGrid client:only />
 </Layout>
