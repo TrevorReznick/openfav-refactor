@@ -1,0 +1,16 @@
+---
+import { title } from 'process'
+
+const { Title, subTitle } = Astro.props
+---
+
+<h1
+  class="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl"
+>
+  {Title}
+</h1>
+<p
+  class="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400"
+>
+  {subTitle}
+</p>
