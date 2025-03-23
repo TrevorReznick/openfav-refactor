@@ -1,7 +1,7 @@
-import { userStore, listenToAuthChanges } from '@/stores/authStore'
+import { userStore, listenToAuthChanges } from '../store/authStore'
 import { vi } from 'vitest'
 
-vi.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/providers/supabaseAuth.ts', () => ({
   supabase: {
     auth: {
       onAuthStateChange: vi.fn((callback) => {

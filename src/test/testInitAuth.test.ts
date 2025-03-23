@@ -1,7 +1,7 @@
-import { userStore, initializeAuth } from '@/stores/authStore'
+import { userStore, initializeAuth } from '@/store/authStore'
 import { vi } from 'vitest'
 
-vi.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/providers/supabaseAuth.ts', () => ({
   supabase: {
     auth: {
       getSession: vi.fn().mockResolvedValue({
