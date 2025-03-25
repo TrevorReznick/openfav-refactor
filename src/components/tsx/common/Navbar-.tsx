@@ -3,7 +3,6 @@ import { Menu, LogOut } from 'lucide-react'
 import { supabase } from '@/providers/supabaseAuth'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { ThemeToggle } from '@/components/tsx/theme-toggle'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -89,9 +88,6 @@ const Navbar = () => {
               </button>
             )}
           </div>
-          <nav className="flex items-center">
-            <ThemeToggle />
-          </nav>
 
           <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
             <Menu className="h-6 w-6" />

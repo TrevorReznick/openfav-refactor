@@ -2,6 +2,7 @@ import { atom, onMount, task } from 'nanostores'
 import { supabase } from '@/providers/supabaseAuth'
 
 export const userStore = atom<any>(null) // Stato dell'utente (null se non autenticato)
+export const loadingStore = atom(true) // Inizialmente true, indica che il caricamento è in
 
 export const initializeAuth = async () => {
   try {
