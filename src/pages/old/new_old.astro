@@ -1,10 +1,11 @@
 ---
 // src/pages/index.astro
+import { useStore } from '@nanostores/react'
 import Navbar from '@/components/tsx/common/Navbar.tsx'
 import Dashboard from '@/components/tsx/main/Dashboard.jsx' // React (isola interattiva)
 import Landing from '@/pages/main.astro' // Statico
-import { useStore } from '@nanostores/react'
 import { userStore, loadingStore, initializeAuth } from '@/store/authStore'
+import Layout from '@/layouts/MainLayout.astro'
 
 // Inizializza l'autenticazione
 initializeAuth()
@@ -25,17 +26,19 @@ const components = {
 }
 ---
 
-<Navbar client:only />
-{
-  loading ? (
-    <p>Loading...</p>
-  ) : (
-    componentList.map(({ name }) => {
-      const Component = components[name]
-      if (name === 'Dashboard') {
-        return <Component client:load />
-      }
-      return <Component />
-    })
-  )
-}
+<Layout title="test">
+  <Navbar client:only />
+  {
+    loading ? (
+      <p>Loading...</p>
+    ) : (
+      componentList.map(({ name }) => {
+        const Component = components[name]
+        if (name === 'Dashboard') {
+          return <Component client:load />
+        }
+        return <Component />
+      })
+    )
+  }
+</Layout>
