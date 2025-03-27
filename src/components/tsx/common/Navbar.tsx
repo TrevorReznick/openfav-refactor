@@ -89,9 +89,6 @@ const Navbar = () => {
               </button>
             )}
           </div>
-          <nav className="flex items-center">
-            <ThemeToggle />
-          </nav>
 
           <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
             <Menu className="h-6 w-6" />

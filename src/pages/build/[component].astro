@@ -5,6 +5,15 @@ import { previousPath, currentPath } from '@/store'
 
 const { component } = Astro.params
 
+let isIndex: boolean = false
+
+if (currentPath.get() === '/build/main') {
+  //console.log('path matched /build/main')
+  isIndex = true
+} else {
+  console.log('path not matched ', currentPath.get())
+}
+
 console.log('hello', component)
 const componentType = component
 const useQueryString = true

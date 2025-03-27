@@ -10,6 +10,7 @@ const PostsComponent = lazy(
 const TestComponent = lazy(
   () => import('@/components/tsx/dynamic/TestComponent')
 )
+const MainIndex = lazy(() => import('@/components/tsx/dynamic/MainIndex'))
 
 const queryClient = new QueryClient()
 
