@@ -1,86 +1,123 @@
+/* src/styles/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 220 23% 95%;
-    /* Base */
-    --foreground: 234 16% 35%;
-    /* Text */
-    --muted: 220 23% 95%;
-    /* Base */
-    --muted-foreground: 232 10% 53%;
-    /* Overlay 2 */
-    --popover: 220 21% 89%;
-    /* Crust */
-    --popover-foreground: 234 16% 35%;
-    /* Text */
-    --card: 220 22% 92%;
-    /* Mantle */
-    --card-foreground: 234 16% 35%;
-    /* Text */
-    --border: 223 16% 83%;
-    /* Surface 0 */
-    --input: 223 16% 83%;
-    /* Surface 0 */
-    --primary: 220 91% 54%;
-    /* Blue */
-    --primary-foreground: 220 23% 95%;
-    /* Base */
-    --secondary: 220 91% 85%;
-    /* Blue Modified */
-    --secondary-foreground: 234 16% 35%;
-    /* Text */
-    --accent: 234 16% 35%;
-    /* Text */
-    --accent-foreground: 220 23% 95%;
-    /* Base */
-    --destructive: 347 87% 44%;
-    /* Red */
-    --destructive-foreground: 220 23% 95%;
-    /* Base */
-    --ring: 220 91% 54%;
-    /* Blue */
-    --radius: 0.3rem;
-  }
+/* ============ Variabili CSS Unificate ============ */
+:root {
+  /* Colori base */
+  --background: 222 48% 11%;
+  --foreground: 0 0% 100%;
 
-  .dark {
-    --background: 222 48% 11%;
-    --foreground: 0 0% 100%;
-    --card: 216 32% 17% / 0.3;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 262 83% 58%;
-    --primary-hover: 266 72% 50%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 216 32% 17%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 276 90% 65%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+  /* Colori primari */
+  --primary: 262 83% 58%;
+  --primary-hover: 266 72% 50%;
+  --primary-foreground: 240 5.9% 10%;
 
-  }
+  /* Colori secondari */
+  --secondary: 216 32% 17%;
+  --secondary-light: 216 32% 17% / 0.5;
+  --secondary-foreground: 0 0% 98%;
+
+  /* Card e superfici */
+  --card: 216 32% 17% / 0.3;
+  --card-foreground: 0 0% 98%;
+  --card-border: 255 255 255 / 0.1;
+
+  /* Altri colori */
+  --accent: 276 90% 65%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
+
+  /* Radius */
+  --radius: 0.3rem;
 }
 
+.dark {
+  /* Sovrascritture per dark mode se necessario */
+  --background: 222 48% 11%;
+  --foreground: 0 0% 100%;
+  --primary-hover: 266 72% 50%;
+  --secondary-light: 216 32% 17%;
+}
+
+/* ============ Stili di Base ============ */
 @layer base {
   * {
     @apply border-border scroll-smooth;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-['Inter'] antialiased;
+    min-height: 100vh;
+  }
+
+  /* Animazioni */
+  @keyframes logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/* ============ Componenti ============ */
+
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-md border border-border;
+  }
+
+  .logo {
+    @apply h-24 p-6 will-change-transform transition-all;
+
+    &:hover {
+      filter: drop-shadow(0 0 2em rgba(100, 108, 255, 0.667));
+    }
+
+    &.react:hover {
+      filter: drop-shadow(0 0 2em rgba(97, 218, 251, 0.667));
+    }
+  }
+}
+
+
+/* ============ Utilities personalizzate ============ */
+@layer utilities {
+
+  /* Riduce il movimento per chi lo preferisce */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-spin-slow {
+      animation: logo-spin infinite 20s linear;
+    }
+  }
+
+  /* Per il container principale (da #root in App.css) */
+  .main-container {
+    @apply max-w-7xl mx-auto px-4 py-12;
   }
 }
