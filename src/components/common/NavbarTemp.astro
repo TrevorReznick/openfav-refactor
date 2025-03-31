@@ -1,0 +1,25 @@
+---
+import { ThemeToggle } from '@/components/tsx/theme-toggle'
+---
+
+<header
+    class="sticky top-0 z-50 glass-card bg-secondary-light/50 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+>
+    <div class="container flex h-14 items-center">
+        <div class="mr-4 flex">
+            <a href="/" class="mr-6 flex items-center space-x-2">
+                <span class="font-bold">Your App</span>
+            </a>
+        </div>
+        <div
+            class="flex flex-1 items-center justify-between space-x-2 md:justify-end"
+        >
+            <div class="w-full flex-1 md:w-auto md:flex-none">
+                <!-- Add search component here later -->
+            </div>
+            <nav class="flex items-center">
+                <ThemeToggle client:load />
+            </nav>
+        </div>
+    </div>
+</header>

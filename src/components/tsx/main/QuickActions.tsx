@@ -1,5 +1,6 @@
 
 import { Plus, Folder, Search } from 'lucide-react';
+import { Button } from '@/components/tsx/ui/button'
 
 interface QuickActionsProps {
   onAddLink: () => void;
@@ -9,20 +10,20 @@ interface QuickActionsProps {
 const QuickActions = ({ onAddLink, onAddCollection }: QuickActionsProps) => {
   return (
     <div className="flex flex-wrap gap-4 mb-8">
-      <button 
+      <Button 
         className="btn-primary flex items-center gap-2"
         onClick={onAddLink}
       >
         <Plus className="w-4 h-4" />
         Add Link
-      </button>
-      <button 
+      </Button>
+      <Button 
         className="btn-secondary flex items-center gap-2"
         onClick={onAddCollection}
       >
         <Folder className="w-4 h-4" />
         New Collection
-      </button>
+      </Button>
       <div className="flex-grow">
         <div className="relative max-w-md ml-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />

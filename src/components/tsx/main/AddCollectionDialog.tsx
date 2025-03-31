@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { addCollection } from "@/store/linkStore";
+import { Button } from '@/components/tsx/ui/button'
 
 interface AddCollectionDialogProps { 
   open: boolean; 
@@ -92,20 +93,20 @@ const AddCollectionDialog = ({ open, onOpenChange, onSuccess }: AddCollectionDia
           
           <div className="flex justify-end gap-3 mt-6">
             <DialogClose asChild>
-              <button
+              <Button
                 type="button"
                 className="btn-secondary"
               >
                 Cancel
-              </button>
+              </Button>
             </DialogClose>
-            <button
+            <Button
               type="submit"
               disabled={loading}
               className="btn-primary"
             >
               {loading ? 'Creating...' : 'Create Collection'}
-            </button>
+            </Button>
           </div>
         </form>
       </DialogContent>

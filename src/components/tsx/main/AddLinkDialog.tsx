@@ -9,6 +9,7 @@ import {
   resourceTypes, 
   functionTypes 
 } from "@/store/linkStore";
+import { Button } from '@/components/tsx/ui/button'
 import { useStore } from '@nanostores/react';
 
 interface AddLinkDialogProps { 
@@ -179,20 +180,20 @@ const AddLinkDialog = ({ open, onOpenChange, onSuccess }: AddLinkDialogProps) =>
           
           <div className="flex justify-end gap-3 mt-6">
             <DialogClose asChild>
-              <button
+              <Button
                 type="button"
                 className="btn-secondary"
               >
                 Cancel
-              </button>
+              </Button>
             </DialogClose>
-            <button
+            <Button
               type="submit"
               disabled={loading}
               className="btn-primary"
             >
               {loading ? 'Adding...' : 'Add Link'}
-            </button>
+            </Button>
           </div>
         </form>
       </DialogContent>

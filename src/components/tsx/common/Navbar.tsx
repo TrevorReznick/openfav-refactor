@@ -4,6 +4,7 @@ import { supabase } from '@/providers/supabaseAuth'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/tsx/theme-toggle'
+import { Button } from '@/components/tsx/ui/button'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -76,23 +77,23 @@ const Navbar = () => {
               Contacts
             </a>
             {user ? (
-              <button
+              <Button className="btn-secondary flex items-center gap-2"
                 onClick={handleSignOut}
-                className="btn-secondary flex items-center gap-2"
+                
               >
                 <LogOut className="w-4 h-4" />
                 Sign Out
-              </button>
+              </Button>
             ) : (
-              <button onClick={() => navigate('/auth')} className="btn-primary">
+              <Button onClick={() => navigate('/auth')} className="btn-primary">
                 Sign In
-              </button>
+              </Button>
             )}
           </div>
 
-          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
+          <Button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
             <Menu className="h-6 w-6" />
-          </button>
+          </Button>
         </div>
 
         {isOpen && (
@@ -129,20 +130,20 @@ const Navbar = () => {
                 Contacts
               </a>
               {user ? (
-                <button
+                <Button
                   onClick={handleSignOut}
                   className="btn-secondary flex items-center gap-2 justify-center"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button
                   onClick={() => navigate('/auth')}
                   className="btn-primary w-full"
                 >
                   Sign In
-                </button>
+                </Button>
               )}
             </div>
           </div>
