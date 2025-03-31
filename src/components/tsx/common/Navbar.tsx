@@ -77,26 +77,20 @@ const Navbar = () => {
               Contacts
             </a>
             {user ? (
-              <Button 
+              <button 
                   onClick={handleSignOut}
-                  variant="secondary"
-                  className="flex items-center gap-2 rounded"
+                  className='btn-primary'
               >
                   <LogOut className="w-4 h-4" />
                   Sign Out
-              </Button>
+              </button>
             ) : (
-                <Button
+                <button
                   onClick={() => navigate('/auth')}
-                  variant="default"
-                  size="lg"
-                  className="btn-primary flex items-center gap-2"
-
-
-                
+                  className='btn-secondary'               
                 >
                 Sign In
-              </Button>
+              </button>
             )}
           </div>
 

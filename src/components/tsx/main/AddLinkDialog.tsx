@@ -180,20 +180,20 @@ const AddLinkDialog = ({ open, onOpenChange, onSuccess }: AddLinkDialogProps) =>
           
           <div className="flex justify-end gap-3 mt-6">
             <DialogClose asChild>
-              <Button
+              <button
                 type="button"
                 className="btn-secondary"
               >
                 Cancel
-              </Button>
+              </button>
             </DialogClose>
-            <Button
+            <button
               type="submit"
               disabled={loading}
               className="btn-primary"
             >
               {loading ? 'Adding...' : 'Add Link'}
-            </Button>
+            </button>
           </div>
         </form>
       </DialogContent>

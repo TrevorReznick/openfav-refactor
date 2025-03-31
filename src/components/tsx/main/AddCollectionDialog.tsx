@@ -93,12 +93,12 @@ const AddCollectionDialog = ({ open, onOpenChange, onSuccess }: AddCollectionDia
           
           <div className="flex justify-end gap-3 mt-6">
             <DialogClose asChild>
-              <Button
+              <button
                 type="button"
                 className="btn-secondary"
               >
                 Cancel
-              </Button>
+              </button>
             </DialogClose>
             <Button
               type="submit"
