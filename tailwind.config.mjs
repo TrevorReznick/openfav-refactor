@@ -58,6 +58,12 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        button: {
+          primary: 'hsl(var(--primary))',
+          primaryHover: 'hsl(var(--primary-hover))',
+          secondary: 'hsl(var(--secondary))',
+          secondaryHover: "rgba(255, 255, 255, 0.1)",
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
