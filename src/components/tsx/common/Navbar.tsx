@@ -87,7 +87,7 @@ const Navbar = () => {
             ) : (
                 <button
                   onClick={() => navigate('/auth')}
-                  className='btn-secondary'               
+                  className='btn-primary'               
                 >
                 Sign In
               </button>
@@ -141,12 +141,12 @@ const Navbar = () => {
                   Sign Out
                 </Button>
               ) : (
-                <Button
+                <button
                   onClick={() => navigate('/auth')}
-                  className="w-full"
+                  className="btn-primary w-full"
                 >
                   Sign In
-                </Button>
+                </button>
               )}
             </div>
           </div>
