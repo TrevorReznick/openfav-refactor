@@ -14,6 +14,13 @@ module.exports = {
       },
     },
     extend: {
+      borderRadius: {
+        lg: '0.5rem',
+        md: '0.375rem',
+      },
+      fontWeight: {
+        medium: '500',
+      },
       colors: {
         'primary-hover': 'hsl(var(--primary-hover))', // Aggiungi questa linea
         'secondary-light': 'hsl(var(--secondary-light))', // Se necessario  

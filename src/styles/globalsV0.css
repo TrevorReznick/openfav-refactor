@@ -7,14 +7,32 @@
         /* Light theme */
         --background: 220 23% 95%;
         --foreground: 234 16% 35%;
-        /* ... other light theme variables */
+
+        /* Updated secondary colors for better visibility */
+        --secondary: 220 16% 80%;
+        --secondary-foreground: 234 16% 35%;
+
+        --primary: 220 91% 54%;
+        --primary-hover: 220 91% 44%;
+        --primary-foreground: 220 23% 95%;
+
+        /* ...other light theme variables... */
     }
 
     .dark {
         /* Dark theme */
         --background: 222 48% 11%;
         --foreground: 0 0% 100%;
-        /* ... other dark theme variables */
+
+        /* Updated for better contrast */
+        --secondary: 216 32% 25%;
+        --secondary-foreground: 220 23% 95%;
+
+        --primary: 262 83% 58%;
+        --primary-hover: 262 83% 48%;
+        --primary-foreground: 0 0% 100%;
+
+        /* ...other dark theme variables... */
     }
 }
 
@@ -24,12 +42,17 @@
         backdrop-filter: blur(16px);
     }
 
+    /* Aggiornato per usare le nuove variabili */
+    .btn-base {
+        @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-10 px-4 py-2;
+    }
+
     .btn-primary {
-        @apply px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all duration-300 hover:bg-primary-hover hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+        @apply btn-base bg-primary text-primary-foreground hover:bg-primary/90;
     }
 
     .btn-secondary {
-        @apply px-6 py-3 bg-secondary text-white rounded-lg font-medium transition-all duration-300 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20;
+        @apply btn-base bg-secondary text-secondary-foreground hover:bg-secondary/80;
     }
 
     .container-main {

@@ -77,15 +77,24 @@ const Navbar = () => {
               Contacts
             </a>
             {user ? (
-              <Button className="btn-secondary flex items-center gap-2"
-                onClick={handleSignOut}
-                
+              <Button 
+                  onClick={handleSignOut}
+                  variant="secondary"
+                  className="flex items-center gap-2 rounded"
               >
-                <LogOut className="w-4 h-4" />
-                Sign Out
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
               </Button>
             ) : (
-              <Button onClick={() => navigate('/auth')} className="btn-primary">
+                <Button
+                  onClick={() => navigate('/auth')}
+                  variant="default"
+                  size="lg"
+                  className="btn-primary flex items-center gap-2"
+
+
+                
+                >
                 Sign In
               </Button>
             )}
@@ -140,7 +149,7 @@ const Navbar = () => {
               ) : (
                 <Button
                   onClick={() => navigate('/auth')}
-                  className="btn-primary w-full"
+                  className="w-full"
                 >
                   Sign In
                 </Button>
