@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Light theme */
+        --background: 220 23% 95%;
+        --foreground: 234 16% 35%;
+        /* ... other light theme variables */
+    }
+
+    .dark {
+        /* Dark theme */
+        --background: 222 48% 11%;
+        --foreground: 0 0% 100%;
+        /* ... other dark theme variables */
+    }
+}
+
+@layer components {
+    .glass-card {
+        @apply bg-secondary/30 backdrop-blur-lg border border-white/10 rounded-xl;
+        backdrop-filter: blur(16px);
+    }
+
+    .btn-primary {
+        @apply px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all duration-300 hover:bg-primary-hover hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    }
+
+    .btn-secondary {
+        @apply px-6 py-3 bg-secondary text-white rounded-lg font-medium transition-all duration-300 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20;
+    }
+
+    .container-main {
+        @apply max-w-7xl mx-auto px-8 py-8;
+    }
+
+    .logo {
+        @apply h-24 p-6 transition-all duration-300;
+        will-change: filter;
+    }
+
+    .logo:hover {
+        filter: drop-shadow(0 0 2em rgba(100, 108, 255, 0.667));
+    }
+
+    .logo.react:hover {
+        filter: drop-shadow(0 0 2em rgba(97, 218, 251, 0.667));
+    }
+
+    .card {
+        @apply p-8 bg-card border border-border rounded-xl;
+    }
+
+    .read-the-docs {
+        @apply text-white/60;
+    }
+}
+
+@keyframes logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    a:nth-of-type(2) .logo {
+        animation: logo-spin infinite 20s linear;
+    }
+}

@@ -1,0 +1,111 @@
+/* src/styles/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============ Variabili CSS Unificate ============ */
+:root {
+  /* Colori base */
+  --background: 222 48% 11%;
+  --foreground: 0 0% 100%;
+
+  /* Colori primari */
+  --primary: 262 83% 58%;
+  --primary-hover: 266 72% 50%;
+  --primary-foreground: 240 5.9% 10%;
+
+  /* Colori secondari */
+  --secondary: 216 32% 17%;
+  --secondary-light: 216 32% 17% / 0.5;
+  --secondary-foreground: 0 0% 98%;
+
+  /* Card e superfici */
+  --card: 216 32% 17% / 0.3;
+  --card-foreground: 0 0% 98%;
+  --card-border: 255 255 255 / 0.1;
+
+  /* Altri colori */
+  --accent: 276 90% 65%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --ring: 240 4.9% 83.9%;
+
+  /* Radius */
+  --radius: 0.3rem;
+}
+
+.dark {
+  /* Sovrascritture per dark mode se necessario */
+  --background: 222 48% 11%;
+  --foreground: 0 0% 100%;
+  --primary-hover: 266 72% 50%;
+  --secondary-light: 216 32% 17%;
+}
+
+/* ============ Stili di Base ============ */
+@layer base {
+  * {
+    @apply border-border scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-['Inter'] antialiased;
+    min-height: 100vh;
+  }
+
+  /* Animazioni */
+  @keyframes logo-spin {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+/* ============ Componenti ============ */
+
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-primary text-white rounded-lg font-medium transition-all duration-300 hover:bg-primary-hover hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-secondary;
+    background-color: var(--primary-color);
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-secondary-light text-white rounded-lg font-medium transition-all duration-300 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20;
+    background-color: var(--secondary-color);
+  }
+
+
+
+
+  /* ============ Utilities personalizzate ============ */
+  @layer utilities {
+
+    /* Riduce il movimento per chi lo preferisce */
+    @media (prefers-reduced-motion: no-preference) {
+      .animate-spin-slow {
+        animation: logo-spin infinite 20s linear;
+      }
+    }
+
+    /* Per il container principale (da #root in App.css) */
+    .main-container {
+      @apply max-w-7xl mx-auto px-4 py-12;
+    }
+  }
+}
