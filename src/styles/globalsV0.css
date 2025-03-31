@@ -8,6 +8,9 @@
         --background: 220 23% 95%;
         --foreground: 234 16% 35%;
 
+        --muted: 220 23% 95%;
+        --muted-foreground: 232 10% 53%;
+
         /* Updated secondary colors for better visibility */
         --secondary: 220 16% 80%;
         --secondary-foreground: 234 16% 35%;
@@ -23,6 +26,9 @@
         /* Dark theme */
         --background: 222 48% 11%;
         --foreground: 0 0% 100%;
+
+        --muted: 240 3.7% 15.9%;
+        --muted-foreground: 215 20% 75%;
 
         /* Updated for better contrast */
         --secondary: 216 32% 25%;

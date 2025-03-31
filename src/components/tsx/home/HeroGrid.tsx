@@ -18,12 +18,12 @@ const FeatureCard = ({
   title: string
   description: string
 }) => (
-  <div className="feature-card animate-fade-in">
+  <div className="glass-card p-6 transition-all duration-300 hover:scale-105">
     <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
       <Icon className="h-6 w-6 text-primary" />
     </div>
-    <h3 className="text-lg font-semibold mb-2">{title}</h3>
-    <p className="text-white/70">{description}</p>
+    <h3 className="text-lg font-semibold mb-2 text-foreground">{title}</h3>
+    <p className="text-muted-foreground">{description}</p>
   </div>
 )
 
@@ -32,7 +32,7 @@ const HeroGrid = () => (
     {/* Features Grid */}
     <section className="py-20 px-6 bg-secondary-light/20">
       <div className="container mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">What we offer</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-foreground">What we offer</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <FeatureCard
             icon={Zap}

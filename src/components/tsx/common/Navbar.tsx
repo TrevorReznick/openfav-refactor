@@ -42,7 +42,7 @@ const Navbar = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <h1 className="text-xl font-bold">Openfav</h1>
+            <h1 className="text-xl font-bold text-foreground">Openfav</h1>
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
