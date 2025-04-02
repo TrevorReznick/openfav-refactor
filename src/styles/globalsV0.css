@@ -50,7 +50,7 @@
 
     /* Aggiornato per usare le nuove variabili */
     .btn-base {
-        @apply px-4 py-2 rounded
+        @apply px-4 py-2;
     }
 
     .btn-primary {

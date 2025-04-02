@@ -6,7 +6,7 @@ function TestComponent() {
 
   return (
     <div className="p-4 border rounded-lg bg-white shadow-sm dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
-      <h2 className="text-xl font-bold mb-4">Test Component React</h2>
+      <h2 className="text-xl font-bold mb-4 text-foreground">Test Component React</h2>
       <p className="mb-4 text-gray-600 dark:text-gray-300">
         Contatore: {count}
       </p>

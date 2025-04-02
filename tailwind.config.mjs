@@ -15,8 +15,14 @@ module.exports = {
     },
     extend: {
       borderRadius: {
-        lg: '0.5rem',
-        md: '0.375rem',
+        'none': '0',
+        'sm': '0.125rem',
+        'DEFAULT': '0.25rem',
+        'md': '0.375rem',
+        'lg': '0.5rem',
+        'xl': '0.75rem',
+        '2xl': '1rem',
+        'full': '9999px'
       },
       fontWeight: {
         medium: '500',
