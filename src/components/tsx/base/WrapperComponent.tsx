@@ -10,7 +10,7 @@ const PostsComponent = lazy(
 const TestComponent = lazy(
   () => import('@/components/tsx/dynamic/TestComponent')
 )
-const MainIndex = lazy(() => import('@/components/tsx/dynamic/MainIndex'))
+const MainIndex = lazy(() => import('@/components/tsx/base/MainIndex'))
 
 const queryClient = new QueryClient()
 
@@ -24,6 +24,15 @@ const componentMap = {
   posts: PostsComponent,
   test: TestComponent,
 }
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center p-8">
+    <div className="text-center space-y-4">
+      <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+      <p className="text-foreground">Loading component...</p>
+    </div>
+  </div>
+)
 
 export default function WrapperComponent({
   componentType,
@@ -39,9 +48,7 @@ export default function WrapperComponent({
   )
 
   return (
-    <Suspense
-      fallback={<div className="p-4 text-center">Loading component...</div>}
-    >
+    <Suspense fallback={<LoadingFallback />}>
       {useQueryString ? (
         <QueryClientProvider client={queryClient}>
           <DynamicComponent />

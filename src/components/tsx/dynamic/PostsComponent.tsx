@@ -20,11 +20,11 @@ export default function PostsComponent() {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Posts List</h2>
+      <h2 className="text-2xl font-bold mb-4 text-foreground">Posts List</h2>
       <div className="space-y-4">
         {posts?.map(post => (
           <div key={post.id} className="p-4 bg-card rounded-lg shadow">
-            <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+            <h3 className="text-xl font-semibold mb-2 text-foreground">{post.title}</h3>
             <p className="text-muted-foreground">{post.content}</p>
           </div>
         ))}

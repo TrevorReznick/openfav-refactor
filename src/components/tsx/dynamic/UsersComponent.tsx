@@ -20,10 +20,10 @@ export default function UsersComponent() {
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Users List</h2>
+      <h2 className="text-2xl font-bold mb-4 text-foreground">Users List</h2>
       <div className="space-y-2">
         {users?.map(user => (
-          <div key={user.id} className="p-3 bg-card rounded-lg shadow">
+          <div key={user.id} className="p-3 bg-card rounded-lg shadow text-muted-foreground">
             {user.name}
           </div>
         ))}

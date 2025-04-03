@@ -5,11 +5,11 @@ import { supabase } from '@/providers/supabaseAuth'
 import { toast } from "sonner";
 
 const AuthPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(false)
+  const navigate = useNavigate()
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,51 +20,51 @@ const AuthPage = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-        });
+        })
         if (error) throw error;
-        toast.success('Check your email for the confirmation link!');
+        toast.success('Check your email for the confirmation link!')
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
-        navigate('/');
+        navigate('/')
       }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   };
 
   const handleResetPassword = async () => {
     if (!email) {
-      toast.error('Please enter your email address');
+      toast.error('Please enter your email address')
       return;
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email)
       if (error) throw error;
-      toast.success('Password reset instructions sent to your email!');
+      toast.success('Password reset instructions sent to your email!')
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="glass-card w-full max-w-md p-8 space-y-6">
-        <h2 className="text-2xl font-bold text-center">
+        <h2 className="text-2xl font-bold text-center text-foreground">
           {isSignUp ? 'Create an Account' : 'Welcome Back'}
         </h2>
         
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
+            <label htmlFor="email" className="block text-sm font-medium mb-1 text-foreground">
               Email
             </label>
             <input
@@ -79,7 +79,7 @@ const AuthPage = () => {
           </div>
           
           <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-1">
+            <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">
               Password
             </label>
             <input
