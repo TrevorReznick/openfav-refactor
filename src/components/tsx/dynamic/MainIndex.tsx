@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { supabase } from '@/providers/supabaseAuth'
 import Navbar from '@/components/tsx/common/Navbar'
 import Dashboard from '@/components/tsx/main/Dashboard'
+import AuthPage from '@/components/tsx/auth/Auth'
 
 const Index = () => {
   const [user, setUser] = useState<any>(null)
@@ -38,7 +39,7 @@ const Index = () => {
           {/* Aggiungi altre rotte se necessario */}
           <Route path="/dashboard" element={<Dashboard />} />
           {/* Esempio di rotta per l'autenticazione */}
-          <Route path="/auth" element={<Dashboard />} />
+          <Route path="/auth" element={<AuthPage />} />
         </Routes>
       </div>
     </BrowserRouter>
