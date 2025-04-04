@@ -3,6 +3,9 @@ import '@/styles/globalsV0.css'
 import '@/styles/custom.css'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
 //import Navbar from '@/components/common/NavbarTemp.astro'
+import WrNavbar from '@/components/tsx/base/WrappedNavbar'
+import { NavigationProvider } from '@/providers/NavigationContext'
+import Navbar from '@/components/tsx/common/Navbar'
 
 interface Props {
   title: string
@@ -28,7 +31,10 @@ const { title } = Astro.props
     <ThemeProvider client:load>
       <div class="min-h-screen bg-background">
         <main class="container py-6">
-          <slot />
+          <div class="min-h-screen">
+            <WrNavbar client:load />
+            <slot />
+          </div>
         </main>
       </div>
     </ThemeProvider>

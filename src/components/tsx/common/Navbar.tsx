@@ -1,15 +1,20 @@
 import { useState, useEffect } from 'react'
 import { Menu, LogOut } from 'lucide-react'
 import { supabase } from '@/providers/supabaseAuth'
-import { useNavigate } from 'react-router-dom'
+//import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ThemeToggle } from '@/components/tsx/theme-toggle'
 import { Button } from '@/components/tsx/ui/button'
 
+/* @@ */
+
+import { useNavigation } from '@/providers/NavigationContext'
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
-  const navigate = useNavigate()
+  //const navigate = useNavigate()
+  const { navigate } = useNavigation()
 
   useEffect(() => {
     // Get initial session
@@ -31,6 +36,7 @@ const Navbar = () => {
     try {
       const { error } = await supabase.auth.signOut()
       if (error) throw error
+      //navigate('/auth')
       navigate('/auth')
     } catch (error: any) {
       toast.error(error.message)
