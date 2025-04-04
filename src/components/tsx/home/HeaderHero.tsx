@@ -13,8 +13,8 @@ const Landing = () => (
             Streamline your production, amplify your creativity.
           </p>
           <div className="flex flex-wrap justify-center gap-4 animate-fade-in">
-            <Button className="btn-primary">Get Started</Button>
-            <Button className="btn-secondary">Download</Button>
+            <button className="btn-primary">Get Started</button>
+            <button className="btn-secondary">Download</button>
           </div>
         </div>
       </div>
