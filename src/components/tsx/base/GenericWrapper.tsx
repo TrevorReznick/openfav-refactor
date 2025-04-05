@@ -16,7 +16,7 @@ const GenericWrapper: React.FC<WrapperProps> = ({ component, props, src }) => {
     // Importa dinamicamente il componente basato sul nome
     const loadComponent = async () => {
       try {
-        const module = await import(`@/components/tsx/${src}/${component}`);
+        const module = await import(/* @vite-ignore */ `@/components/tsx/${src}/${component}`);
         setComponent(() => module.default);
       } catch (error) {
         console.error(`Errore nel caricamento del componente ${component}:`, error);
