@@ -1,7 +1,7 @@
 import { makeRequest } from '~/api/apiBuilder'
 import type {ApiResponse} from '~/types/api'
 
-const api_endpoint = 'main/doQueries'
+const api_endpoint: string = 'main/doQueries'
 
 export const sendApiRequest = async (fetchFunc) => {
     try {
