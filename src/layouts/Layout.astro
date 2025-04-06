@@ -3,7 +3,7 @@ import '@/styles/globalsV0.css'
 import '@/styles/custom.css'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
 import WrNavbar from '@/components/tsx/base/WrappedNavbar'
-import GenericWrapper from '@/components/tsx/base/GenericWrapper'
+import GenericComp from '@/components/tsx/base/GenericComp'
 //import Navbar from '@/components/common/NavbarTemp.astro'
 import { NavigationProvider } from '@/providers/NavigationContext'
 
@@ -33,7 +33,7 @@ const { title } = Astro.props
         <main class="container py-6">
           <div class="min-h-screen">
             <WrNavbar client:load />
-            <GenericWrapper
+            <GenericComp
               client:load
               component="Navbar"
               src="common"

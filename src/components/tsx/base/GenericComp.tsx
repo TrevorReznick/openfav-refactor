@@ -9,7 +9,7 @@ interface WrapperProps {
     src: string
 }
 
-const GenericWrapper: React.FC<WrapperProps> = ({ component, props, src }) => {
+const GenericComp: React.FC<WrapperProps> = ({ component, props, src }) => {
   const [Component, setComponent] = useState<ComponentType | null>(null);
 
   useEffect(() => {
@@ -37,4 +37,4 @@ const GenericWrapper: React.FC<WrapperProps> = ({ component, props, src }) => {
   );
 };
 
-export default GenericWrapper;
+export default GenericComp;
