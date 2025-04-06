@@ -8,7 +8,7 @@ import { Button } from '@/components/tsx/ui/button'
 
 /* @@ */
 
-import { useNavigation } from '@/providers/NavigationContext'
+import { useNavigation } from '~/hooks/NavigationContext'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)

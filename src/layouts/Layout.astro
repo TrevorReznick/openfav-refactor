@@ -2,10 +2,11 @@
 import '@/styles/globalsV0.css'
 import '@/styles/custom.css'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
+import RouterAdapter from '~/components/tsx/base/RouterAdapter'
+import Navbar from '~/components/tsx/common/Navbar'
 import WrNavbar from '@/components/tsx/base/WrappedNavbar'
-import GenericComp from '@/components/tsx/base/GenericComp'
 //import Navbar from '@/components/common/NavbarTemp.astro'
-import { NavigationProvider } from '@/providers/NavigationContext'
+import { NavigationProvider } from '~/hooks/NavigationContext'
 
 interface Props {
   title: string
@@ -31,18 +32,10 @@ const { title } = Astro.props
     <ThemeProvider client:load>
       <div class="min-h-screen bg-background">
         <main class="container py-6">
-          <div class="min-h-screen">
-            <WrNavbar client:load />
-            <GenericComp
-              client:load
-              component="Navbar"
-              src="common"
-              props={{
-                /* eventuali props */
-              }}
-            />
-            <slot />
-          </div>
+          <RouterAdapter client:load>
+            <Navbar />
+          </RouterAdapter>
+          <slot />
         </main>
       </div>
     </ThemeProvider>

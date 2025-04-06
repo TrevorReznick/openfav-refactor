@@ -1,11 +1,11 @@
 // NavigationContext.tsx
-import React, { createContext, useContext } from 'react';
-import { useStore } from '@nanostores/react';
-import { currentPath, previousPath } from '@/store';
+import React, { createContext, useContext } from 'react'
+import { useStore } from '@nanostores/react'
+import { currentPath, previousPath } from '@/store'
 
 interface NavigationContextType {
-  navigate: (path: string) => void;
-  goBack: () => void;
+  navigate: (path: string) => void
+  goBack: () => void
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -29,8 +29,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     <NavigationContext.Provider value={{ navigate, goBack }}>
       {children}
     </NavigationContext.Provider>
-  );
-};
+  )
+}
 
 export const useNavigation = () => {
   const context = useContext(NavigationContext);
@@ -38,4 +38,4 @@ export const useNavigation = () => {
     throw new Error('useNavigation must be used within a NavigationProvider');
   }
   return context;
-};
+}
