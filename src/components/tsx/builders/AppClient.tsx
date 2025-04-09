@@ -1,20 +1,22 @@
-import React from 'react';
+import type { FC } from 'react'
 import DynamicWrapper from '@/components/tsx/builders/DynamicWrapper'
-import { NavigationProvider } from '@/hooks/NavigationContextV1'
+import { NavigationProvider } from '@/hooks/NavigationContext'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
 import Navbar from '@/components/tsx/common/Navbar'
 
+const providers = [ThemeProvider, NavigationProvider]
 
-
-const providers = [ThemeProvider, NavigationProvider];
-
-const AppClient = () => {
+const AppClient: FC = () => {
   return (
     <DynamicWrapper providers={providers}>
-      <Navbar />
-      {/* Altri componenti che necessitano dei contesti */}
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container mx-auto px-4 py-8">
+          {/* Other components that need context access */}
+        </main>
+      </div>
     </DynamicWrapper>
-  );
-};
+  )
+}
 
-export default AppClient;
+export default AppClient
