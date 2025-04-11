@@ -2,6 +2,13 @@ import { componentLib } from './componentLib'
 
 // Register all dynamic components
 componentLib
+    .register('HeroGrid', {
+        import: () => import('@/components/tsx/home/HeroGrid.tsx'),
+        metadata: {
+            description: 'Main heero grid component',
+            group: 'home'
+        }
+    })
     .register('Navbar', {
         import: () => import('@/components/tsx/common/Navbar'),
         metadata: {

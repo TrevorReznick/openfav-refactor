@@ -30,7 +30,11 @@ const clientProps: AppClientProps = {
 }
 ---
 
-<Layout title={metadata?.description || 'Dynamic Component'}>
+<Layout
+  title={typeof metadata?.description === 'string'
+    ? metadata?.description
+    : 'Dynamic Component'}
+>
   <div class="flex flex-col items-center justify-center space-y-8 text-center">
     {
       isValidComponent ? (

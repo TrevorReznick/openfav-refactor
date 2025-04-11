@@ -2,10 +2,11 @@
 import Layout from '@/layouts/Layout.astro'
 import Hero from '@/components/home/HeaderHero.astro'
 import HeroGrid from '@/components/tsx/home/HeroGrid.tsx'
+import XClient from '~/components/tsx/builders/AppClientV1'
 ---
 
 <Layout title="Your App">
   <!--<Landing client:only /> -->
   <Hero />
-  <HeroGrid client:only />
+  <XClient componentName="HeroGrid" client:load />
 </Layout>
