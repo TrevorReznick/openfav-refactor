@@ -1,47 +1,112 @@
 import { useState, useEffect } from 'react'
 import { Menu, LogOut } from 'lucide-react'
 import { supabase } from '@/providers/supabaseAuth'
-//import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { ThemeToggle } from '@/components/tsx/theme-toggle'
 import { Button } from '@/components/tsx/ui/button'
-
-/* @@ */
-
 import { useNavigation } from '~/hooks/NavigationContext'
+import { useStore } from '@nanostores/react'
+import { currentPath, previousPath } from '@/store'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
-  //const navigate = useNavigate()
   const { navigate } = useNavigation()
+  
+  // Debug: Router state
+  const current = useStore(currentPath)
+  const previous = useStore(previousPath)
 
+  console.group('🏗️ Navbar Initialization')
+  console.log('Initial render with props:', { navigate, current, previous })
+  console.groupEnd()
+
+  // Debug: Component lifecycle and router state
+  /*
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-    })
+    console.group('🧭 Router Debug')
+    console.log('Current path:', current)
+    console.log('Previous path:', previous)
+    console.log('Window location:', window.location.pathname)
+    console.groupEnd()
+  }, [current, previous])
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
+  // Debug: Component mount
+  useEffect(() => {
+    console.group('🚀 Navbar Lifecycle')
+    console.log('Component mounted')
+    console.log('Initial window location:', window.location.pathname)
+    return () => {
+      console.log('Component unmounted')
+      console.groupEnd()
+    }
+  }, [])
+  */
 
-    return () => subscription.unsubscribe()
+  // Debug: Auth state
+  useEffect(() => {
+    console.group('🔐 Auth Debug')
+    
+    const setupAuth = async () => {
+      console.log('Setting up auth listeners...')
+      
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('Initial session:', {
+          user: session?.user?.email,
+          timestamp: new Date().toISOString()
+        })
+        setUser(session?.user ?? null)
+      } catch (error) {
+        console.error('Session fetch error:', error)
+      }
+    }
+
+    setupAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', {
+          event,
+          user: session?.user?.email,
+          timestamp: new Date().toISOString()
+        })
+        setUser(session?.user ?? null)
+      }
+    )
+
+    return () => {
+      console.log('Cleaning up auth listeners')
+      subscription.unsubscribe()
+      console.groupEnd()
+    }
   }, [])
 
   const handleSignOut = async () => {
+    console.group('📤 Sign Out Process')
     try {
+      console.log('Attempting sign out...')
+      console.log('Current path before signout:', current)
+      
       const { error } = await supabase.auth.signOut()
       if (error) throw error
-      //navigate('/auth')
+      
+      console.log('Sign out successful')
+      console.log('Navigating to /auth...')
       navigate('/auth')
+      
+      console.log('Navigation complete')
+      console.log('New path:', window.location.pathname)
     } catch (error: any) {
+      console.error('Sign out failed:', error)
       toast.error(error.message)
     }
+    console.groupEnd()
   }
+
+  // Debug: Mobile menu state
+  useEffect(() => {
+    console.log('📱 Mobile menu:', isOpen ? 'opened' : 'closed')
+  }, [isOpen])
 
   return (
     <nav className="fixed w-full top-0 left-0 z-50 glass-card bg-secondary-light/50 backdrop-blur-lg">
