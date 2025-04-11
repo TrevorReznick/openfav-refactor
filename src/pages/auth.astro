@@ -1,0 +1,8 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import XClient from '~/components/tsx/builders/AppClientV1'
+---
+
+<Layout title="Your App">
+    <XClient componentName="Auth" client:load />
+</Layout>

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, previousPath } from '@/store'
+import { authMiddleware } from '@/middleware/authMiddleware'
 
 interface NavigationContextType {
   navigate: (path: string) => void
@@ -26,15 +27,28 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  const navigate = (path: string) => {
-    try {
+  const navigate = async (path: string) => {
+  try {
+    console.group('🧭 Navigation Attempt')
+    console.log('Navigating to:', path)
+
+    // Check auth middleware
+    const canProceed = await authMiddleware()
+    
+    if (canProceed) {
       previousPath.set(current)
       currentPath.set(path)
       window.history.pushState({}, '', path)
-    } catch (error) {
-      console.error('Navigation failed:', error)
+      console.log('Navigation successful')
+    } else {
+      console.log('Navigation blocked by middleware')
     }
+  } catch (error) {
+    console.error('Navigation failed:', error)
+  } finally {
+    console.groupEnd()
   }
+}
 
   const goBack = () => {
     if (previous) {

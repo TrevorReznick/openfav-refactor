@@ -1,42 +1,61 @@
-
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react'
 import { supabase } from '@/providers/supabaseAuth'
-import { toast } from "sonner";
+import { toast } from 'sonner'
+import { useNavigation } from '@/hooks/NavigationContext'
+import { useStore } from '@nanostores/react'
+import { currentPath } from '@/store'
 
 const AuthPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(false)
-  const navigate = useNavigate()
+  const { navigate } = useNavigation()
+  const current = useStore(currentPath)
+
+  // Debug: Monitor navigation state
+  useEffect(() => {
+    console.group('🧭 Navigation Debug')
+    console.log('Current path:', current)
+    console.log('Window location:', window.location.pathname)
+    console.groupEnd()
+  }, [current])
 
   const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
+      console.group('🔐 Auth Process')
+      console.log('Attempting:', isSignUp ? 'signup' : 'signin')
+      
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
         })
-        if (error) throw error;
+        if (error) throw error
         toast.success('Check your email for the confirmation link!')
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
-        });
-        if (error) throw error;
-        navigate('/')
+        })
+        if (error) throw error
+        
+        console.log('Auth successful, attempting navigation')
+        
+        // Force page reload after successful login
+        window.location.href = '/'
       }
     } catch (error: any) {
+      console.error('Auth error:', error)
       toast.error(error.message)
     } finally {
       setLoading(false)
+      console.groupEnd()
     }
-  };
+  }
 
   const handleResetPassword = async () => {
     if (!email) {
