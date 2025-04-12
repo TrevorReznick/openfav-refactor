@@ -109,7 +109,7 @@ const Navbar = () => {
   }, [isOpen])
 
   return (
-    <nav className="fixed w-full top-0 left-0 z-50 glass-card bg-secondary-light/50 backdrop-blur-lg">
+    <nav className="fixed w-full top-0 left-0 z-50 glass-card bg-secondary/30 backdrop-blur-lg">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">

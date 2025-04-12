@@ -35,7 +35,7 @@ const AppClient: FC<AppClientProps> = ({
 
   return (
     <DynamicWrapper providers={providers}>
-      <div className="min-h-screen bg-background">
+      <div className="bg-background">
         {isNavbar && (
           <Suspense fallback={<div className="h-16 bg-secondary/50" />}>
             {DynamicComponent && <DynamicComponent />}

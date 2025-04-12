@@ -16,6 +16,14 @@ componentLib
             group: 'home'
         }
     })
+    .register('HeaderHero', {
+        import: () => import('@/components/tsx/home/HeaderHero.tsx'),
+        metadata: {
+            description: 'Main heero grid component',
+            group: 'home'
+        }
+    })
+
     .register('Navbar', {
         import: () => import('@/components/tsx/common/Navbar'),
         metadata: {

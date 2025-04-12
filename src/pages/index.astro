@@ -7,6 +7,6 @@ import XClient from '~/components/tsx/builders/AppClientV1'
 
 <Layout title="Your App">
   <!--<Landing client:only /> -->
-  <Hero />
+  <XClient componentName="HeaderHero" client:load />
   <XClient componentName="HeroGrid" client:load />
 </Layout>
