@@ -150,7 +150,7 @@ const Navbar = () => {
             {user ? (
               <button 
                   onClick={handleSignOut}
-                  className='btn-primary'
+                  className='btn-primary inline-flex items-center gap-2 px-4 py-2'
               >
                   <LogOut className="w-4 h-4" />
                   Sign Out
