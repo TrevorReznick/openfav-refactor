@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     if (error) {
       store.messageStore.set(`OAuth error: ${error.message}`)
       //return new Response(error.message, { status: 500 });
-      return redirect('/login')
+      return redirect('/build/login')
     }
     console.log('auth response data: ', data)
     return redirect(data.url)
@@ -37,7 +37,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     //return new Response('Email and password are required', { status: 400 })
     //return redirect('/auth-error-page')
     store.messageStore.set('Email and password are required')
-    return redirect('/login')
+    return redirect('/build/login')
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -48,7 +48,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   if (error) {
     store.messageStore.set(error.message);
     //return new Response(error.message, { status: 500 });
-    return redirect('/login');
+    return redirect('/build/login')
   }
 
   const { access_token, refresh_token } = data.session;
@@ -63,21 +63,21 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     secure: true,
   });
 
-  return redirect('/protected/page');
+  return redirect('/build/page')
 };
 
 export const GET: APIRoute = async ({ cookies }) => {
-  const accessToken = cookies.get('sb-access-token');
+  const accessToken = cookies.get('sb-access-token')
 
   if (!accessToken) {
-    return new Response('Unauthorized', { status: 401 });
+    return new Response('Unauthorized', { status: 401 })
   }
 
-  const { data, error } = await supabase.auth.getSession();
+  const { data, error } = await supabase.auth.getSession()
 
   if (error) {
-    return new Response(error.message, { status: 500 });
+    return new Response(error.message, { status: 500 })
   }
 
-  return new Response(JSON.stringify(data), { status: 200 });
-};
+  return new Response(JSON.stringify(data), { status: 200 })
+}

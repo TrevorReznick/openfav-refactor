@@ -5,5 +5,5 @@ export const GET: APIRoute = async ({ cookies, redirect }) => {
   cookies.delete('sb-access-token', { path: '/' })
   cookies.delete('sb-refresh-token', { path: '/' })
   isAuthenticated.set(false)
-  return redirect('/login')
+  return redirect('/build/login')
 };
