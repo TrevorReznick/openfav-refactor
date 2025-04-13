@@ -8,3 +8,8 @@ export const counterStore = atom(0)
 
 export const currentPath = atom<string>('/')
 export const previousPath = atom<string>('/')
+
+/* @@ notification @@ */
+
+export const notifications = atom([])
+export const messageStore = atom<string>('')
