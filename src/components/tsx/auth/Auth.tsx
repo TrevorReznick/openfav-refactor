@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState as local, useEffect as action } from 'react'
 import { supabase } from '@/providers/supabaseAuth'
 import { toast } from 'sonner'
 import { useNavigation } from '@/hooks/NavigationContext'
@@ -6,15 +6,15 @@ import { useStore } from '@nanostores/react'
 import { currentPath } from '@/store'
 
 const AuthPage = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [isSignUp, setIsSignUp] = useState(false)
+  const [email, setEmail] = local('')
+  const [password, setPassword] = local('')
+  const [loading, setLoading] = local(false)
+  const [isSignUp, setIsSignUp] = local(false)
   const { navigate } = useNavigation()
   const current = useStore(currentPath)
 
   // Debug: Monitor navigation state
-  useEffect(() => {
+  action(() => {
     console.group('🧭 Navigation Debug')
     console.log('Current path:', current)
     console.log('Window location:', window.location.pathname)
@@ -46,7 +46,7 @@ const AuthPage = () => {
         console.log('Auth successful, attempting navigation')
         
         // Force page reload after successful login
-        window.location.href = '/'
+        window.location.href = '/build/auth-redirect'
       }
     } catch (error: any) {
       console.error('Auth error:', error)
