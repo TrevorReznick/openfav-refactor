@@ -1,16 +1,10 @@
 import type { FC, ComponentType, ReactNode } from 'react'
+import { lazy, Suspense } from 'react'
 import DynamicWrapper from '@/components/tsx/builders/DynamicWrapper'
 import { NavigationProvider } from '@/hooks/NavigationContext'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
-import { lazy, Suspense } from 'react'
-import Navbar from '@/components/tsx/common/Navbar'
-
-// Define available components map (excluding Navbar)
-const componentsMap: Record<string, () => Promise<{ default: ComponentType }>> = {
-  PostsComponent: () => import('@/components/tsx/dynamic/PostsComponent'),
-  TestComponent: () => import('@/components/tsx/dynamic/TestComponent'),
-  // Add more components as needed
-}
+import componentLib from '@/api/tsx/componentRegistry'
+import LoadingFallback from '@/components/tsx/common/LoadFallback'
 
 interface AppClientProps {
   componentName?: string
@@ -23,33 +17,41 @@ const AppClient: FC<AppClientProps> = ({
   children,
   additionalProviders = []
 }) => {
-  const providers = [ThemeProvider, NavigationProvider, ...additionalProviders]
-  
-  // Handle Navbar separately
+  // Providers di base: Theme e Navigation
+  const providers = [
+    ThemeProvider,
+    NavigationProvider,
+    ...additionalProviders,
+  ]
+
+  // Se il componente richiesto è Navbar, gestiamo in modo specifico
   const isNavbar = componentName === 'Navbar'
-  
-  // Dynamically load other components
-  const DynamicComponent = componentName && !isNavbar
-    ? lazy(componentsMap[componentName] || (() => Promise.reject(new Error(`Component ${componentName} not found`))))
+
+  // Caricamento dinamico in base al componentName
+  const DynamicComponent = componentName
+    ? lazy(() => {
+        console.log(`🔄 Loading component: ${componentName}`)
+        return componentLib.get(componentName).import()
+      })
     : null
+
+  // Costruiamo il contenuto da renderizzare
+  const content = (
+    <div className="bg-background">
+      {DynamicComponent && (
+        <Suspense fallback={isNavbar ? <LoadingFallback /> : <div className="p-4">Loading component...</div>}>
+          <DynamicComponent />
+        </Suspense>
+      )}
+      <main className="container mx-auto px-4 py-8">{children}</main>
+    </div>
+  )
 
   return (
     <DynamicWrapper providers={providers}>
-      <div className="min-h-screen bg-background">
-        {isNavbar && <Navbar />}
-        {!isNavbar && DynamicComponent && (
-          <Suspense fallback={<div className="p-4">Loading component...</div>}>
-            <DynamicComponent />
-          </Suspense>
-        )}
-        <main className="container mx-auto px-4 py-8">
-          {children}
-        </main>
-      </div>
+      {content}
     </DynamicWrapper>
   )
 }
 
 export default AppClient
-
-
