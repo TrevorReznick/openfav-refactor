@@ -4,16 +4,19 @@ import { NavigationProvider } from '@/hooks/NavigationContext'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
 import { lazy, Suspense } from 'react'
 import componentLib from '@/api/tsx/componentRegistry'
+import LoadingFallback from '@/components/tsx/common/LoadFallback'
 
 interface AppClientProps {
   componentName?: string
   children?: ReactNode
+  useQueryString?: boolean
   additionalProviders?: Array<ComponentType<{ children: ReactNode }>>
 }
 
 const AppClient: FC<AppClientProps> = ({ 
   componentName,
   children,
+  useQueryString,
   additionalProviders = []
 }) => {
   // Base providers including router
@@ -37,7 +40,7 @@ const AppClient: FC<AppClientProps> = ({
     <DynamicWrapper providers={providers}>
       <div className="bg-background">
         {isNavbar && (
-          <Suspense fallback={<div className="h-16 bg-secondary/50" />}>
+          <Suspense fallback={<LoadingFallback />}>
             {DynamicComponent && <DynamicComponent />}
           </Suspense>
         )}
