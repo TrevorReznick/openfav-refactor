@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, previousPath } from '@/store'
-import { authMiddleware } from '@/middleware/authMiddleware'
+import { authGuard } from '@/scripts/authGuard'
 import { toast } from 'sonner'
 
 interface NavigationContextType {
@@ -11,6 +11,7 @@ interface NavigationContextType {
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined)
+authGuard()
 
 export const NavigationProvider = ({ children }: { children: React.ReactNode }) => {
   const current = useStore(currentPath)
@@ -34,7 +35,7 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
       console.log('Navigating to:', path)
 
       // Check auth middleware
-      const canProceed = await authMiddleware()
+      const canProceed = await authGuard()
       
       if (canProceed) {
         previousPath.set(current)

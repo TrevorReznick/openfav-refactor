@@ -45,14 +45,14 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
-  });
+  })
 
   if (error) {
     store.messageStore.set(error.message);
     //return new Response(error.message, { status: 500 });
-    return redirect('/login');
+    return redirect('/login')
   }
-
+  //TODO
   const { access_token, refresh_token } = data.session
   console.log('Access token:', access_token)
   cookies.set('sb-access-token', access_token, {
@@ -67,7 +67,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   })
   console.log('user is logged in')
 
-  return redirect('/protected/page')
+  return redirect('/test/test')
 };
 
 export const GET: APIRoute = async ({ cookies }) => {
