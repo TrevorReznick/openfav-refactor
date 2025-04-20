@@ -13,3 +13,7 @@ export const previousPath = atom<string>('/')
 
 export const notifications = atom([])
 export const messageStore = atom<string>('')
+
+/* @@ auth store @@ */
+export const userStore = atom<any>(null) // Stato dell'utente (null se non autenticato)
+export const loadingStore = atom(true) // Inizialmente true, indica che il caricamento è in

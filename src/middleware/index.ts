@@ -11,7 +11,7 @@ export const onRequest = defineMiddleware(async ({ url, cookies, redirect }, nex
 
   const from = store.previousPath.get()
   const to = store.currentPath.get()
-  console.log('verify store', 'pathname', url.pathname, '--> from: ', from, '--> to: ', to, '')
+  console.log('middleware path', url.pathname, ': <-- from: ', from, '--> to: ', to, '')
   if (from === '/api/v1/auth/signin' && to === '/test/test') {
     console.log('middleware caught redirected auth page!')
     //return redirect('/build/authenthicated')

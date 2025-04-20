@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, previousPath } from '@/store'
-import { authGuard } from '@/scripts/authGuard'
+import { authGuard } from '~/scripts/getAuthV0'
 import { toast } from 'sonner'
 
 interface NavigationContextType {
@@ -11,6 +11,7 @@ interface NavigationContextType {
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined)
+
 authGuard()
 
 export const NavigationProvider = ({ children }: { children: React.ReactNode }) => {
