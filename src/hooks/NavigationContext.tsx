@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, previousPath } from '@/store'
-import { authGuard } from '~/scripts/getAuthV0'
+import { authGuard } from '~/scripts/old/getAuthV0'
+//import { authGuard } from '~/scripts/getAuthV0'
 import { toast } from 'sonner'
 
 interface NavigationContextType {

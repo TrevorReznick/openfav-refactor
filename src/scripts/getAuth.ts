@@ -1,148 +1,194 @@
-import { supabase } from '@/providers/supabaseAuth'
-import { currentPath, userStore } from '@/store'
-import type {UserSession} from '@/types/userSession'
-
+import { userStore } from '@/store'
+import type { SessionResponse } from '~/types/auth/session'
+import type { UserSession } from '~/types/auth/userSession'
 
 export class UserHelper {
     private static instance: UserHelper
-    
-  
-    private constructor() {}
+
+    private constructor() { }
 
     public static getInstance(): UserHelper {
         if (!UserHelper.instance) {
-        UserHelper.instance = new UserHelper();
+            UserHelper.instance = new UserHelper()
         }
-        return UserHelper.instance;
-}
+        return UserHelper.instance
+    }
 
-    // Ottiene i dati base dell'utente
+    //#region Public Methods
+
+    /**
+     * Get formatted user info from store
+     */
     public getUserInfo(): UserSession {
-        const user = userStore.get();
-        
-        if (!user) {
-            return this.getEmptyUser();
+        const user = userStore.get()
+        console.debug('[UserHelper] getUserInfo:', user)
+        return user ? this.mapToUserSession(user) : this.getEmptyUser()
+    }
+
+    /**
+     * Fetch and return fresh session tokens from API
+     */
+    public async getSessionTokens(): Promise<UserSession | null> {
+        console.group('[UserHelper] getSessionTokens')
+        try {
+            const response = await fetch('/api/v1/auth/signin', {
+                method: 'GET',
+                credentials: 'include'
+            })
+
+            if (!response.ok) {
+                console.error('API Response Error:', response.status, response.statusText)
+                return null
+            }
+
+            const data: SessionResponse = await response.json()
+
+            if (!data?.session?.user) {
+                console.error('Invalid session data:', data)
+                return null
+            }
+
+            const userSession = this.mapResponseToUserSession(data)
+            console.debug('Session data:', userSession)
+            return userSession
+        } catch (error) {
+            console.error('Error fetching session tokens:', error)
+            return null
+        } finally {
+            console.groupEnd()
+        }
+    }
+
+    /**
+     * Get complete session (from store or API)
+     */
+    public async getCompleteSession(): Promise<UserSession> {
+        console.debug('[UserHelper] getCompleteSession')
+
+        const storedUser = userStore.get()
+        if (storedUser?.isAuthenticated && !this.isTokenExpired(storedUser)) {
+            return storedUser
+        }
+
+        const freshSession = await this.getSessionTokens()
+        const user = freshSession || this.getEmptyUser()
+
+        userStore.set(user)
+        return user
+    }
+
+    /**
+     * Check if user is authenticated
+     */
+    public isAuthenticated(): boolean {
+        const user = userStore.get()
+        return !!user?.isAuthenticated
+    }
+
+    /**
+     * Check if token is expired
+     */
+    public isTokenExpired(user?: UserSession): boolean {
+        const targetUser = user || userStore.get()
+        if (!targetUser?.tokens?.expiresAt) return true
+
+        const expirationTime = targetUser.tokens.expiresAt * 1000
+        const isExpired = Date.now() >= expirationTime
+
+        console.debug('[UserHelper] isTokenExpired:', isExpired)
+        return isExpired
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     * Map API response to UserSession format
+     */
+    private mapResponseToUserSession(data: any): UserSession {
+        // Verifica prima la struttura completa
+        if (!data || (!data.access_token && !data.session?.access_token)) {
+            throw new Error('Dati di sessione non validi: token mancanti');
+        }
+
+        // Estrai i token dalla struttura corretta
+        const tokens = {
+            accessToken: data.access_token || data.session?.access_token,
+            refreshToken: data.refresh_token || data.session?.refresh_token,
+            expiresAt: data.expires_at || data.session?.expires_at
+        };
+
+        // Verifica che i token siano presenti
+        if (!tokens.accessToken || !tokens.refreshToken || !tokens.expiresAt) {
+            throw new Error('Token mancanti nella risposta');
+        }
+
+        const userData = data.user || data.session?.user;
+        if (!userData) {
+            throw new Error('Dati utente mancanti');
         }
 
         return {
-            
+            id: userData.id,
+            email: userData.email,
+            fullName: userData.user_metadata?.preferred_username || userData.email.split('@')[0],
+            createdAt: new Date(userData.created_at),
+            lastLogin: new Date(userData.last_sign_in_at),
+            isAuthenticated: true,
+            tokens: tokens,
+            metadata: {
+                provider: userData.app_metadata?.provider || 'email',
+                avatarUrl: userData.user_metadata?.avatar_url
+            }
+        };
+    }
+
+    /**
+     * Map stored user to UserSession format
+     */
+    private mapToUserSession(user: User): UserSession {
+        return {
             id: user.id,
             email: user.email,
-            fullName: user.user_metadata?.full_name || 'Utente',
+            fullName: user.user_metadata?.preferred_username || 'Utente',
             createdAt: new Date(user.created_at),
             lastLogin: new Date(user.last_sign_in_at),
             isAuthenticated: true,
+            tokens: {
+                accessToken: user.accessToken || null,
+                refreshToken: user.refreshToken || null,
+                expiresAt: user.expiresAt || 0
+            },
             metadata: {
                 provider: user.app_metadata?.provider || 'email',
                 avatarUrl: user.user_metadata?.avatar_url
             }
         }
-        
-
-
-  }
-
-  // Ottiene i token della sessione
-  public async getSessionTokens(): Promise<{
-    accessToken: string | null;
-    refreshToken: string | null;
-    expiresAt?: number;
-  }> {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      return {
-        accessToken: session?.access_token || null,
-        refreshToken: session?.refresh_token || null,
-        expiresAt: session?.expires_at
-      };
-    } catch (error) {
-      console.error('Error getting session tokens:', error);
-      return {
-        accessToken: null,
-        refreshToken: null
-      };
     }
-  }
 
-  // Ottiene informazioni complete (utente + sessione)
-  public async getCompleteSession(): Promise<UserSession> {
-    const userInfo = this.getUserInfo();
-    const tokens = await this.getSessionTokens();
-
-    return {
-      ...userInfo,
-      tokens
-    };
-  }
-
-  // Verifica se l'utente è autenticato
-  public isAuthenticated(): boolean {
-    return !!userStore.get();
-  }
-
-  // Verifica se il token è scaduto
-  public isTokenExpired(): boolean {
-    const user = userStore.get();
-    if (!user) return true;
-
-    const expiresAt = user.exp; // timestamp di scadenza
-    return expiresAt ? Date.now() >= expiresAt * 1000 : true;
-  }
-
-  // Utente vuoto per stato iniziale/logout
-  private getEmptyUser(): UserSession {
-    return {
-      id: '',
-      email: '',
-      fullName: '',
-      createdAt: new Date(),
-      lastLogin: new Date(),
-      isAuthenticated: false,
-      tokens: {
-        accessToken: null,
-        refreshToken: null
-      }
-    };
-  }
-}
-
-// Esempio di utilizzo:
-const userHelper = UserHelper.getInstance();
-
-// In un componente o servizio
-async function checkUserStatus() {
-  if (userHelper.isAuthenticated()) {
-    const session = await userHelper.getCompleteSession();
-    console.log('User session:', {
-      userId: session.id,
-      email: session.email,
-      accessToken: session.tokens?.accessToken,
-      expiresAt: session.tokens?.expiresAt
-    });
-
-    if (userHelper.isTokenExpired()) {
-      console.log('Token is expired, needs refresh');
+    /**
+     * Return empty user session
+     */
+    private getEmptyUser(): UserSession {
+        return {
+            id: '',
+            email: '',
+            fullName: 'Utente',
+            createdAt: new Date(),
+            lastLogin: new Date(),
+            isAuthenticated: false,
+            tokens: {
+                accessToken: null,
+                refreshToken: null,
+                expiresAt: 0,
+            },
+            metadata: {
+                provider: 'email',
+                avatarUrl: undefined
+            }
+        }
     }
-  }
-}
 
-// Uso più semplice per componenti
-/*
-function UserProfile() {
-  const user = userHelper.getUserInfo();
-  
-  return user.isAuthenticated ? (
-    <div>
-      <h1>Welcome {user.fullName}</h1>
-      <p>Email: {user.email}</p>
-      <p>Member since: {user.createdAt.toLocaleDateString()}</p>
-      <p>Last login: {user.lastLogin.toLocaleDateString()}</p>
-      {user.metadata?.avatarUrl && (
-        <img src={user.metadata.avatarUrl} alt="Profile" />
-      )}
-    </div>
-  ) : (
-    <div>Please log in</div>
-  );
+    //#endregion
 }
-*/
