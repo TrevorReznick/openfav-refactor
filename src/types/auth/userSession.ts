@@ -8,11 +8,12 @@ export interface UserSession {
     isAuthenticated: boolean  // Deriva da access_token != null
     provider: "email" | "github"  // Da app_metadata.provider
     tokens: {
-        accessToken: string
-        refreshToken: string
+        accessToken: string | null
+        refreshToken: string | null
         expiresAt: number  // Timestamp in ms
     }
     metadata: {
+        provider?: string | null
         avatarUrl?: string  // Da user_metadata.avatar_url
         githubUsername?: string  // Esempio di campo derivato
     }

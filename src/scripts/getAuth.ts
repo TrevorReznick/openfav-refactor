@@ -1,7 +1,7 @@
 import { userStore } from '@/store'
 import type { SessionResponse } from '~/types/auth/session'
 import type { UserSession } from '~/types/auth/userSession'
-
+import type { User } from '@/types/auth/session'
 export class UserHelper {
     private static instance: UserHelper
 
@@ -179,7 +179,7 @@ export class UserHelper {
             lastLogin: new Date(),
             isAuthenticated: false,
             tokens: {
-                accessToken: null,
+                accessToken: undefined,
                 refreshToken: null,
                 expiresAt: 0,
             },

@@ -48,7 +48,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   })
 
   if (error) {
-    store.messageStore.set(error.message);
+    store.messageStore.set(error.message)
     //return new Response(error.message, { status: 500 });
     return redirect('/login')
   }
@@ -71,17 +71,17 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 };
 
 export const GET: APIRoute = async ({ cookies }) => {
-  const accessToken = cookies.get('sb-access-token');
+  const accessToken = cookies.get('sb-access-token')
 
   if (!accessToken) {
-    return new Response('Unauthorized', { status: 401 });
+    return new Response('Unauthorized', { status: 401 })
   }
 
-  const { data, error } = await supabase.auth.getSession();
+  const { data, error } = await supabase.auth.getSession()
 
   if (error) {
-    return new Response(error.message, { status: 500 });
+    return new Response(error.message, { status: 500 })
   }
 
-  return new Response(JSON.stringify(data), { status: 200 });
-};
+  return new Response(JSON.stringify(data), { status: 200 })
+}

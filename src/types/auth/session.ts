@@ -11,7 +11,7 @@ export interface Identity {
         sub: string
         [key: string]: any
     }
-    provider: "email" | "github"
+    provider: "email" | "github" | null | undefined
     last_sign_in_at: string
     created_at: string
     updated_at: string

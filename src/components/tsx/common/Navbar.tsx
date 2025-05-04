@@ -24,7 +24,8 @@ const Navbar = () => {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut()
-      navigate('/auth')
+      navigate('/api/v1/auth/signout')
+      toast.success('Logged out successfully')
     } catch (error) {
       toast.error('Logout failed')
       console.error(error)
