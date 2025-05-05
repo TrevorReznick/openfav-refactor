@@ -24,12 +24,17 @@ const Navbar = () => {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut()
-      navigate('/api/v1/auth/signout')
+      //navigate('/api/v1/auth/signout')
+      window.location.href = '/api/v1/auth/signout'
       toast.success('Logged out successfully')
     } catch (error) {
       toast.error('Logout failed')
       console.error(error)
     }
+  }
+
+  const goToPage = () =>{
+    window.location.href = '/api/v1/auth/signout'
   }
 
   const navLinks = [
@@ -63,7 +68,7 @@ const Navbar = () => {
                 Sign Out
               </Button>
             ) : (
-              <Button onClick={() => navigate('/auth')}>
+              <Button onClick={goToPage}>
                 Sign In
               </Button>
             )}

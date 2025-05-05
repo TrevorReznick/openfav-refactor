@@ -2,7 +2,7 @@
 import '@/styles/globalsV0.css'
 import '@/styles/custom.css'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
-import XClient from '~/components/tsx/builders/AppClient'
+import RClient from '~/components/tsx/builders/AppClient'
 
 interface Props {
   title: string
@@ -26,9 +26,9 @@ const { title } = Astro.props
   </head>
   <body>
     <ThemeProvider client:load>
-      <XClient componentName="Navbar" client:load>
+      <RClient componentName="Navbar" client:load>
         <slot />
-      </XClient>
+      </RClient>
     </ThemeProvider>
   </body>
 </html>
