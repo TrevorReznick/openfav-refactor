@@ -3,7 +3,7 @@ import { componentLib } from './componentLib'
 // Register all dynamic components
 componentLib
     .register('Auth', {
-        import: () => import('@/components/tsx/auth/AuthV0.tsx'),
+        import: () => import('~/components/tsx/auth/Auth'),
         metadata: {
             description: 'Auth Form Component',
             group: 'auth'
