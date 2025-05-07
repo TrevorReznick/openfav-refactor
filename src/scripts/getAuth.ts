@@ -136,6 +136,7 @@ export class UserHelper {
             createdAt: new Date(userData.created_at),
             lastLogin: new Date(userData.last_sign_in_at),
             isAuthenticated: true,
+            provider: 'email',
             tokens: tokens,
             metadata: {
                 provider: userData.app_metadata?.provider || 'email',
@@ -155,10 +156,11 @@ export class UserHelper {
             createdAt: new Date(user.created_at),
             lastLogin: new Date(user.last_sign_in_at),
             isAuthenticated: true,
+            provider: 'email',
             tokens: {
-                accessToken: user.accessToken || null,
-                refreshToken: user.refreshToken || null,
-                expiresAt: user.expiresAt || 0
+                accessToken: null, // Replace with the correct property if available in the User type
+                refreshToken: null,
+                expiresAt: 0
             },
             metadata: {
                 provider: user.app_metadata?.provider || 'email',
@@ -178,8 +180,9 @@ export class UserHelper {
             createdAt: new Date(),
             lastLogin: new Date(),
             isAuthenticated: false,
+            provider: 'email',
             tokens: {
-                accessToken: undefined,
+                accessToken: null,
                 refreshToken: null,
                 expiresAt: 0,
             },
