@@ -1,48 +1,66 @@
 ---
 import Layout from '@/layouts/Layout.astro'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import WrapperComponent from '@/components/tsx/base/WrapperComponent'
+import AppClientV1 from '@/components/tsx/builders/AppClient'
 import { previousPath, currentPath } from '@/store'
+import componentLib from '@/api/tsx/componentRegistry'
+import type { AppClientProps } from '@/types/componentTypes'
 
 const { component } = Astro.params
 
-let isIndex: boolean = false
+// Debug: Component validation
+const isValidComponent = componentLib.has(component || '')
+console.group('🏗️ Dynamic Route Initialization')
+console.log({
+  requestedComponent: component,
+  isValid: isValidComponent,
+  currentPath: currentPath.get(),
+  previousPath: previousPath.get(),
+})
+console.groupEnd()
 
-if (currentPath.get() === '/build/main') {
-    //console.log('path matched /build/main')
-    isIndex = true
-} else {
-    console.log('path not matched ', currentPath.get())
+// Get component metadata if available
+const metadata = isValidComponent
+  ? componentLib.getMetadata(component || '')
+  : null
+
+// Prepare client props
+const clientProps: AppClientProps = {
+  componentName: component || '',
+  useQueryString: true,
 }
-
-console.log('hello', component)
-const componentType = component
-const useQueryString = true
 ---
 
-<Layout title="Dynamic Component">
-    <div
-        class="flex flex-col items-center justify-center space-y-8 text-center"
-    >
-        <h1 class="text-3xl font-bold mb-4 text-foreground">
-            {componentType?.charAt(0).toUpperCase() + componentType?.slice(1)} Component
-        </h1>
+<Layout
+  title={typeof metadata?.description === 'string'
+    ? metadata?.description
+    : 'Dynamic Component'}
+>
+  <div class="flex flex-col items-center justify-center space-y-8 text-center">
+    {
+      isValidComponent ? (
+        <>
+          <h1 class="text-3xl font-bold mb-4 text-foreground">
+            {(component ?? '').charAt(0).toUpperCase() +
+              (component ?? '').slice(1)}{' '}
+            Component
+          </h1>
 
-        <div class="w-full max-w-3xl mx-auto">
-            <WrapperComponent
-                client:load
-                componentType={componentType}
-                useQueryString={useQueryString}
-            />
+          <div class="w-full max-w-3xl mx-auto">
+            <AppClientV1 client:load {...clientProps} />
+          </div>
+        </>
+      ) : (
+        <div class="text-destructive space-y-4">
+          <h1 class="text-2xl font-bold">Component Not Found</h1>
+          <p>The requested component "{component}" is not registered.</p>
         </div>
+      )
+    }
 
-        <div class="mt-6">
-            <a
-                href="/"
-                class="text-blue-500 hover:underline dark:text-blue-400"
-            >
-                ← Back to Home
-            </a>
-        </div>
+    <div class="mt-6">
+      <a href="/" class="text-primary hover:text-primary/80 transition-colors">
+        ← Back to Home
+      </a>
     </div>
+  </div>
 </Layout>
