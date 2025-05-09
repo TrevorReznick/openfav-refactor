@@ -1,4 +1,4 @@
-import type { ComponentConfig, ComponentRegistry } from './types/componentTypes'
+import type { ComponentConfig, ComponentRegistry } from '@/types/componentTypes'
 
 class ComponentLibrary {
   private registry: ComponentRegistry = new Map()

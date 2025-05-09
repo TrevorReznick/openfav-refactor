@@ -8,3 +8,12 @@ export const counterStore = atom(0)
 
 export const currentPath = atom<string>('/')
 export const previousPath = atom<string>('/')
+
+/* @@ notification @@ */
+
+export const notifications = atom([])
+export const messageStore = atom<string>('')
+
+/* @@ auth store @@ */
+export const userStore = atom<any>(null) // Stato dell'utente (null se non autenticato)
+export const loadingStore = atom(true) // Inizialmente true, indica che il caricamento è in

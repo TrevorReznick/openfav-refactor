@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { supabase } from '@/providers/supabaseAuth'
 import Navbar from '@/components/tsx/common/Navbar'
 import Dashboard from '@/components/tsx/main/Dashboard'
-import AuthPage from '@/components/tsx/auth/Auth'
+import AuthPage from '~/components/tsx/auth/old/Auth'
 
 const Index = () => {
   const [user, setUser] = useState<any>(null)

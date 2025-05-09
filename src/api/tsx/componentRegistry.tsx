@@ -2,6 +2,28 @@ import { componentLib } from './componentLib'
 
 // Register all dynamic components
 componentLib
+    .register('Auth', {
+        import: () => import('~/components/tsx/auth/Auth'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'auth'
+        }
+    })
+    .register('HeroGrid', {
+        import: () => import('@/components/tsx/home/HeroGrid.tsx'),
+        metadata: {
+            description: 'Main heero grid component',
+            group: 'home'
+        }
+    })
+    .register('HeaderHero', {
+        import: () => import('@/components/tsx/home/HeaderHero.tsx'),
+        metadata: {
+            description: 'Main heero grid component',
+            group: 'home'
+        }
+    })
+
     .register('Navbar', {
         import: () => import('@/components/tsx/common/Navbar'),
         metadata: {

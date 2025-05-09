@@ -1,0 +1,12 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import ReactC from '~/components/tsx/builders/AppClient'
+import Notifications from '~/components/jsx/Notifications.jsx'
+import { messageStore } from '~/store'
+const { errorMessage = messageStore.get() } = Astro.props
+---
+
+<Layout title="Your App">
+    {errorMessage && <Notifications errorMessage={errorMessage} client:load />}
+    <ReactC componentName="Auth" client:load />
+</Layout>
