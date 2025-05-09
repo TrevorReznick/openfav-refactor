@@ -23,7 +23,13 @@ componentLib
             group: 'home'
         }
     })
-
+    .register('Main', {
+        import: () => import('~/components/tsx/dev/main'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'auth'
+        }
+    })
     .register('Navbar', {
         import: () => import('@/components/tsx/common/Navbar'),
         metadata: {

@@ -1,0 +1,9 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import RClient from '~/components/tsx/builders/AppClient'
+---
+
+<Layout title="Your App">
+    <!--<Landing client:only /> -->
+    <RClient componentName="Main" client:load />
+</Layout>
