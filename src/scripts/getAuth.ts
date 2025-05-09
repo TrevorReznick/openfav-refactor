@@ -2,15 +2,19 @@ import { userStore } from '@/store'
 import type { SessionResponse } from '~/types/auth/session'
 import type { UserSession } from '~/types/auth/userSession'
 import type { User } from '@/types/auth/session'
+
 export class UserHelper {
+
     private static instance: UserHelper
 
     private constructor() { }
 
     public static getInstance(): UserHelper {
+
         if (!UserHelper.instance) {
             UserHelper.instance = new UserHelper()
         }
+
         return UserHelper.instance
     }
 
@@ -20,8 +24,11 @@ export class UserHelper {
      * Get formatted user info from store
      */
     public getUserInfo(): UserSession {
+
         const user = userStore.get()
+
         console.debug('[UserHelper] getUserInfo:', user)
+
         return user ? this.mapToUserSession(user) : this.getEmptyUser()
     }
 
@@ -63,9 +70,11 @@ export class UserHelper {
      * Get complete session (from store or API)
      */
     public async getCompleteSession(): Promise<UserSession> {
+
         console.debug('[UserHelper] getCompleteSession')
 
         const storedUser = userStore.get()
+
         if (storedUser?.isAuthenticated && !this.isTokenExpired(storedUser)) {
             return storedUser
         }

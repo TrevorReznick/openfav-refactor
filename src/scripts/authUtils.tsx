@@ -4,6 +4,8 @@ import { UserHelper } from '~/scripts/getAuth'
 // Cache dell'istanza per ottimizzazione
 const authHelper = UserHelper.getInstance()
 
+console.log('hello from auth utils!')
+
 /**
  * Setup dell'autenticazione dell'applicazione
  * - Recupera la sessione completa
@@ -16,14 +18,18 @@ export const setupAuth = async (): Promise<boolean> => {
   
   try {
 
+    console.log('hello from setupAuth!')
+
     console.time('⏱️ Session fetch') // Benchmark prestazioni
-    
+
     const completeSession = await authHelper.getCompleteSession()
 
     console.log('Raw session:', JSON.stringify(completeSession, null, 2))
     
     console.timeEnd('⏱️ Session fetch')
     console.debug('Session data:', completeSession)
+
+    console.warn('isTokenExpired', authHelper.isTokenExpired())
 
     if (!completeSession.isAuthenticated) {
       console.warn('⚠️ No valid session found')
