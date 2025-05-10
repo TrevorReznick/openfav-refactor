@@ -37,4 +37,4 @@ if (currentRoute === '/auth' && session) {
 }
 
 
-    
+  */ 
