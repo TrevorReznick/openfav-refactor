@@ -28,5 +28,5 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
     secure: true,
     httpOnly: true,
   })
-  return redirect('/build/page')
+  return redirect('/test/main')
 }
