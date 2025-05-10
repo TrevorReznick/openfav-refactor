@@ -19,22 +19,22 @@ export const authGuard = async (): Promise<boolean> => {
   }
 }
 
-    // Routes protette che richiedono autenticazione
-    /*
-    const protectedRoutes = ['/', '/dashboard', '/test/test']
-    const currentRoute = currentPath.get()
+// Routes protette che richiedono autenticazione
+/*
+const protectedRoutes = ['/', '/dashboard', '/test/test']
+const currentRoute = currentPath.get()
 
-    if (protectedRoutes.includes(currentRoute) && !session) {
-      console.log('Unauthorized access, redirecting to /auth')
-      window.location.href = '/auth'
-      return false
-    }
+if (protectedRoutes.includes(currentRoute) && !session) {
+  console.log('Unauthorized access, redirecting to /auth')
+  window.location.href = '/auth'
+    return false
+}
     
-    if (currentRoute === '/auth' && session) {
-      console.log('Already authenticated, redirecting to /')
-      window.location.href = '/'
-      return false
-    }
-    */
+if (currentRoute === '/auth' && session) {
+  console.log('Already authenticated, redirecting to /')
+  window.location.href = '/'
+  return false
+}
+
 
     

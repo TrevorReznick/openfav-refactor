@@ -5,6 +5,7 @@ import { NavigationProvider } from '@/hooks/NavigationContext'
 import { ThemeProvider } from '@/components/tsx/theme-provider'
 import componentLib from '@/api/tsx/componentRegistry'
 import LoadingFallback from '@/components/tsx/common/LoadFallback'
+import { AuthProvider } from '@/scripts/authContext'
 
 interface AppClientProps {
   componentName?: string
@@ -21,6 +22,7 @@ const AppClient: FC<AppClientProps> = ({
   const providers = [
     ThemeProvider,
     NavigationProvider,
+    AuthProvider,
     ...additionalProviders,
   ]
 

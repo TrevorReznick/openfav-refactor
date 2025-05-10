@@ -20,7 +20,7 @@ export const onRequest = defineMiddleware(async ({ url, cookies, redirect }, nex
     return redirect('/auth')
   }
 
-  if (from === '/api/v1/auth/signin' && to === '/test/test') {
+  if (from === '/api/v1/auth/signin' && to === '/test/main') {
     console.log('middleware caught redirected auth page!')
     //return redirect('/build/authenthicated')
   }
