@@ -32,38 +32,219 @@ export class UserHelper {
         return user ? this.mapToUserSession(user) : this.getEmptyUser()
     }
 
+    // Aggiungi questa costante all'inizio del file
+    private static readonly SESSION_PREFIX = 'user_session_';
+
     /**
-     * Fetch and return fresh session tokens from API
-     */
-    public async getSessionTokens(): Promise<UserSession | null> {
-        console.group('[UserHelper] getSessionTokens')
+ * Salva i token di sessione in Redis
+ */
+    public async saveSessionToRedis(userId: string, userSession: UserSession): Promise<boolean> {
+        console.debug('[UserHelper] saveSessionToRedis');
         try {
+            const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
+            // Usa il formato corretto della chiave con il prefisso
+            const sessionKey = `${UserHelper.SESSION_PREFIX}${userId}`;
+
+            // Crea l'oggetto sessione nel formato corretto
+            const sessionData = {
+                session: {
+                    id: userSession.id,
+                    email: userSession.email,
+                    fullName: userSession.fullName,
+                    createdAt: userSession.createdAt?.toISOString(),
+                    lastLogin: userSession.lastLogin?.toISOString(),
+                    isAuthenticated: userSession.isAuthenticated,
+                    provider: userSession.provider,
+                    tokens: {
+                        accessToken: userSession.tokens.accessToken,
+                        refreshToken: userSession.tokens.refreshToken,
+                        expiresAt: userSession.tokens.expiresAt // già in millisecondi
+                    },
+                    metadata: {
+                        provider: userSession.metadata.provider,
+                        avatarUrl: userSession.metadata.avatarUrl,
+                        githubUsername: userSession.metadata.githubUsername
+                    }
+                },
+                expirySeconds: 3600 // 1 ora di scadenza
+            };
+
+            const response = await fetch(`${redisApiUrl}/set-session`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sessionData)
+            });
+
+            if (!response.ok) {
+                console.error('Failed to save session to Redis:', response.status);
+                return false;
+            }
+
+            console.debug('Session saved to Redis successfully');
+            return true;
+        } catch (error) {
+            console.error('Error saving session to Redis:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Recupera i token di sessione da Redis
+     */
+    public async getSessionFromRedis(userId: string): Promise<UserSession | null> {
+        console.debug('[UserHelper] getSessionFromRedis');
+        try {
+            const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
+            // Usa il formato corretto della chiave con il prefisso
+            const sessionKey = `${UserHelper.SESSION_PREFIX}${userId}`;
+
+            const response = await fetch(`${redisApiUrl}/session/${sessionKey}`);
+
+            if (!response.ok) {
+                console.debug('No session found in Redis or error:', response.status);
+                return null;
+            }
+
+            const data = await response.json();
+            console.debug('Session retrieved from Redis:', data);
+
+            // Estrai la sessione dall'oggetto risposta
+            if (data && data.session) {
+                const session = data.session;
+
+                // Converti le stringhe ISO in oggetti Date
+                return {
+                    id: session.id,
+                    email: session.email,
+                    fullName: session.fullName,
+                    createdAt: new Date(session.createdAt),
+                    lastLogin: new Date(session.lastLogin),
+                    isAuthenticated: session.isAuthenticated,
+                    provider: session.provider,
+                    tokens: {
+                        accessToken: session.tokens.accessToken,
+                        refreshToken: session.tokens.refreshToken,
+                        expiresAt: session.tokens.expiresAt
+                    },
+                    metadata: {
+                        provider: session.metadata.provider,
+                        avatarUrl: session.metadata.avatarUrl,
+                        githubUsername: session.metadata.githubUsername
+                    }
+                };
+            }
+
+            return null;
+        } catch (error) {
+            console.error('Error getting session from Redis:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Elimina la sessione da Redis
+     */
+    public async deleteSessionFromRedis(userId: string): Promise<boolean> {
+        console.debug('[UserHelper] deleteSessionFromRedis');
+        try {
+            const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
+            // Usa il formato corretto della chiave con il prefisso
+            const sessionKey = `${UserHelper.SESSION_PREFIX}${userId}`;
+
+            const response = await fetch(`${redisApiUrl}/session/${sessionKey}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                console.error('Failed to delete session from Redis:', response.status);
+                return false;
+            }
+
+            console.debug('Session deleted from Redis successfully');
+            return true;
+        } catch (error) {
+            console.error('Error deleting session from Redis:', error);
+            return false;
+        }
+    }
+
+    /**
+        * Fetch and return fresh session tokens from API
+    */
+    /**
+ * Fetch and return fresh session tokens from API
+ */
+    public async getSessionTokens(): Promise<UserSession | null> {
+        console.group('[UserHelper] getSessionTokens');
+        try {
+            // Prima controlla se c'è un utente nello store
+            const storedUser = userStore.get();
+
+            // Se abbiamo un ID utente, proviamo a recuperare la sessione da Redis
+            if (storedUser?.id) {
+                const redisSession = await this.getSessionFromRedis(storedUser.id);
+
+                if (redisSession && redisSession.accessToken && !this.isTokenExpiredFromTimestamp(redisSession.expiresAt)) {
+                    console.debug('Using session from Redis');
+
+                    // Crea un oggetto UserSession dai dati Redis
+                    return {
+                        ...storedUser,
+                        isAuthenticated: true,
+                        tokens: {
+                            accessToken: redisSession.accessToken,
+                            refreshToken: redisSession.refreshToken,
+                            expiresAt: redisSession.expiresAt
+                        }
+                    };
+                }
+            }
+
+            // Se non abbiamo trovato una sessione valida in Redis, procedi con l'autenticazione Supabase
             const response = await fetch('/api/v1/auth/signin', {
                 method: 'GET',
                 credentials: 'include'
-            })
+            });
 
             if (!response.ok) {
-                console.error('API Response Error:', response.status, response.statusText)
-                return null
+                console.error('API Response Error:', response.status, response.statusText);
+                return null;
             }
 
-            const data: SessionResponse = await response.json()
+            const data: SessionResponse = await response.json();
 
             if (!data?.session?.user) {
-                console.error('Invalid session data:', data)
-                return null
+                console.error('Invalid session data:', data);
+                return null;
             }
 
-            const userSession = this.mapResponseToUserSession(data)
-            console.debug('Session data:', userSession)
-            return userSession
+            const userSession = this.mapResponseToUserSession(data);
+            console.debug('Session data from API:', userSession);
+
+            // Salva la sessione in Redis se abbiamo un ID utente
+            if (userSession.id && userSession.tokens.accessToken) {
+                await this.saveSessionToRedis(userSession.id, {
+                    accessToken: userSession.tokens.accessToken,
+                    refreshToken: userSession.tokens.refreshToken,
+                    expiresAt: userSession.tokens.expiresAt
+                });
+            }
+
+            return userSession;
         } catch (error) {
-            console.error('Error fetching session tokens:', error)
-            return null
+            console.error('Error fetching session tokens:', error);
+            return null;
         } finally {
-            console.groupEnd()
+            console.groupEnd();
         }
+    }
+
+    // Aggiungi questo metodo di utilità
+    private isTokenExpiredFromTimestamp(expiresAt?: number): boolean {
+        if (!expiresAt) return true;
+        return Date.now() >= expiresAt * 1000;
     }
 
     /**
