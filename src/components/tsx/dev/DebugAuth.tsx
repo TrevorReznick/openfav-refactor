@@ -51,7 +51,6 @@ const DebugAuth = () => {
   }, [isAuthenticated, loading, user, current]);
 
   // Costante per il prefisso della sessione
-  const SESSION_PREFIX = 'user_session_';
 
   // Funzioni per testare Redis con il prefisso corretto
   const testRedisSet = async () => {
@@ -63,7 +62,6 @@ const DebugAuth = () => {
     try {
       const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
       // Usa il formato corretto della chiave con il prefisso
-      const sessionKey = `${SESSION_PREFIX}${user.id}`;
       
       // Crea l'oggetto sessione nel formato corretto
       const sessionData = {
@@ -115,7 +113,6 @@ const DebugAuth = () => {
     try {
       const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
       // Usa il formato corretto della chiave con il prefisso
-      const sessionKey = `${SESSION_PREFIX}${user.id}`;
       
       const response = await fetch(`${redisApiUrl}/session/${user.id}`);
       
@@ -141,9 +138,8 @@ const DebugAuth = () => {
     try {
       const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
       // Usa il formato corretto della chiave con il prefisso
-      const sessionKey = `${SESSION_PREFIX}${user.id}`;
       
-      const response = await fetch(`${redisApiUrl}/session/${sessionKey}`, {
+      const response = await fetch(`${redisApiUrl}/delete/${user.id}`, {
         method: 'DELETE'
       });
       

@@ -33,7 +33,6 @@ export class UserHelper {
     }
 
     // Aggiungi questa costante all'inizio del file
-    private static readonly SESSION_PREFIX = 'user_session_';
 
     /**
      * Salva i token di sessione in Redis
@@ -43,7 +42,6 @@ export class UserHelper {
         try {
             const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
             // Usa il formato corretto della chiave con il prefisso
-            const sessionKey = `${UserHelper.SESSION_PREFIX}${userId}`;
 
             // Crea l'oggetto sessione nel formato corretto
             const sessionData = {
@@ -98,9 +96,8 @@ export class UserHelper {
         try {
             const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
             // Usa il formato corretto della chiave con il prefisso
-            const sessionKey = `${UserHelper.SESSION_PREFIX}${userId}`;
 
-            const response = await fetch(`${redisApiUrl}/session/${sessionKey}`);
+            const response = await fetch(`${redisApiUrl}/session/${userId}`);
 
             if (!response.ok) {
                 console.debug('No session found in Redis or error:', response.status);
@@ -151,9 +148,8 @@ export class UserHelper {
         try {
             const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
             // Usa il formato corretto della chiave con il prefisso
-            const sessionKey = `${UserHelper.SESSION_PREFIX}${userId}`;
 
-            const response = await fetch(`${redisApiUrl}/session/${sessionKey}`, {
+            const response = await fetch(`${redisApiUrl}/session/${userId}`, {
                 method: 'DELETE'
             });
 
