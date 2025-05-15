@@ -9,6 +9,13 @@ componentLib
             group: 'auth'
         }
     })
+    .register('DebugAuth', {
+        import: () => import('~/components/tsx/dev/DebugAuth'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'auth'
+        }
+    })
     .register('HeroGrid', {
         import: () => import('@/components/tsx/home/HeroGrid.tsx'),
         metadata: {

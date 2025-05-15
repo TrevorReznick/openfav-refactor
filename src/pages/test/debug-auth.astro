@@ -1,0 +1,9 @@
+---
+import Layout from '@/layouts/BaseLayout.astro'
+import RClient from '~/components/tsx/builders/AppClient'
+---
+
+<Layout title="Your App">
+    <!--<Landing client:only /> -->
+    <RClient componentName="DebugAuth" client:load />
+</Layout>
