@@ -98,7 +98,7 @@ describe('UserHelper', () => {
       // Check that fetch was called with the expected URL and method
       const fetchCalls = mockFetch.mock.calls
       const sessionCall = fetchCalls.find(([url]) => 
-        url.includes('/session/user_session_user-123')
+        url.includes('/session/user-123')
       )
       expect(sessionCall).toBeDefined()
       expect(sessionCall?.[1]?.method).toBe('GET')
