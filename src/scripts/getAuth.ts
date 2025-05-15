@@ -22,7 +22,7 @@ export class UserHelper {
 
     /**
      * Get formatted user info from store
-     */
+    */
     public getUserInfo(): UserSession {
 
         const user = userStore.get()
@@ -36,8 +36,8 @@ export class UserHelper {
     private static readonly SESSION_PREFIX = 'user_session_';
 
     /**
- * Salva i token di sessione in Redis
- */
+     * Salva i token di sessione in Redis
+    */
     public async saveSessionToRedis(userId: string, userSession: UserSession): Promise<boolean> {
         console.debug('[UserHelper] saveSessionToRedis');
         try {
@@ -169,13 +169,10 @@ export class UserHelper {
             return false;
         }
     }
-
+   
     /**
         * Fetch and return fresh session tokens from API
     */
-    /**
- * Fetch and return fresh session tokens from API
- */
     public async getSessionTokens(): Promise<UserSession | null> {
         console.group('[UserHelper] getSessionTokens');
         try {
@@ -186,7 +183,7 @@ export class UserHelper {
             if (storedUser?.id) {
                 const redisSession = await this.getSessionFromRedis(storedUser.id);
 
-                if (redisSession && redisSession.accessToken && !this.isTokenExpiredFromTimestamp(redisSession.expiresAt)) {
+                if (redisSession?.tokens?.accessToken && !this.isTokenExpiredFromTimestamp(redisSession.tokens.expiresAt)) {
                     console.debug('Using session from Redis');
 
                     // Crea un oggetto UserSession dai dati Redis
@@ -194,9 +191,9 @@ export class UserHelper {
                         ...storedUser,
                         isAuthenticated: true,
                         tokens: {
-                            accessToken: redisSession.accessToken,
-                            refreshToken: redisSession.refreshToken,
-                            expiresAt: redisSession.expiresAt
+                            accessToken: redisSession.tokens.accessToken,
+                            refreshToken: redisSession.tokens.refreshToken,
+                            expiresAt: redisSession.tokens.expiresAt
                         }
                     };
                 }
@@ -225,11 +222,7 @@ export class UserHelper {
 
             // Salva la sessione in Redis se abbiamo un ID utente
             if (userSession.id && userSession.tokens.accessToken) {
-                await this.saveSessionToRedis(userSession.id, {
-                    accessToken: userSession.tokens.accessToken,
-                    refreshToken: userSession.tokens.refreshToken,
-                    expiresAt: userSession.tokens.expiresAt
-                });
+                await this.saveSessionToRedis(userSession.id, userSession);
             }
 
             return userSession;
@@ -248,25 +241,71 @@ export class UserHelper {
     }
 
     /**
-     * Get complete session (from store or API)
-     */
-    public async getCompleteSession(): Promise<UserSession> {
+ * Get complete session (from store, Redis or API)
+ */
+public async getCompleteSession(): Promise<UserSession> {
+    this.logAuthState('Inizio recupero sessione completa');
+    
+    // 1. Controlla se c'è un utente nello store locale
+    const storedUser = userStore.get();
+    this.logAuthState('Utente nello store locale', storedUser?.id || 'Nessun utente');
 
-        console.debug('[UserHelper] getCompleteSession')
-
-        const storedUser = userStore.get()
-
-        if (storedUser?.isAuthenticated && !this.isTokenExpired(storedUser)) {
-            return storedUser
-        }
-
-        const freshSession = await this.getSessionTokens()
-        const user = freshSession || this.getEmptyUser()
-
-        userStore.set(user)
-        return user
+    // 2. Se l'utente è autenticato e il token è valido, restituiscilo
+    if (storedUser?.isAuthenticated && !this.isTokenExpired(storedUser)) {
+        this.logAuthState('Trovata sessione valida nello store locale');
+        return storedUser;
     }
 
+    // 3. Se c'è un utente ma il token è scaduto, prova a recuperare da Redis
+    if (storedUser?.id) {
+        try {
+            this.logAuthState('Tentativo di recupero sessione da Redis', { userId: storedUser.id });
+            const redisSession = await this.getSessionFromRedis(storedUser.id);
+            
+            if (redisSession && !this.isTokenExpired(redisSession)) {
+                this.logAuthState('Sessione recuperata da Redis con successo', { 
+                    userId: redisSession.id,
+                    expiresAt: redisSession.tokens.expiresAt 
+                });
+                userStore.set(redisSession);
+                return redisSession;
+            }
+        } catch (error) {
+            this.logAuthState('Errore nel recupero da Redis', error);
+            // Continua con il normale flusso di autenticazione
+        }
+    }
+
+    // 4. Se non c'è una sessione valida, prova a ottenerne una nuova
+    this.logAuthState('Nessuna sessione valida trovata, richiedo nuovi token');
+    try {
+        const freshSession = await this.getSessionTokens();
+        
+        if (freshSession) {
+            this.logAuthState('Nuova sessione ottenuta con successo', { 
+                userId: freshSession.id 
+            });
+            
+            // Salva la nuova sessione in Redis in background
+            this.saveSessionToRedis(freshSession.id, freshSession)
+                .catch(error => 
+                    this.logAuthState('Errore nel salvataggio su Redis', error)
+                );
+                
+            userStore.set(freshSession);
+            return freshSession;
+        }
+    } catch (error) {
+        this.logAuthState('Errore nel recupero della sessione', error);
+        throw error;
+    }
+
+    // 5. Se tutto il resto fallisce, restituisci un utente vuoto
+    this.logAuthState('Nessuna sessione valida trovata, restituisco utente vuoto');
+    const emptyUser = this.getEmptyUser();
+    userStore.set(emptyUser);
+    return emptyUser;
+}
     /**
      * Check if user is authenticated
      */
@@ -359,9 +398,13 @@ export class UserHelper {
         }
     }
 
+    private logAuthState(message: string, data?: any) {
+        console.log(`[Auth] ${message}`, data || '')
+    }
+
     /**
      * Return empty user session
-     */
+    */
     private getEmptyUser(): UserSession {
         return {
             id: '',
