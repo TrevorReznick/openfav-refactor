@@ -3,21 +3,19 @@ import { ThemeToggle } from '@/components_rc/ThemeToggle'
 ---
 
 <header
-    class="sticky top-0 z-50 glass-card bg-secondary-light/50 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    class="sticky top-0 z-50 w-full bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80"
 >
-    <div class="container flex h-14 items-center">
-        <div class="mr-4 flex">
-            <a href="/" class="mr-6 flex items-center space-x-2">
-                <span class="font-bold">Your App</span>
+    <div class="container mx-auto px-4 flex h-14 items-center">
+        <div class="flex items-center">
+            <a href="/" class="flex items-center space-x-2">
+                <span class="text-xl font-bold">OpenFav</span>
             </a>
         </div>
-        <div
-            class="flex flex-1 items-center justify-between space-x-2 md:justify-end"
-        >
-            <div class="w-full flex-1 md:w-auto md:flex-none">
+        <div class="flex-1 flex items-center justify-between">
+            <div class="flex-1 hidden md:block">
                 <!-- Add search component here later -->
             </div>
-            <nav class="flex items-center">
+            <nav class="flex items-center space-x-4">
                 <ThemeToggle client:load />
             </nav>
         </div>
