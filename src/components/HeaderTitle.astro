@@ -1,0 +1,16 @@
+---
+const { Title, subTitle } = Astro.props
+---
+
+<div class="space-y-4 text-center">
+    <h1
+        class="text-4xl font-bold tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
+    >
+        {Title}
+    </h1>
+    <p
+        class="mx-auto max-w-[600px] text-base text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed"
+    >
+        {subTitle}
+    </p>
+</div>

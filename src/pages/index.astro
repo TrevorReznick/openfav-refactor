@@ -1,0 +1,29 @@
+---
+import Layout from '@/layouts/ThemeLayouts.astro'
+//import { Button } from '@/components/tsx/ui/button'
+import HeaderTitle from '@/components/HeaderTitle.astro'
+
+const { Title, subTitle } = Astro.props
+---
+
+<Layout title="Welcome to Your App">
+    <div
+        class="flex flex-col items-center justify-center space-y-8 text-center"
+    >
+        <HeaderTitle
+            Title="Openfav-refactor"
+            subTitle="A modern full-stack application built with Astro, React, and Supabase."
+        />
+        <div class="flex gap-4">
+            <a href="/build/users">
+                <button class="btn-primary">Posts Component</button>
+            </a>
+            <a href="/build/test">
+                <button class="btn-primary">Posts Component</button>
+            </a>
+            <a href="/build/main">
+                <button class="btn-secondary">Posts Component</button>
+            </a>
+        </div>
+    </div>
+</Layout>
