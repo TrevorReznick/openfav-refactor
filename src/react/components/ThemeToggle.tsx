@@ -2,17 +2,22 @@ import * as React from 'react'
 import { Moon, Sun } from 'lucide-react'
 import { useStore } from '@nanostores/react'
 
-import { Button } from '@/components_rc/ui/button'
+import { Button } from '@/react/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components_rc/ui/dropdown-menu'
-import { themeStore } from '@/react/providers/themeProvider'
+} from '@/react/components/ui/dropdown-menu'
+import { themeStore } from '@/store'
+
+type ThemeState = {
+  theme: 'light' | 'dark' | 'system';
+  systemTheme: 'light' | 'dark';
+}
 
 export function ThemeToggle() {
-  const { theme } = useStore(themeStore)
+  const { theme } = useStore(themeStore) as ThemeState
 
   const setTheme = (theme: 'light' | 'dark' | 'system') => {
     const root = window.document.documentElement
@@ -25,10 +30,10 @@ export function ThemeToggle() {
         : 'light'
 
       root.classList.add(systemTheme)
-      themeStore.set({ ...themeStore.get(), theme, systemTheme })
+      themeStore.set({ theme, systemTheme })
     } else {
       root.classList.add(theme)
-      themeStore.set({ ...themeStore.get(), theme })
+      themeStore.set({ theme, systemTheme: theme === 'system' ? 'light' : 'dark' })
     }
 
     localStorage.setItem('ui-theme', theme)

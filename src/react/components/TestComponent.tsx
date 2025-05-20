@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@/components/tsx/ui/button';
-import { ThemeToggle } from '@/components/tsx/theme-toggle';
+import { Button } from '@/react/components/ui/button';
+import { ThemeToggle } from '@/react/components/ThemeToggle';
 import { toast } from 'sonner';
+import { counterStore, notifications, messageStore } from '@/store';
+import { useStore } from '@nanostores/react';
+
+type Message = string;
+
+type Post = {
+  id: number;
+  title: string;
+  description: string;
+}
 
 const TestComponent = () => {
-  const [count, setCount] = useState(0);
+  const count = useStore(counterStore);
+  const messages = useStore(notifications) as string[];
+  const message = useStore(messageStore);
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['test-data'],
@@ -17,6 +29,9 @@ const TestComponent = () => {
         },
         body: JSON.stringify({ type: 'getSites', limit: 3 }),
       });
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
       return response.json();
     },
   });
@@ -45,6 +60,11 @@ const TestComponent = () => {
     }, 4000);
   };
 
+  const incrementCount = () => {
+    counterStore.set(count + 1);
+    notifications.set([...messages, 'Count incremented']);
+  };
+
   return (
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -60,19 +80,32 @@ const TestComponent = () => {
           Show Sonner Toasts
         </Button>
         <Button 
-          onClick={() => setCount(c => c + 1)}
+          onClick={incrementCount}
           className="w-full justify-center"
         >
           Count: {count}
         </Button>
         
+        {messages.length > 0 && (
+          <div className="mt-4 p-4 bg-card rounded-lg">
+            <h3 className="font-semibold mb-2">Notifications:</h3>
+            <div className="space-y-2">
+              {messages.map((msg: Message, index) => (
+                <div key={index} className="text-sm text-muted-foreground">
+                  {msg}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2">
           <h3 className="font-semibold">API Data:</h3>
           {isLoading ? (
             <div>Loading...</div>
           ) : (
             <div className="space-y-2">
-              {posts?.data?.map((post: any) => (
+              {posts?.data?.map((post: Post) => (
                 <div key={post.id} className="p-2 bg-card rounded-lg">
                   <h4 className="font-medium">{post.title}</h4>
                   <p className="text-sm text-muted-foreground">{post.description}</p>
