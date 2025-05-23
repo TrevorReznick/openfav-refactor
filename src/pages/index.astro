@@ -2,50 +2,31 @@
 import Layout from '@/layouts/ThemeLayout.astro'
 import HeaderTitle from '@/components/HeaderTitle.astro'
 import AppClient from '@/react/AppClient'
+//import TestComponent from '~/react/components/TestComponent'
 
 const { Title, subTitle } = Astro.props
 
 // Test both approaches
-const routeComponent = 'TestComponent' // This will be loaded from routes
-const registryComponent = 'TestComponent' // This will be loaded from registry
+const TestComponent = 'TestComponent' // This will be loaded from routes
 ---
 
 <Layout title="Welcome to Your App">
-    <div class="container mx-auto py-8 space-y-8">
+    <div
+        class="flex flex-col items-center justify-center space-y-8 text-center"
+    >
         <HeaderTitle
             Title="Openfav-refactor"
             subTitle="A modern full-stack application built with Astro, React, and Supabase."
         />
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Route-based component -->
-            <div>
-                <h2 class="text-2xl font-semibold mb-4">Route-based Component</h2>
-                <AppClient 
-                    componentName={routeComponent}
-                    client:load
-                />
-            </div>
-
-            <!-- Registry-based component -->
-            <div>
-                <h2 class="text-2xl font-semibold mb-4">Registry-based Component</h2>
-                <AppClient 
-                    componentName={registryComponent}
-                    client:load
-                />
-            </div>
-        </div>
-
-        <div class="flex gap-4 mt-8">
+        <div class="flex gap-4">
             <a href="/build/users">
-                <button class="btn-primary">Users Component</button>
+                <button class="btn-primary">Posts Component</button>
             </a>
             <a href="/build/test">
-                <button class="btn-primary">Test Component</button>
+                <button class="btn-primary">Posts Component</button>
             </a>
             <a href="/build/main">
-                <button class="btn-secondary">Main Component</button>
+                <button class="btn-secondary">Test Store</button>
             </a>
         </div>
     </div>
