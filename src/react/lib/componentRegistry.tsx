@@ -15,7 +15,7 @@ componentLib
             group: 'examples'
         }
     })
-    .register('ExampleTest', {
+    .register('test-nanostore', {
         import: () => import('~/react/components/examples/TestComponent'),
         metadata: {
             description: 'Test Counter Component',

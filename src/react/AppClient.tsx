@@ -34,7 +34,7 @@ const AppClient: FC<AppClientProps> = ({
   useQueryString = false,
   children,
   additionalProviders = [],
-  showThemeToggle = true,
+  showThemeToggle = false,
   showToaster = true
 }) => {
   // Providers di base con QueryClient
