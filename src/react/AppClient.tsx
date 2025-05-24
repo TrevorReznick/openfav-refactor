@@ -3,7 +3,7 @@ import { lazy, Suspense } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
 import DynamicWrapper from '@/react/DynamicWrapper'
-import { NavigationProvider } from '@/react/hooks/NavigationContext'
+import { NavigationProvider } from '~/react/hooks/navigationContext'
 import { ThemeProvider } from '@/react/providers/themeProvider'
 import { ThemeToggle } from '@/react/components/ThemeToggle'
 import componentLib from '@/react/lib/componentRegistry' // Path corretto
