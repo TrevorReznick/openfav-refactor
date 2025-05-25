@@ -3,6 +3,10 @@ import type { SessionResponse } from '~/types/session'
 import type { UserSession } from '~/types/users'
 import type { User } from '@/types/session'
 
+const api_prod = import.meta.env.PUBLIC_PROD_API_URL
+const api_dev = import.meta.env.PUBLIC_DEV_API_URL
+const api_url = import.meta.env.MODE === 'production' ? api_prod : api_dev
+
 export class UserHelper {
 
     private static instance: UserHelper
@@ -196,25 +200,25 @@ export class UserHelper {
             }
 
             // Se non abbiamo trovato una sessione valida in Redis, procedi con l'autenticazione Supabase
-            const response = await fetch('/api/v1/auth/signin', {
+            const response = await fetch(`${api_url}/api/v1/auth/signin`, {
                 method: 'GET',
                 credentials: 'include'
             });
 
             if (!response.ok) {
-                console.error('API Response Error:', response.status, response.statusText);
+                console.error('[UserHelper] API Response Error:', response.status, response.statusText);
                 return null;
             }
 
             const data: SessionResponse = await response.json();
 
             if (!data?.session?.user) {
-                console.error('Invalid session data:', data);
+                console.error('[UserHelper] Invalid session data:', data);
                 return null;
             }
 
             const userSession = this.mapResponseToUserSession(data);
-            console.debug('Session data from API:', userSession);
+            console.debug('[UserHelper] Session data from API:', userSession);
 
             // Salva la sessione in Redis se abbiamo un ID utente
             if (userSession.id && userSession.tokens.accessToken) {
@@ -223,7 +227,7 @@ export class UserHelper {
 
             return userSession;
         } catch (error) {
-            console.error('Error fetching session tokens:', error);
+            console.error('[UserHelper] Error fetching session tokens:', error);
             return null;
         } finally {
             console.groupEnd();
@@ -239,25 +243,25 @@ export class UserHelper {
     public async refreshToken(): Promise<boolean> {
         try {
             console.debug('[UserHelper] Attempting to refresh token');
-            const response = await fetch('/api/v1/auth/refresh', {
+            const response = await fetch(`${api_url}/api/v1/auth/signin/refresh`, {
                 method: 'POST',
                 credentials: 'include'
             });
 
             if (!response.ok) {
-                console.error('Failed to refresh token:', response.status);
+                console.error('[UserHelper] Failed to refresh token:', response.status);
                 return false;
             }
 
             const data = await response.json();
             if (!data?.access_token) {
-                console.error('Invalid refresh token response');
+                console.error('[UserHelper] Invalid refresh token response');
                 return false;
             }
 
             const user = userStore.get();
             if (!user) {
-                console.error('No user in store');
+                console.error('[UserHelper] No user in store');
                 return false;
             }
 
@@ -273,10 +277,10 @@ export class UserHelper {
             // Aggiorna la sessione in Redis
             await this.saveSessionToRedis(user.id, user);
 
-            console.debug('Token refreshed successfully');
+            console.debug('[UserHelper] Token refreshed successfully');
             return true;
         } catch (error) {
-            console.error('Error refreshing token:', error);
+            console.error('[UserHelper] Error refreshing token:', error);
             return false;
         }
     }

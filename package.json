@@ -10,8 +10,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest",
-  "test:watch": "vitest watch",
-  "test:coverage": "vitest run --coverage"
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@astrojs/react": "^3.6.2",

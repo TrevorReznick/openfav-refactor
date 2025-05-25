@@ -7,16 +7,13 @@ export const onRequest = defineMiddleware(async ({ url, redirect }, next) => {
     const protectedPaths = ['/test-build/dashboard', '/admin']
     const authPaths = ['/login', '/register', '/api/auth/']
 
-    // Bypassa rotte pubbliche
     if (authPaths.some((path) => url.pathname.startsWith(path))) {
 
-        console.log('🔓 Accesso a rotta pubblica:', url.pathname)
+        console.log('[middleware] Accesso a rotta pubblica:', url.pathname)
         return next()
 
     }
 
-    // Controlla solo le rotte protette
-    // Esempio di miglioramento
     if (protectedPaths.some((path) => url.pathname.startsWith(path))) {
         try {
             const userHelper = UserHelper.getInstance();
@@ -35,10 +32,10 @@ export const onRequest = defineMiddleware(async ({ url, redirect }, next) => {
 
             // In:
             if (userHelper.isTokenExpired(userSession)) {
-                console.log('🔄 Token scaduto, tentativo di refresh...');
+                console.log('[middleware] Token scaduto, tentativo di refresh...');
                 const refreshed = await userHelper.refreshToken();
                 if (!refreshed) {
-                    console.warn('❌ Refresh del token fallito, richiesta autenticazione');
+                    console.warn('[middleware] Refresh del token fallito, richiesta autenticazione');
                     return redirect(`/login?redirect=${encodeURIComponent(url.pathname)}&session=expired`);
                 }
                 // Dopo il refresh, ottieni di nuovo la sessione aggiornata
@@ -60,13 +57,13 @@ export const onRequest = defineMiddleware(async ({ url, redirect }, next) => {
                 const userRoles = (userMetadata.roles)?.split(',') || [];
 
                 if (!userRoles.includes('admin')) {
-                    console.warn('Accesso negato: ruolo admin richiesto');
+                    console.warn('[middleware] Accesso negato: ruolo admin richiesto');
                     return redirect('/unauthorized');
                 }
             }
 
         } catch (error) {
-            console.error('Auth error:', error);
+            console.error('[middleware] Auth error:', error);
             return redirect('/login?error=auth_failed');
         }
     }

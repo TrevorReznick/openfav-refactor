@@ -3,7 +3,7 @@ import { supabase } from '~/providers/supabaseAuth'
 import type { Provider } from '@supabase/supabase-js'
 import * as store from '~/store'
 
-console.log('hello from signin.ts')
+console.log('[Api] hello from signin.ts')
 
 export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
@@ -22,18 +22,18 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       },
     })
     if (!import.meta.env.DEV) {
-      console.log('Stai in ambiente di produzione');
+      console.log('[Api] Stai in ambiente di produzione');
       console.log(import.meta.env.PUBLIC_PROD_API_URL + 'auth/callback')
-    } else console.log('Stai in ambiente di sviluppo')
+    } else console.log('[Api] Stai in ambiente di sviluppo')
 
     if (error) {
       store.messageStore.set(`OAuth error: ${error.message}`)
       //return new Response(error.message, { status: 500 });
       return redirect('/login')
     }
-    console.log('auth response data: ', data)
+    console.log('[Api] auth response data: ', data)
     return redirect(data.url)
-  } else console.log('No provider selected, continue...')
+  } else console.log('[Api] No provider selected, continue...')
 
   if (!email || !password) {
     //return new Response('Email and password are required', { status: 400 })
@@ -54,7 +54,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   }
   //TODO
   const { access_token, refresh_token } = data.session
-  console.log('Access token:', access_token)
+  console.log('[Api] Access token:', access_token)
   cookies.set('sb-access-token', access_token, {
     sameSite: 'strict',
     path: '/',
@@ -65,7 +65,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     path: '/',
     secure: true,
   })
-  console.log('user is logged in')
+  console.log('[Api] user is logged in')
 
   return redirect('/test/main')
 };
