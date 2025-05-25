@@ -27,16 +27,42 @@ export const onRequest = defineMiddleware(async ({ url, redirect }, next) => {
             }
 
             if (userHelper.isTokenExpired(userSession)) {
-                // Tentativo di refresh del token
                 const refreshed = await userHelper.refreshToken();
                 if (!refreshed) {
                     return redirect('/login?session=expired');
                 }
             }
 
+            // In:
+            if (userHelper.isTokenExpired(userSession)) {
+                console.log('🔄 Token scaduto, tentativo di refresh...');
+                const refreshed = await userHelper.refreshToken();
+                if (!refreshed) {
+                    console.warn('❌ Refresh del token fallito, richiesta autenticazione');
+                    return redirect(`/login?redirect=${encodeURIComponent(url.pathname)}&session=expired`);
+                }
+                // Dopo il refresh, ottieni di nuovo la sessione aggiornata
+                const updatedSession = await userHelper.getCompleteSession();
+                if (!updatedSession.isAuthenticated || userHelper.isTokenExpired(updatedSession)) {
+                    return redirect(`/login?redirect=${encodeURIComponent(url.pathname)}&session=expired`);
+                }
+            }
+
             // Verifica ruoli se necessario
-            if (url.pathname.startsWith('/admin') && !userSession.roles?.includes('admin')) {
-                return redirect('/unauthorized');
+            if (url.pathname.startsWith('/admin')) {
+                type UserMetadataWithRoles = {
+                    provider?: string | null;
+                    avatarUrl?: string;
+                    githubUsername?: string;
+                    roles?: string;
+                };
+                const userMetadata = userSession.metadata as UserMetadataWithRoles || {};
+                const userRoles = (userMetadata.roles)?.split(',') || [];
+
+                if (!userRoles.includes('admin')) {
+                    console.warn('Accesso negato: ruolo admin richiesto');
+                    return redirect('/unauthorized');
+                }
             }
 
         } catch (error) {

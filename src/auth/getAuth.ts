@@ -142,7 +142,7 @@ export class UserHelper {
 
     /**
      * Elimina la sessione da Redis
-     */
+    */
     public async deleteSessionFromRedis(userId: string): Promise<boolean> {
         console.debug('[UserHelper] deleteSessionFromRedis');
         try {
@@ -236,9 +236,56 @@ export class UserHelper {
         return Date.now() >= expiresAt * 1000;
     }
 
+    public async refreshToken(): Promise<boolean> {
+        try {
+            console.debug('[UserHelper] Attempting to refresh token');
+            const response = await fetch('/api/v1/auth/refresh', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                console.error('Failed to refresh token:', response.status);
+                return false;
+            }
+
+            const data = await response.json();
+            if (!data?.access_token) {
+                console.error('Invalid refresh token response');
+                return false;
+            }
+
+            const user = userStore.get();
+            if (!user) {
+                console.error('No user in store');
+                return false;
+            }
+
+            // Aggiorna i token nello store
+            user.tokens = {
+                accessToken: data.access_token,
+                refreshToken: data.refresh_token || user.tokens.refreshToken,
+                expiresAt: data.expires_at || (Date.now() / 1000) + 3600 // Default 1h se non specificato
+            };
+
+            userStore.set({ ...user });
+
+            // Aggiorna la sessione in Redis
+            await this.saveSessionToRedis(user.id, user);
+
+            console.debug('Token refreshed successfully');
+            return true;
+        } catch (error) {
+            console.error('Error refreshing token:', error);
+            return false;
+        }
+    }
+
+
+
     /**
- * Get complete session (from store, Redis or API)
- */
+     * Get complete session (from store, Redis or API)
+    */
     public async getCompleteSession(): Promise<UserSession> {
         this.logAuthState('Inizio recupero sessione completa');
 
