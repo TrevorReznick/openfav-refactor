@@ -1,4 +1,4 @@
-import type { AppMetadata, UserMetadata } from '@/types/auth/metadata'
+import type { AppMetadata, UserMetadata } from '@/types/metadata'
 
 export interface Identity {
     identity_id: string
