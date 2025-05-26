@@ -87,3 +87,82 @@ export interface UpdateListData {
     description?: string;
     public?: boolean;
 }
+
+/**
+ * TIPI PER LE OPERAZIONI DI TABELLA
+ */
+
+export interface MainTableData {
+    id?: string | number;
+    description?: string;
+    icon?: string;
+    image?: string;
+    logo?: string;
+    name: string;
+    title?: string;
+    url: string;
+}
+
+export interface SubMainTableData {
+    id_src: string | number;
+    user_id: string;
+    accessible: boolean;
+    domain_exists: boolean;
+    html_content_exists: boolean;
+    is_public: boolean;
+    secure: boolean;
+    status_code?: number;
+    type?: string;
+    valid_url: boolean;
+    AI?: boolean;
+}
+
+export interface CategoriesTagsData {
+    id_src: string | number;
+    id_area: number;
+    id_cat: number;
+    tag_3: string | number;
+    tag_4: string | number;
+    tag_5: string | number;
+    id_provider?: number;
+    ratings?: any;
+    AI_think?: string;
+    AI_Summary?: string;
+}
+
+export interface CreateLinkRequest {
+    // Main Table Fields
+    description?: string;
+    icon?: string;
+    image?: string;
+    logo?: string;
+    name: string;
+    title?: string;
+    url: string;
+
+    // Sub Main Table Fields
+    user_id: string;
+    accessible?: boolean;
+    domain_exists?: boolean;
+    html_content_exists?: boolean;
+    is_public?: boolean;
+    secure?: boolean;
+    status_code?: number;
+    type?: string;
+    valid_url?: boolean;
+    AI?: boolean;
+
+    // Categories Tag Fields
+    id_area?: number;
+    id_cat?: number;
+    id_provider?: number;
+    ratings?: any;
+    tag_3?: string | number;
+    tag_4?: string | number;
+    tag_5?: string | number;
+    AI_think?: string;
+    AI_Summary?: string;
+
+    // Common Fields
+    id_src?: string | number;
+}
