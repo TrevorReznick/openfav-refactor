@@ -1,85 +1,150 @@
-import * as React from 'react'
-import { map } from 'nanostores'
-import { useStore } from '@nanostores/react'
+import * as React from 'react';
+import { map } from 'nanostores';
 
-type Theme = 'dark' | 'light' | 'system'
+type Theme = 'dark' | 'light' | 'system';
 
 interface ThemeProviderProps {
-  children: React.ReactNode
-  defaultTheme?: Theme
-  storageKey?: string
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
+  initialTheme?: Theme;
+  initialSystemTheme?: Theme;
 }
 
 interface ThemeProviderState {
-  theme: Theme
-  systemTheme: Theme | undefined
+  theme: Theme;
+  systemTheme: Theme | undefined;
 }
 
 const initialState: ThemeProviderState = {
   theme: 'system',
   systemTheme: undefined,
+};
+
+export const themeStore = map<ThemeProviderState>(initialState);
+
+interface ThemeContextType {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+  systemTheme: Theme | undefined;
 }
 
-// Sostituisci createStore con map
-export const themeStore = map<ThemeProviderState>(initialState)
+export const ThemeContext = React.createContext<ThemeContextType>({
+  theme: 'system',
+  setTheme: () => {},
+  systemTheme: undefined,
+});
+
+export function ThemeWrapper({
+  children,
+  initialTheme = 'system',
+  initialSystemTheme,
+}: Omit<ThemeProviderProps, 'storageKey' | 'defaultTheme'>) {
+  return (
+    <ThemeProvider 
+      defaultTheme={initialTheme}
+      initialTheme={initialTheme}
+      initialSystemTheme={initialSystemTheme}
+    >
+      {children}
+    </ThemeProvider>
+  );
+}
 
 export function ThemeProvider({
   children,
   defaultTheme = 'system',
   storageKey = 'ui-theme',
-  ...props
-}: ThemeProviderProps) {
-  const [mounted, setMounted] = React.useState(false)
+  initialTheme = defaultTheme,
+  initialSystemTheme,
+}: ThemeProviderProps): JSX.Element {
+  const [mounted, setMounted] = React.useState(false);
+  const [themeState, setThemeState] = React.useState<Theme>(initialTheme);
+  const [systemTheme, setSystemTheme] = React.useState<Theme | undefined>(initialSystemTheme);
 
-  const setTheme = React.useCallback(
-    (theme: Theme) => {
-      const root = window.document.documentElement
-      root.classList.remove('light', 'dark')
+  const applyTheme = React.useCallback((theme: Theme, sysTheme?: Theme) => {
+    if (typeof document === 'undefined') return;
+    
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
 
-      if (theme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-          .matches
-          ? 'dark'
-          : 'light'
+    const effectiveTheme = theme === 'system' 
+      ? sysTheme || (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
 
-        root.classList.add(systemTheme)
-        // Aggiorna lo store usando set di nanostores map
-        themeStore.set({ theme, systemTheme })
-      } else {
-        root.classList.add(theme)
-        // Aggiorna lo store mantenendo systemTheme
-        themeStore.setKey('theme', theme)
-      }
-
-      localStorage.setItem(storageKey, theme)
-    },
-    [storageKey]
-  )
-
-  React.useEffect(() => {
-    const savedTheme = localStorage.getItem(storageKey) as Theme | null
-    setTheme(savedTheme || defaultTheme)
-    setMounted(true)
-  }, [defaultTheme, setTheme, storageKey])
-
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-    const handleChange = () => {
-      // Leggi dallo store usando get di nanostores map
-      const currentTheme = themeStore.get().theme
-      if (currentTheme === 'system') {
-        setTheme('system')
-      }
+    if (effectiveTheme) {
+      root.classList.add(effectiveTheme);
     }
+    
+    themeStore.set({ 
+      theme,
+      systemTheme: sysTheme || (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') 
+    });
+  }, []);
 
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [setTheme])
+  const setTheme = React.useCallback((theme: Theme) => {
+    if (typeof window === 'undefined') return;
+    
+    localStorage.setItem(storageKey, theme);
+    setThemeState(theme);
+    
+    if (theme === 'system') {
+      const sysTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setSystemTheme(sysTheme);
+      applyTheme('system', sysTheme);
+    } else {
+      applyTheme(theme);
+    }
+  }, [applyTheme, storageKey]);
 
-  if (!mounted) {
-    return null
+  // Initialize theme on client
+  React.useEffect(() => {
+    setMounted(true);
+    
+    // Get stored theme or use default
+    const storedTheme = (() => {
+      if (typeof window === 'undefined') return defaultTheme;
+      const saved = localStorage.getItem(storageKey) as Theme | null;
+      return saved || defaultTheme;
+    })();
+
+    setTheme(storedTheme);
+
+    // Listen for system theme changes
+    if (typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleSystemThemeChange = () => {
+        const newSystemTheme = mediaQuery.matches ? 'dark' : 'light';
+        setSystemTheme(newSystemTheme);
+        if (themeState === 'system') {
+          applyTheme('system', newSystemTheme);
+        }
+      };
+
+      mediaQuery.addEventListener('change', handleSystemThemeChange);
+      return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    }
+  }, [applyTheme, defaultTheme, storageKey, themeState]);
+
+  // Provide theme context
+  const contextValue = React.useMemo(() => ({
+    theme: themeState,
+    setTheme,
+    systemTheme,
+  }), [themeState, setTheme, systemTheme]);
+
+  return (
+    <ThemeContext.Provider value={contextValue}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// Custom hook to use the theme context
+export function useTheme() {
+  const context = React.useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
   }
-
-  return <>{children}</>
+  return context;
 }
