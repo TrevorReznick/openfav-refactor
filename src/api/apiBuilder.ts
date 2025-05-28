@@ -28,8 +28,16 @@ export async function makeRequest<T>(
             url += `?${params.toString()}`;
         }
 
+        console.log('Invio richiesta a:', url);
         const response = await fetch(url, options);
         const result = await response.json();
+        
+        // Log della risposta
+        console.log('=== Risposta API ===');
+        console.log('URL:', url);
+        console.log('Stato:', response.status, response.statusText);
+        console.log('Risposta:', result);
+        console.log('===================');
 
         if (!response.ok) {
             return {

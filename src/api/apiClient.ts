@@ -41,16 +41,16 @@ export const lists = {
     getOne: (id: number): Promise<ApiResponse<UserList>> => fetchElement<UserList>('list', id),
     create: (data: CreateListData): Promise<ApiResponse<UserList>> => createElement<UserList>('list', data),
     update: (id: number, data: UpdateListData): Promise<ApiResponse<UserList>> =>
-        updateElement<UserList>('list', id, data),
+        updateElement<UserList>('lists', id, data),
     delete: (id: number): Promise<ApiResponse<void>> => deleteElement('list', id),
 };
 
 export const sites = {
     getAll: (): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites'),
-    getOne: (id: string): Promise<ApiResponse<Link>> => fetchElement<Link>('link', id),
-    create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('link', data),
-    update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('link', id, data),
-    delete: (id: string): Promise<ApiResponse<void>> => deleteElement('link', id),
+    getOne: (id: string): Promise<ApiResponse<Link>> => fetchElement<Link>('sites', id),
+    create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('sites', data),
+    update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('sites', id, data),
+    delete: (id: string): Promise<ApiResponse<void>> => deleteElement('sites', id),
 };
 
 export const collections = {
