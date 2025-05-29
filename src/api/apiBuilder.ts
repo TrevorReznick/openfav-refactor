@@ -8,13 +8,16 @@ export async function makeRequest<T>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET'
 ): Promise<ApiResponse<T>> {
     try {
-        let url = `${api_url}/${endpoint}`;
+        // Ensure there's no double slash between api_url and endpoint
+        const baseUrl = api_url.endsWith('/') ? api_url.slice(0, -1) : api_url;
+        let url = `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+        
         const options: RequestInit = {
             method,
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include', // Per gestire i cookie di autenticazione
+            credentials: 'include',
             body: method !== 'GET' ? JSON.stringify(data) : undefined,
         };
 
@@ -25,7 +28,7 @@ export async function makeRequest<T>(
                     params.append(key, String(value));
                 }
             });
-            url += `?${params.toString()}`;
+            url += `${url.includes('?') ? '&' : '?'}${params.toString()}`;
         }
 
         console.log('Invio richiesta a:', url);

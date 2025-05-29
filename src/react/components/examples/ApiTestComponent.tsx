@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { makeRequest } from '@/api/apiBuilder';
+import React, { useState } from 'react'
+import { makeRequest } from '@/api/apiBuilder'
 import type { 
   ApiResponse, 
   Link, 
@@ -8,110 +8,19 @@ import type {
   LinkFormData, 
   CollectionFormData, 
   CreateListData 
-} from '@/types/api';
+} from '@/types/api'
 
-type QueryType = 'sites' | 'collections' | 'lists';
-const endpoint = 'api/v1/main/doQueries';
+import {sites, lists, collections} from '@/api/apiClient'
+
+type QueryType = 'sites' | 'collections' | 'lists'
+
 
 type ApiExample = {
-  name: string;
-  type: QueryType;
-  action: string;
-  body?: string;
-};
-
-interface ApiMethods {
-  getAll: () => Promise<ApiResponse<any>>;
-  getOne: (id: string | number) => Promise<ApiResponse<any>>;
-  create: (data: any) => Promise<ApiResponse<any>>;
+  name: string
+  type: QueryType
+  action: string
+  body?: string
 }
-
-const api: Record<QueryType, ApiMethods> = {
-  sites: {
-    getAll: () => makeRequest<Link[]>(endpoint, { type: 'getSites' }),
-    getOne: (id: string | number) => makeRequest<Link>(endpoint, { type: 'getLink', id }),
-    create: (data: LinkFormData) => makeRequest<Link>(endpoint, { type: 'createLink', ...data }, 'POST'),
-  },
-  collections: {
-    getAll: () => makeRequest<Collection[]>(endpoint, { type: 'getCollections' }),
-    getOne: (id: string | number) => makeRequest<Collection>(endpoint, { type: 'getCollection', id }),
-    create: (data: CollectionFormData) => makeRequest<Collection>(endpoint, { type: 'createCollection', ...data }, 'POST'),
-  },
-  lists: {
-    getAll: () => makeRequest<UserList[]>(endpoint, { type: 'getLists' }),
-    getOne: (id: string | number) => makeRequest<UserList>(endpoint, { type: 'getList', id }),
-    create: (data: CreateListData) => makeRequest<UserList>(endpoint, { type: 'createList', ...data }, 'POST'),
-  }
-};
-
-const apiExamples: ApiExample[] = [
-  {
-    name: 'Get All Sites',
-    type: 'sites',
-    action: 'getAll'
-  },
-  {
-    name: 'Get Site by ID',
-    type: 'sites',
-    action: 'getOne',
-    body: '1'
-  },
-  {
-    name: 'Create New Site',
-    type: 'sites',
-    action: 'create',
-    body: JSON.stringify({
-      title: 'Test Site',
-      url: 'https://example.com',
-      description: 'Test site created via API',
-      context_id: '1',
-      resource_id: '1',
-      function_id: '1'
-    }, null, 2)
-  },
-  {
-    name: 'Get All Collections',
-    type: 'collections',
-    action: 'getAll'
-  },
-  {
-    name: 'Get Collection by ID',
-    type: 'collections',
-    action: 'getOne',
-    body: '1'
-  },
-  {
-    name: 'Create New Collection',
-    type: 'collections',
-    action: 'create',
-    body: JSON.stringify({
-      name: 'Test Collection',
-      description: 'Test collection created via API',
-      is_public: true
-    }, null, 2)
-  },
-  {
-    name: 'Get All Lists',
-    type: 'lists',
-    action: 'getAll'
-  },
-  {
-    name: 'Get List by ID',
-    type: 'lists',
-    action: 'getOne',
-    body: '1'
-  },
-  {
-    name: 'Create New List',
-    type: 'lists',
-    action: 'create',
-    body: JSON.stringify({
-      name: 'Test List',
-      description: 'Test list created via API',
-      public: true
-    }, null, 2)
-  }
-];
 
 interface RequestHistoryItem {
   timestamp: string;
@@ -122,6 +31,35 @@ interface RequestHistoryItem {
   request: string;
   response: ApiResponse<any>;
 }
+
+
+const apiExamples: ApiExample[] = [
+  {
+    name: 'Get All Sites',
+    type: 'sites',
+    action: 'getAll',
+  },
+  {
+    name: 'Get Site by ID',
+    type: 'sites',
+    action: 'getOne',
+    body: '1',
+  },
+  {
+    name: 'Create New Site',
+    type: 'sites',
+    action: 'create',
+    body: JSON.stringify({
+      title: 'Test Site',
+      url: 'https://example.com ',
+      description: 'Test site created via API',
+      context_id: '1',
+      resource_id: '1',
+      function_id: '1',
+    }, null, 2),
+  },
+  // Altri esempi per collections e lists...
+];
 
 const ApiTestComponent: React.FC = () => {
   const [type, setType] = useState<QueryType>('sites');
@@ -139,74 +77,55 @@ const ApiTestComponent: React.FC = () => {
     setLoading(true);
     setError('');
     setResponseData('');
-
     try {
       const startTime = performance.now();
       let response: ApiResponse<any> | undefined = undefined;
 
       switch (type) {
         case 'sites':
-          if (action === 'getAll') {
-            response = await api.sites.getAll();
-          } else if (action === 'getOne') {
-            response = await api.sites.getOne(body);
-          } else if (action === 'create') {
-            response = await api.sites.create(JSON.parse(body) as LinkFormData);
-          }
+          if (action === 'getAll') response = await sites.getAll();
+          else if (action === 'getOne') response = await sites.getOne(body);
+          else if (action === 'create') response = await sites.create(JSON.parse(body) as LinkFormData);
           break;
-
         case 'collections':
-          if (action === 'getAll') {
-            response = await api.collections.getAll();
-          } else if (action === 'getOne') {
-            response = await api.collections.getOne(body);
-          } else if (action === 'create') {
-            response = await api.collections.create(JSON.parse(body) as CollectionFormData);
-          }
+          if (action === 'getAll') response = await collections.getAll();
+          else if (action === 'getOne') response = await collections.getOne(body);
+          else if (action === 'create') response = await collections.create(JSON.parse(body) as CollectionFormData);
           break;
-
         case 'lists':
-          if (action === 'getAll') {
-            response = await api.lists.getAll();
-          } else if (action === 'getOne') {
-            response = await api.lists.getOne(parseInt(body));
-          } else if (action === 'create') {
-            response = await api.lists.create(JSON.parse(body) as CreateListData);
-          }
+          if (action === 'getAll') response = await lists.getAll();
+          else if (action === 'getOne') response = await lists.getOne(parseInt(body));
+          else if (action === 'create') response = await lists.create(JSON.parse(body) as CreateListData);
           break;
       }
 
-
-      if (!response) {
-        throw new Error('No response received from API');
-      }
+      if (!response) throw new Error('No response received from API');
 
       const endTime = performance.now();
       const responseTime = Math.round(endTime - startTime);
-
       setResponseData(JSON.stringify(response, null, 2));
 
       setRequestHistory([
         {
           timestamp: new Date().toLocaleTimeString(),
           method: action === 'getAll' ? 'GET' : action === 'getOne' ? 'GET' : 'POST',
-          endpoint: `main/doQueries`,
+          endpoint: `${type}/${action}`,
           status: response.status || 0,
           responseTime: `${responseTime}ms`,
           request: body,
-          response: response
+          response: response,
         },
-        ...requestHistory.slice(0, 9)
+        ...requestHistory.slice(0, 9),
       ]);
 
-      setConsoleOutput(prev => 
+      setConsoleOutput(prev =>
         `${prev}\n[${new Date().toLocaleTimeString()}] ${JSON.stringify(response, null, 2)}`
       );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred';
       setError(errorMessage);
       console.error('API Error:', err);
-      setConsoleOutput(prev => 
+      setConsoleOutput(prev =>
         `${prev}\n[${new Date().toLocaleTimeString()}] Error: ${errorMessage}`
       );
     } finally {
@@ -224,8 +143,8 @@ const ApiTestComponent: React.FC = () => {
   return (
     <div className="p-6 w-full mx-auto bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">API Test Console</h2>
-      
-      {/* Examples Buttons - Horizontal Layout */}
+
+      {/* Examples Buttons */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-3 text-gray-700">Examples</h3>
         <div className="flex flex-wrap gap-2">
@@ -241,17 +160,17 @@ const ApiTestComponent: React.FC = () => {
         </div>
       </div>
 
-      {/* Console Panel - Full Width */}
+      {/* Console Panel */}
       <div className="w-full">
         <div className="bg-gray-800 text-white p-4 rounded-t-lg">
           <div className="flex space-x-4 mb-4">
-            <button 
+            <button
               className={`px-4 py-2 rounded ${activeTab === 'console' ? 'bg-blue-600' : 'bg-gray-700'}`}
               onClick={() => setActiveTab('console')}
             >
               Console
             </button>
-            <button 
+            <button
               className={`px-4 py-2 rounded ${activeTab === 'history' ? 'bg-blue-600' : 'bg-gray-700'}`}
               onClick={() => setActiveTab('history')}
             >
@@ -259,7 +178,6 @@ const ApiTestComponent: React.FC = () => {
             </button>
           </div>
         </div>
-
         {activeTab === 'console' ? (
           <div className="bg-gray-900 text-green-400 p-4 rounded-b-lg font-mono text-sm overflow-auto max-h-96">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -275,7 +193,6 @@ const ApiTestComponent: React.FC = () => {
                   <option value="lists">Lists</option>
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Action</label>
                 <select
@@ -288,7 +205,6 @@ const ApiTestComponent: React.FC = () => {
                   <option value="create">Create</option>
                 </select>
               </div>
-
               {(action === 'getOne' || action === 'create') && (
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">
@@ -302,7 +218,6 @@ const ApiTestComponent: React.FC = () => {
                   />
                 </div>
               )}
-
               <button
                 type="submit"
                 disabled={loading}
@@ -311,13 +226,11 @@ const ApiTestComponent: React.FC = () => {
                 {loading ? 'Sending...' : 'Send Request'}
               </button>
             </form>
-
             {error && (
               <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                 {error}
               </div>
             )}
-
             {responseData && (
               <div className="mt-4">
                 <h4 className="text-sm font-medium text-gray-300 mb-2">Response:</h4>
@@ -359,6 +272,7 @@ const ApiTestComponent: React.FC = () => {
         )}
       </div>
 
+      {/* Console Output */}
       <div className="mt-6 bg-gray-100 p-4 rounded-lg w-full">
         <h3 className="text-lg font-semibold mb-2 text-gray-800">Console Output</h3>
         <pre className="bg-black text-green-400 p-3 rounded font-mono text-sm overflow-auto max-h-48 w-full">
