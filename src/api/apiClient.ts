@@ -17,7 +17,7 @@ const fetchElement = <T>(type: string, id: string | number): Promise<ApiResponse
 
 // POST methods
 const createElement = <T>(type: string, data: any): Promise<ApiResponse<T>> =>
-    makeRequest<T>(`${API_ENDPOINT}?type=create${capitalize(type)}`, data, 'POST');
+    makeRequest<T>(`${API_ENDPOINT}?type=post${capitalize(type)}`, data, 'POST');
 
 // PUT methods
 const updateElement = <T>(type: string, id: string | number, data: any): Promise<ApiResponse<T>> =>
@@ -50,7 +50,7 @@ export const sites = {
     getAll: (): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites'),
     getOne: (id: string): Promise<ApiResponse<Link>> => fetchElement<Link>('sites', id),
     getByUserId: (userId: string): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites', { user_id: userId }),
-    create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('sites', data),
+    create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('site', data),
     update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('sites', id, data),
     delete: (id: string): Promise<ApiResponse<void>> => deleteElement('sites', id),
 };

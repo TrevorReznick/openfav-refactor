@@ -127,7 +127,7 @@ export interface CategoriesTagsData {
     id_provider?: number;
     ratings?: any;
     AI_think?: string;
-    AI_Summary?: string;
+    AI_summary?: string;
 }
 
 export interface CreateLinkRequest {
@@ -161,7 +161,7 @@ export interface CreateLinkRequest {
     tag_4?: string | number;
     tag_5?: string | number;
     AI_think?: string;
-    AI_Summary?: string;
+    AI_summary?: string;
 
     // Common Fields
     id_src?: string | number;

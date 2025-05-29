@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro'
 import { getSites /*getSitesWithAssociations*/ } from '@/scripts/query_functions/getSites'
 import { getLists, getListById } from '@/scripts/query_functions/getLists'
-//import type { CreateLinkRequest } from '@/types/api'
+import { insertSite } from '@/scripts/query_functions/postSite'
+import type { CreateLinkRequest } from '@/types/api'
 
 // HTTP methods exported for Astro
 export const GET: APIRoute = async ({ url }) => {
@@ -67,13 +68,9 @@ const handleApiRequest = async (method: string, type: string, params: any, reque
       case 'getList':
         if (method !== 'GET') throw new Error('Invalid method for getSites')
         return await getListById(parseInt(params.id))
-
-      /*
-      case 'createLink':
+      case 'postSite':
         if (method !== 'POST') throw new Error('Invalid method for createLink')
-        return await createLinkWithAssociations(data as CreateLinkRequest)
-      */
-
+        return await insertSite(data as CreateLinkRequest)
       default:
         throw new Error(`Unknown operation type: ${type}`)
     }
