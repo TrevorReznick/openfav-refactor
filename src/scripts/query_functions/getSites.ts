@@ -77,7 +77,7 @@ export async function getSitesByUserId(userId: string): Promise<ApiResponse<Main
   }
 }
 
-export async function getSitesById(id: string): Promise<ApiResponse<MainTableData[]>> {
+export async function getSiteById(id: string): Promise<ApiResponse<MainTableData[]>> {
   try {
     const { data, error } = await supabase
       .from('main_table')
@@ -105,5 +105,5 @@ export async function getSitesById(id: string): Promise<ApiResponse<MainTableDat
 
 export default {
   getSites,
-  getSitesById
+  getSiteById
 }
