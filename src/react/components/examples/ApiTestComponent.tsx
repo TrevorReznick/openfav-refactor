@@ -13,7 +13,7 @@ import type {
 
 import {sites, lists, collections} from '@/api/apiClient'
 
-type QueryType = 'sites' | 'collections' | 'lists'
+type QueryType = 'sites' | 'site'|'collections' | 'lists'
 
 
 type ApiExample = {
@@ -89,7 +89,7 @@ const apiExamples: ApiExample[] = [
   },
   {
     name: 'Get Site by ID',
-    type: 'sites',
+    type: 'site',
     action: 'getOne',
     body: '39',
   },
@@ -147,10 +147,11 @@ const ApiTestComponent: React.FC = () => {
 
       switch (type) {
         case 'sites':
-          if (action === 'getAll') response = await sites.getAll();
-          else if (action === 'getOne') response = await sites.getOne(body);
-          else if (action === 'create') response = await sites.create(JSON.parse(body) as LinkFormData);
+          if (action === 'getAll') response = await sites.getAll()          
+          else if (action === 'create') response = await sites.create(JSON.parse(body) as LinkFormData)
           break;
+        case 'site':
+            if (action === 'getOne') response = await sites.getOne(body)            
         case 'collections':
           if (action === 'getAll') response = await collections.getAll();
           else if (action === 'getOne') response = await collections.getOne(body);

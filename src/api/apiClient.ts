@@ -36,6 +36,14 @@ const capitalize = (str: string): string =>
 /**
  * Helpers tipizzati per operazioni specifiche su liste, link e collezioni.
  */
+export const sites = {
+    getAll: (): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites'),
+    getOne: (id: string): Promise<ApiResponse<Link>> => fetchElement<Link>('site', id),
+    getByUserId: (userId: string): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites', { user_id: userId }),
+    create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('site', data),
+    update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('sites', id, data),
+    delete: (id: string): Promise<ApiResponse<void>> => deleteElement('sites', id),
+};
 
 export const lists = {
     getAll: (): Promise<ApiResponse<UserList[]>> => fetchElements<UserList>('lists'),
@@ -46,14 +54,7 @@ export const lists = {
     delete: (id: number): Promise<ApiResponse<void>> => deleteElement('list', id),
 };
 
-export const sites = {
-    getAll: (): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites'),
-    getOne: (id: string): Promise<ApiResponse<Link>> => fetchElement<Link>('sites', id),
-    getByUserId: (userId: string): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites', { user_id: userId }),
-    create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('site', data),
-    update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('sites', id, data),
-    delete: (id: string): Promise<ApiResponse<void>> => deleteElement('sites', id),
-};
+
 
 export const collections = {
     getAll: (): Promise<ApiResponse<Collection[]>> => fetchElements<Collection>('collections'),
