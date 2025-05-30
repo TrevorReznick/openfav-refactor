@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { cn } from '../../lib/utils/utils'
-import { useLoading } from '@/store'
+import { loadingStore } from '@/store'
+import { useStore } from '@nanostores/react'
+import { Loader2 } from 'lucide-react'
 
 interface LoadingSpinnerProps {
   id?: string
@@ -23,10 +25,25 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     lg: 'h-12 w-12 border-4',
   }
 
-  // If an ID is provided, only show when that specific loading state is true
-  const shouldShow = id ? useLoading(id) : true
+  const isLoading = useStore(loadingStore)
+  const [showSpinner, setShowSpinner] = useState(false)
 
-  if (!shouldShow) return null
+  // Add a small delay before showing the spinner to prevent flashing on quick loads
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    
+    if (isLoading) {
+      timer = setTimeout(() => {
+        setShowSpinner(true)
+      }, 100)
+    } else {
+      setShowSpinner(false)
+    }
+    
+    return () => clearTimeout(timer)
+  }, [isLoading])
+  
+  if (!showSpinner) return null
 
   return (
     <div
@@ -36,17 +53,14 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
         className
       )}
     >
-      <div className="flex flex-col items-center space-y-4">
-        <div
-          className={cn(
-            'animate-spin rounded-full border-t-transparent',
-            sizeClasses[size],
-            'border-primary'
-          )}
-          role="status"
-        >
-          <span className="sr-only">Loading...</span>
-        </div>
+      <div className="flex flex-col items-center justify-center space-y-4 p-4 rounded-lg">
+        <Loader2 className={cn(
+          'animate-spin',
+          size === 'sm' ? 'h-4 w-4' :
+          size === 'md' ? 'h-8 w-8' :
+          'h-12 w-12',
+          'text-primary'
+        )} />
         {message && (
           <p className="text-muted-foreground animate-pulse">{message}</p>
         )}
