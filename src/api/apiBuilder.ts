@@ -1,6 +1,6 @@
 import type { ApiResponse } from '@/types/api'
 
-const api_url = import.meta.env.PUBLIC_API_URL || ''
+const api_url = ''
 
 export async function makeRequest<T>(
     endpoint: string,
