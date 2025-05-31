@@ -4,12 +4,19 @@ import { useTheme } from '@/react/providers/themeProvider';
 import { LoadingSpinner } from '@/react/components/common/LoadingSpinner';
 
 export function ThemeWrapper({ children }: { children: ReactNode }) {
-  const { theme, systemTheme, mounted } = useTheme();
+  const { theme, systemTheme } = useTheme();
+  const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Set isClient to true after mount
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Apply theme classes to the html element
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    // Only run on client side
+    if (typeof window === 'undefined' || !isClient) return;
     
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
@@ -32,17 +39,16 @@ export function ThemeWrapper({ children }: { children: ReactNode }) {
       }
     }
     
-    // Only show content after theme is applied
-    if (mounted) {
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 50);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [theme, systemTheme, mounted]);
+    // Mark as loaded after a small delay to prevent flash of unstyled content
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 50);
+    
+    return () => clearTimeout(timer);
+  }, [theme, systemTheme, isClient]);
 
-  if (isLoading || !mounted) {
+  // Only show loading state on client side after initial mount
+  if (!isClient || isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <LoadingSpinner size="lg" message="Loading..." />

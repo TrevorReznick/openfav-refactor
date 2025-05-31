@@ -59,10 +59,27 @@ export function ThemeProvider({
   initialSystemTheme,
 }: ThemeProviderProps): JSX.Element {
   const [mounted, setMounted] = React.useState(false);
-  const [themeState, setThemeState] = React.useState<Theme>(initialTheme);
-  const [systemTheme, setSystemTheme] = React.useState<Theme | undefined>(initialSystemTheme);
+  const [themeState, setThemeState] = React.useState<Theme>(() => {
+    // Only access localStorage after mount to prevent hydration mismatch
+    if (typeof window === 'undefined') return initialTheme;
+    
+    try {
+      const stored = localStorage.getItem(storageKey) as Theme | null;
+      return stored || initialTheme;
+    } catch (e) {
+      return initialTheme;
+    }
+  });
+  
+  const [systemTheme, setSystemTheme] = React.useState<Theme | undefined>(
+    () => initialSystemTheme || 
+    (typeof window !== 'undefined' ? 
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 
+      undefined)
+  );
 
   const applyTheme = React.useCallback((theme: Theme, sysTheme?: Theme) => {
+    // Skip during SSR
     if (typeof document === 'undefined') return;
     
     const root = document.documentElement;
@@ -74,18 +91,29 @@ export function ThemeProvider({
 
     if (effectiveTheme) {
       root.classList.add(effectiveTheme);
+      root.setAttribute('data-theme', effectiveTheme);
     }
     
-    themeStore.set({ 
-      theme,
-      systemTheme: sysTheme || (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') 
-    });
+    // Only update store if values have changed to prevent unnecessary re-renders
+    const currentState = themeStore.get();
+    if (currentState.theme !== theme || currentState.systemTheme !== sysTheme) {
+      themeStore.set({ 
+        theme,
+        systemTheme: sysTheme || (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') 
+      });
+    }
   }, []);
 
   const setTheme = React.useCallback((theme: Theme) => {
+    // Skip during SSR
     if (typeof window === 'undefined') return;
     
-    localStorage.setItem(storageKey, theme);
+    try {
+      localStorage.setItem(storageKey, theme);
+    } catch (e) {
+      console.warn('Failed to save theme preference', e);
+    }
+    
     setThemeState(theme);
     
     if (theme === 'system') {
