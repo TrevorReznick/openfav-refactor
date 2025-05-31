@@ -5,20 +5,16 @@ import { LoadingSpinner } from '@/react/components/common/LoadingSpinner';
 
 export function ThemeWrapper({ children }: { children: ReactNode }) {
   const { theme, systemTheme } = useTheme();
-  const [isClient, setIsClient] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  // Set isClient to true after mount using startTransition
+  // Set mounted to true after hydration
   useEffect(() => {
-    startTransition(() => {
-      setIsClient(true);
-    });
+    setMounted(true);
   }, []);
 
   // Apply theme classes to the html element
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === 'undefined' || !isClient) return;
+    if (!mounted) return;
     
     const root = document.documentElement;
     root.classList.remove('light', 'dark');
@@ -40,33 +36,11 @@ export function ThemeWrapper({ children }: { children: ReactNode }) {
         document.documentElement.style.setProperty('--foreground', 'hsl(222.2 84% 4.9%)');
       }
     }
-    
-    // Mark as loaded after a small delay using startTransition
-    const timer = setTimeout(() => {
-      startTransition(() => {
-        setIsLoading(false);
-      });
-    }, 50);
-    
-    return () => clearTimeout(timer);
-  }, [theme, systemTheme, isClient]);
+  }, [theme, systemTheme, mounted]);
 
-  // Show a minimal loading state that matches SSR to prevent hydration mismatch
-  if (!isClient) {
-    return (
-      <div suppressHydrationWarning>
-        {children}
-      </div>
-    );
-  }
-
-  // Only show loading spinner after client-side hydration is complete
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <LoadingSpinner size="lg" message="Loading..." />
-      </div>
-    );
+  // Prevent hydration mismatch by not rendering different content on server vs client
+  if (!mounted) {
+    return <div suppressHydrationWarning>{children}</div>;
   }
 
   return <>{children}</>;
