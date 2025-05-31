@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, startTransition } from 'react';
 import { useTheme } from '@/react/providers/themeProvider';
 import { LoadingSpinner } from '@/react/components/common/LoadingSpinner';
 
@@ -8,9 +8,11 @@ export function ThemeWrapper({ children }: { children: ReactNode }) {
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Set isClient to true after mount
+  // Set isClient to true after mount using startTransition
   useEffect(() => {
-    setIsClient(true);
+    startTransition(() => {
+      setIsClient(true);
+    });
   }, []);
 
   // Apply theme classes to the html element
@@ -39,16 +41,27 @@ export function ThemeWrapper({ children }: { children: ReactNode }) {
       }
     }
     
-    // Mark as loaded after a small delay to prevent flash of unstyled content
+    // Mark as loaded after a small delay using startTransition
     const timer = setTimeout(() => {
-      setIsLoading(false);
+      startTransition(() => {
+        setIsLoading(false);
+      });
     }, 50);
     
     return () => clearTimeout(timer);
   }, [theme, systemTheme, isClient]);
 
-  // Only show loading state on client side after initial mount
-  if (!isClient || isLoading) {
+  // Show a minimal loading state that matches SSR to prevent hydration mismatch
+  if (!isClient) {
+    return (
+      <div suppressHydrationWarning>
+        {children}
+      </div>
+    );
+  }
+
+  // Only show loading spinner after client-side hydration is complete
+  if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
         <LoadingSpinner size="lg" message="Loading..." />
