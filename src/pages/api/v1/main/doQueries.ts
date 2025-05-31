@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro'
-import { getSites, getSiteById } from '@/scripts/query_functions/getSites'
-import { getLists, getListById, getSitesByUserId } from '@/scripts/query_functions/getLists'
+import { getSites, getSiteById, getSitesByUserId } from '@/scripts/query_functions/getSites'
+import { getLists, getListById } from '@/scripts/query_functions/getLists'
 import { insertSite } from '@/scripts/query_functions/postSite'
 import type { CreateLinkRequest } from '@/types/api'
 
