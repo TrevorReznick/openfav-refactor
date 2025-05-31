@@ -1,6 +1,6 @@
 import type { ApiResponse } from '@/types/api'
 
-const api_url = import.meta.env.PUBLIC_API_URL || 'http://localhost:4321'
+const api_url = import.meta.env.PUBLIC_API_URL || ''
 
 export async function makeRequest<T>(
     endpoint: string,
@@ -11,7 +11,7 @@ export async function makeRequest<T>(
         // Ensure there's no double slash between api_url and endpoint
         const baseUrl = api_url.endsWith('/') ? api_url.slice(0, -1) : api_url;
         let url = `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
-        
+
         const options: RequestInit = {
             method,
             headers: {
@@ -34,7 +34,7 @@ export async function makeRequest<T>(
         console.log('Invio richiesta a:', url);
         const response = await fetch(url, options);
         const result = await response.json();
-        
+
         // Log della risposta
         console.log('=== Risposta API ===');
         console.log('URL:', url);
