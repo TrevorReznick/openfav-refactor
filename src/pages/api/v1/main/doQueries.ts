@@ -62,8 +62,8 @@ const handleApiRequest = async (method: string, type: string, params: any, reque
       case 'getSites':
         if (method !== 'GET') throw new Error('Invalid method for getSites')
         return await getSites()
-      case 'getSites_byUserId':
-        if (method !== 'GET') throw new Error('Invalid method for getSites')
+      case 'getSitesByUserId':
+        if (method !== 'GET') throw new Error('Invalid method for getSitesByUserId')
         return await getSitesByUserId(params.userId)
       case 'getSite':
         if (method !== 'GET') throw new Error('Invalid method for getSites')

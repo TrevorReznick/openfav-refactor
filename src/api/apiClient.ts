@@ -38,7 +38,7 @@ const capitalize = (str: string): string =>
  */
 export const sites = {
     getAll: (): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites'),
-    getByUserId: (userId: string): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sites', { user_id: userId }),
+    getByUserId: (userId: string): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sitesByUserId', { userId }),
     getOne: (id: string): Promise<ApiResponse<Link>> => fetchElement<Link>('site', id),
     create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('site', data),
     update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('sites', id, data),

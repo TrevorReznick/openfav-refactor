@@ -52,20 +52,116 @@ export async function getSites(): Promise<ApiResponse<MainTableData[]>> {
   }
 }
 
-export async function getSitesByUserId(userId: string): Promise<ApiResponse<MainTableData[]>> {
+export async function getSitesByUserIdNew(userId) {
   try {
     const { data, error } = await supabase
-      .from('main_table')
-      .select(QUERY_MAIN_TABLE)
-      .eq('sub_main_table.user_id', userId); // Filtra per user_id
+      .from('sub_main_table')
+      .select(`
+        *
+      `)
+      //.filter('user_id', 'eq', userId); // Filtra per user_id
+      .eq('user_id', userId); // Filtra per id
+
 
     if (error) {
       throw error;
     }
-    const mapData = dataHelper(data)
 
     return {
-      data: mapData,
+      data: data,
+      status: 200,
+    };
+  } catch (error) {
+    console.error('Error fetching unique sub_main_table by user ID:', error);
+    return {
+      error: error.message || 'Internal server error',
+      status: 500,
+    };
+  }
+}
+
+export async function getSitesByUserId(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('sub_main_table')
+      .select(`
+        *,
+        main_table (
+          id,
+          description,
+          icon,
+          image,
+          logo,
+          name,
+          title,
+          url,
+          categories_tags (
+            id_area,
+            id_cat,
+            tag_3,
+            tag_4,
+            tag_5,
+            id_provider,
+            ratings,
+            AI_think,
+            AI_summary
+          )
+        )
+      `)
+      .filter('user_id', 'eq', userId); // Filtra per user_id
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      data: data,
+      status: 200,
+    };
+  } catch (error) {
+    console.error('Error fetching sub_main_table by user ID:', error);
+    return {
+      error: error.message || 'Internal server error',
+      status: 500,
+    };
+  }
+}
+
+export async function getSitesByUserIdOnlyValidFields(userId: string): Promise<ApiResponse<MainTableData[]>> {
+  try {
+    // Prima otteniamo gli ID dei main_table che hanno sub_main_table con il user_id specificato
+    const { data: mainTableIds, error: idError } = await supabase
+      .from('sub_main_table')
+      .select('id_src')
+      .filter('user_id', 'eq', userId);
+
+    if (idError) {
+      throw idError;
+    }
+
+    // Se non ci sono ID, restituiamo un array vuoto
+    if (mainTableIds.length === 0) {
+      return {
+        data: [],
+        status: 200,
+      };
+    }
+
+    // Ora otteniamo i dati da main_table utilizzando gli ID ottenuti
+    const { data, error } = await supabase
+      .from('main_table')
+      .select(QUERY_MAIN_TABLE) // Utilizza la costante QUERY_MAIN_TABLE
+      .in('id', mainTableIds.map(item => item.id_src))
+      .not('description', 'is', null) // Escludi record con description null
+      .not('name', 'is', null) // Escludi record con name null
+      .not('url', 'is', null); // Escludi record con url null
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      data: data,
       status: 200,
     };
   } catch (error: any) {
