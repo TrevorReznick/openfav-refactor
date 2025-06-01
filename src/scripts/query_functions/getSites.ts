@@ -24,6 +24,36 @@ function dataHelper(data: any[]): MainTableData[] {
   }));
 }
 
+function subDataHelper(data: any[]): MainTableData[] {
+  return data.map((item) => {
+    const mainTableData = item.main_table; // Estrai i dati annidati di main_table
+    return {
+      id: mainTableData.id,
+      description: mainTableData.description,
+      icon: mainTableData.icon,
+      image: mainTableData.image,
+      logo: mainTableData.logo,
+      name: mainTableData.name,
+      title: mainTableData.title,
+      url: mainTableData.url,
+      categories_tags: mainTableData.categories_tags, // Questo è già un array annidato
+      sub_main_table: {
+        id_src: item.id_src, // ID della tabella sub_main_table
+        user_id: item.user_id, // ID utente
+        accessible: item.accessible, // Campo booleano
+        domain_exists: item.domain_exists, // Campo booleano
+        html_content_exists: item.html_content_exists, // Campo booleano
+        is_public: item.is_public, // Campo booleano
+        secure: item.secure, // Campo booleano
+        status_code: item.status_code, // Campo opzionale
+        type: item.type, // Campo opzionale
+        valid_url: item.valid_url, // Campo booleano
+        AI: item.AI, // Campo booleano opzionale
+      },
+    };
+  });
+}
+
 
 /**
  * Ottiene i link con tutte le relative associazioni
@@ -114,8 +144,10 @@ export async function getSitesByUserId(userId) {
       throw error;
     }
 
+    const mapData = subDataHelper(data)
+
     return {
-      data: data,
+      data: mapData,
       status: 200,
     };
   } catch (error) {
