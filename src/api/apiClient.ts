@@ -47,6 +47,7 @@ export const sites = {
 
 export const lists = {
     getAll: (): Promise<ApiResponse<UserList[]>> => fetchElements<UserList>('lists'),
+    getListsByUserId: (userId: string): Promise<ApiResponse<UserList[]>> => fetchElements<Link>('listsByUserId', { userId }),
     getOne: (id: number): Promise<ApiResponse<UserList>> => fetchElement<UserList>('list', id),
     create: (data: CreateListData): Promise<ApiResponse<UserList>> => createElement<UserList>('list', data),
     update: (id: number, data: UpdateListData): Promise<ApiResponse<UserList>> =>

@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro'
 import { getSites, getSiteById, getSitesByUserId } from '@/scripts/query_functions/getSites'
-import { getLists, getListById } from '@/scripts/query_functions/getLists'
+import { getLists, getListById, getListsByUserId } from '@/scripts/query_functions/getLists'
 import { insertSite } from '@/scripts/query_functions/postSite'
 import type { CreateLinkRequest } from '@/types/api'
 
@@ -71,6 +71,9 @@ const handleApiRequest = async (method: string, type: string, params: any, reque
       case 'getLists':
         if (method !== 'GET') throw new Error('Invalid method for getSites')
         return await getLists()
+      case 'getListsByUserId':
+          if (method !== 'GET') throw new Error('Invalid method for getSites')
+          return await getListsByUserId(params.userId)
       case 'getList':
         if (method !== 'GET') throw new Error('Invalid method for getSites')
         return await getListById(parseInt(params.id))
