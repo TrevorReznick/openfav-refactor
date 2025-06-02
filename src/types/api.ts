@@ -2,6 +2,8 @@
  * TIPI PRINCIPALI PER LE OPERAZIONI DI BASE
  */
 
+import type { UUID } from "crypto";
+
 export interface ApiResponse<T> {
     data?: T;
     error?: string;
@@ -93,76 +95,76 @@ export interface UpdateListData {
  */
 
 export interface MainTableData {
-    id?: string | number;
-    description?: string;
-    icon?: string;
-    image?: string;
-    logo?: string;
-    name: string;
-    title?: string;
-    url: string;
+    id?: string | number | bigint
+    description?: string
+    icon?: string
+    image?: string
+    logo?: string
+    name: string
+    title?: string
+    url: string
 }
 
 export interface SubMainTableData {
-    id_src: string | number;
-    user_id: string;
-    accessible: boolean;
-    domain_exists: boolean;
-    html_content_exists: boolean;
-    is_public: boolean;
-    secure: boolean;
-    status_code?: number;
-    type?: string;
-    valid_url: boolean;
-    AI?: boolean;
+    id_src: string | number | bigint
+    user_id: string
+    accessible: boolean
+    domain_exists: boolean
+    html_content_exists: boolean
+    is_public: boolean
+    secure: boolean
+    status_code?: number
+    type?: string
+    valid_url: boolean
+    AI?: boolean
 }
 
 export interface CategoriesTagsData {
-    id_src: string | number;
-    id_area: number;
-    id_cat: number;
-    tag_3: string | number;
-    tag_4: string | number;
-    tag_5: string | number;
-    id_provider?: number;
-    ratings?: any;
-    AI_think?: string;
-    AI_summary?: string;
+    id_src: string | number | bigint
+    id_area: number
+    id_cat: number
+    tag_3: string | number
+    tag_4: string | number
+    tag_5: string | number
+    id_provider?: number
+    ratings?: any
+    AI_think?: string
+    AI_summary?: string
 }
 
 export interface CreateLinkRequest {
     // Main Table Fields
-    description?: string;
-    icon?: string;
-    image?: string;
-    logo?: string;
-    name: string;
-    title?: string;
-    url: string;
+    description?: string
+    icon?: string
+    image?: string
+    logo?: string
+    name: string
+    title?: string
+    url: string
 
     // Sub Main Table Fields
-    user_id: string;
-    accessible?: boolean;
-    domain_exists?: boolean;
-    html_content_exists?: boolean;
-    is_public?: boolean;
-    secure?: boolean;
-    status_code?: number;
-    type?: string;
-    valid_url?: boolean;
-    AI?: boolean;
+    user_id: string
+    accessible?: boolean
+    domain_exists?: boolean
+    html_content_exists?: boolean
+    is_public?: boolean
+    secure?: boolean
+    status_code?: number
+    type?: string
+    valid_url?: boolean
+    AI?: boolean
 
     // Categories Tag Fields
-    id_area?: number;
-    id_cat?: number;
-    id_provider?: number;
-    ratings?: any;
-    tag_3?: string | number;
-    tag_4?: string | number;
-    tag_5?: string | number;
-    AI_think?: string;
-    AI_summary?: string;
+    id_area?: number
+    id_cat?: number
+    id_provider?: number
+    ratings?: any
+    tag_3?: string | number
+    tag_4?: string | number
+    tag_5?: string | number
+    AI_think?: string
+    AI_summary?: string
 
     // Common Fields
-    id_src?: string | number;
+    id_src?: string | number
 }

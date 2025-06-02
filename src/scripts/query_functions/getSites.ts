@@ -1,5 +1,5 @@
 import { supabase } from '@/providers/supabaseAuth'
-import { QUERY_MAIN_TABLE } from '../../constants'
+import { QUERY_MAIN_TABLE } from '@/constants'
 import type {
   //CreateLinkRequest,
   MainTableData,

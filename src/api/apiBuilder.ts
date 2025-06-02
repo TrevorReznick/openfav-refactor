@@ -20,11 +20,11 @@ export async function makeRequest<T>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET'
 ): Promise<ApiResponse<T>> {
     const requestId = Math.random().toString(36).substr(2, 9);
-    
+
     try {
         logger.log(`[${requestId}] Starting ${method} request to endpoint:`, endpoint);
         logger.log(`[${requestId}] Request data:`, data);
-        
+
         // Ensure there's no double slash between api_url and endpoint
         const baseUrl = api_url.endsWith('/') ? api_url.slice(0, -1) : api_url;
         let url = `${baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
@@ -55,12 +55,12 @@ export async function makeRequest<T>(
             credentials: options.credentials,
             body: method !== 'GET' ? data : undefined
         });
-        
+
         const startTime = Date.now();
         const response = await fetch(url, options);
         const endTime = Date.now();
         const responseTime = endTime - startTime;
-        
+
         let result;
         try {
             result = await response.json();
@@ -68,7 +68,7 @@ export async function makeRequest<T>(
             logger.error(`[${requestId}] Failed to parse JSON response:`, e);
             throw new Error('Invalid JSON response from server');
         }
-        
+
         logger.log(`[${requestId}] Response received in ${responseTime}ms`, {
             status: response.status,
             statusText: response.statusText,

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro'
 import { getSites, getSiteById, getSitesByUserId } from '@/scripts/query_functions/getSites'
 import { getLists, getListById, getListsByUserId } from '@/scripts/query_functions/getLists'
-import { insertSite } from '@/scripts/query_functions/postSite'
+import { insertSite, updateSite } from '@/scripts/query_functions/postSite'
 import type { CreateLinkRequest } from '@/types/api'
 
 // HTTP methods exported for Astro
@@ -45,7 +45,7 @@ const handleRequest = async (method: string, url: URL, request?: Request) => {
         timestamp: new Date().toISOString()
       }),
       {
-        status: 500,
+        status: 502,
         headers: {
           'Content-Type': 'application/json'
         }
@@ -72,14 +72,17 @@ const handleApiRequest = async (method: string, type: string, params: any, reque
         if (method !== 'GET') throw new Error('Invalid method for getSites')
         return await getLists()
       case 'getListsByUserId':
-          if (method !== 'GET') throw new Error('Invalid method for getSites')
-          return await getListsByUserId(params.userId)
+        if (method !== 'GET') throw new Error('Invalid method for getSites')
+        return await getListsByUserId(params.userId)
       case 'getList':
         if (method !== 'GET') throw new Error('Invalid method for getSites')
         return await getListById(parseInt(params.id))
       case 'postSite':
         if (method !== 'POST') throw new Error('Invalid method for createLink')
         return await insertSite(data as CreateLinkRequest)
+      case 'updateSite':
+        if (method !== 'PUT') throw new Error('Invalid method for updateSite')
+        return await updateSite(params.id, data as CreateLinkRequest)
       default:
         throw new Error(`Unknown operation type: ${type}`)
     }

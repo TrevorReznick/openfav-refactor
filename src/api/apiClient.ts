@@ -41,13 +41,13 @@ export const sites = {
     getByUserId: (userId: string): Promise<ApiResponse<Link[]>> => fetchElements<Link>('sitesByUserId', { userId }),
     getOne: (id: string): Promise<ApiResponse<Link>> => fetchElement<Link>('site', id),
     create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('site', data),
-    update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('sites', id, data),
+    update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('site', id, data),
     delete: (id: string): Promise<ApiResponse<void>> => deleteElement('sites', id),
 };
 
 export const lists = {
     getAll: (): Promise<ApiResponse<UserList[]>> => fetchElements<UserList>('lists'),
-    getListsByUserId: (userId: string): Promise<ApiResponse<UserList[]>> => fetchElements<Link>('listsByUserId', { userId }),
+    getListsByUserId: (userId: string): Promise<ApiResponse<UserList[]>> => fetchElements<UserList>('listsByUserId', { userId }),
     getOne: (id: number): Promise<ApiResponse<UserList>> => fetchElement<UserList>('list', id),
     create: (data: CreateListData): Promise<ApiResponse<UserList>> => createElement<UserList>('list', data),
     update: (id: number, data: UpdateListData): Promise<ApiResponse<UserList>> =>
