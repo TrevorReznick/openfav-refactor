@@ -1,7 +1,6 @@
 import type { APIRoute } from 'astro'
-import { getSites, getSiteById, getSitesByUserId } from '@/scripts/query_functions/getSites'
+import { getSites, getSiteById, getSitesByUserId, insertSite, updateSite, deleteSite } from '~/scripts/query_functions/sites'
 import { getLists, getListById, getListsByUserId } from '@/scripts/query_functions/getLists'
-import { insertSite, updateSite } from '@/scripts/query_functions/postSite'
 import type { CreateLinkRequest } from '@/types/api'
 
 // HTTP methods exported for Astro
@@ -59,6 +58,9 @@ const handleApiRequest = async (method: string, type: string, params: any, reque
     const data = request ? await request.json().catch(() => ({})) : {}
 
     switch (type) {
+      case 'deleteSite':
+        if (method !== 'DELETE') throw new Error('Invalid method for deleteSite')
+        return await deleteSite(params.id)
       case 'getSites':
         if (method !== 'GET') throw new Error('Invalid method for getSites')
         return await getSites()
