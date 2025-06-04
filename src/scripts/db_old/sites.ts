@@ -1,6 +1,6 @@
 import { supabase } from '@/providers/supabaseAuth'
 import { QUERY_MAIN_TABLE } from '@/constants'
-import { supabaseUpdate, supabaseQuery, supabaseInsert, supabaseDelete } from '~/scripts/query_functions/supabaseQuery'
+import { supabaseUpdate, supabaseQuery, supabaseInsert, supabaseDelete } from '~/scripts/db_old/supabase'
 import type {
   CreateLinkRequest,
   MainTableData,

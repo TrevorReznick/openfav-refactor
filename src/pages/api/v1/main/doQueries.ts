@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro'
-import { getSites, getSiteById, getSitesByUserId, insertSite, updateSite, deleteSite } from '~/scripts/query_functions/sites'
-import { getLists, getListById, getListsByUserId } from '@/scripts/query_functions/getLists'
+import { getSites, getSiteById, getSitesByUserId, insertSite, updateSite, deleteSite } from '~/scripts/db_old/sites'
+import { getLists, getListById, getListsByUserId } from '~/scripts/db_old/getLists'
 import type { CreateLinkRequest } from '@/types/api'
 
 // HTTP methods exported for Astro

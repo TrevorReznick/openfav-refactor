@@ -6,7 +6,7 @@ import {
     insertSite,
     updateSite,
     deleteSite
-} from '@/scripts/query_functions/sites' // Importa funzioni dal V1
+} from '~/scripts/db_old/sites' // Importa funzioni dal V1
 import type { ApiResponse } from '@/types/api'
 
 // Definizione dei tipi per il routing

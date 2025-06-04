@@ -21,19 +21,19 @@ type ApiResponse<T> = {
 export async function supabaseQuery(tableName: string, options: QueryOptions = {}): Promise<ApiResponse<any>> {
     try {
         let query = supabase.from(tableName).select(options.select || '*');
-  
+
         if (options.filter) {
             query = options.filter(query);
         }
-    
+
         if (options.order) {
             query = query.order(options.order.column, { ascending: options.order.ascending });
         }
-    
+
         const { data, error } = await query
-    
+
         if (error) throw error
-    
+
         return { success: true, data }
     } catch (error) {
         console.error('Supabase query error:', error);
@@ -115,7 +115,7 @@ export async function supabaseDelete<T extends Record<string, any>>(
         if (filter) {
 
             query = filter(query)
-            
+
         }
 
         const { data: deletedData, error } = await query.select()
