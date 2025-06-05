@@ -2,7 +2,7 @@
 
 import type { APIRoute } from 'astro'
 import { makeHandleRequest } from '@/scripts/http/handleRequest'
-import { getSites } from '@/scripts/db_new/sites'
+import { getSites } from '~/scripts/db/sites'
 
 
 // --- Definizione della callback API ---
