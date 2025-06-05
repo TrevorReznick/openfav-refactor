@@ -2,7 +2,7 @@
 
 import type { APIRoute } from 'astro'
 import { makeHandleRequest } from '@/scripts/http/handleRequest'
-import { getSites } from '@/scripts/db_new/sites'
+import  * as sites  from '@/scripts/db/sites'
 
 
 // --- Definizione della callback API ---
@@ -15,15 +15,34 @@ const apiRouter = async (
     const data = request ? await request.json().catch(() => ({})) : {}
 
     switch (type) {
-
-        case 'getSites':
-            if (method !== 'GET') throw new Error('Invalid method for getSites')
-            return await getSites()
-
+        /* ---- GET /sites ---- */
+        case "getSites": {
+          if (method !== "GET") {
+            throw new Error("Invalid method for getSites");
+          }
+          // usa await se la funzione è async e vuoi gestire qui gli errori
+          return await sites.getSites();
+        }
+      
+        /* ---- GET /sites/:id ---- */
+        case "getSite": {
+          if (method !== "GET") {
+            throw new Error("Invalid method for getSiteById");
+          }
+      
+          const { id } = params;
+          if (!id) {
+            throw new Error("ID is required for getSiteById");
+          }
+      
+          return await sites.getSiteById(id);
+        }
+      
+        /* ---- altri tipi non gestiti ---- */
         default:
-            throw new Error(`Unknown operation type: ${type}`)
-
-    }
+          throw new Error(`Unknown operation type: ${type}`);
+      }
+      
 }
 
 // --- Genera il middleware handleRequest ---

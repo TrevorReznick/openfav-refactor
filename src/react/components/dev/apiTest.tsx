@@ -1,19 +1,23 @@
 // src/components/BasicApiTest.tsx
 
 import React from 'react';
-import { sites } from '@/api/apiClient';
+import { sites } from '@/api/apiClient'
 
 const BasicApiTest = () => {
   const handleTestClick = async () => {
-    console.log('🔄 Avvio chiamata getSites...');
+    console.log('🔄 Avvio chiamate api...')
 
     try {
-      const result = await sites.getAll(); // Chiama la funzione definita in apiClient
-      console.log('✅ Risultato della chiamata:', result);
+
+      const _sites = await sites.getAll(); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _sites)
+      const _sites_by_id = await sites.getOne(139); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _sites_by_id)
     } catch (error) {
-      console.error('❌ Errore durante la chiamata:', error);
+      console.error('❌ Errore durante la chiamata:', error)
     }
-  };
+  }
+
 
   return (
     <div>

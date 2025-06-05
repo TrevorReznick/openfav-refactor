@@ -1,4 +1,4 @@
-export const QUERY_MAIN_TABLE = `
+export const SITES_REL_QUERY = `
 id,
 description,
 icon,
