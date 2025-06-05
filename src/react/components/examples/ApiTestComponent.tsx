@@ -121,7 +121,7 @@ const apiExamples: ApiExample[] = [
 const ApiTestComponent: React.FC = () => {
   const [type, setType] = useState<QueryType>('sites');
   const [action, setAction] = useState<string>('getAll');
-  const [id, setId] = useState<bigint | undefined>(undefined); // ID è ora di tipo number
+  const [id, setId] = useState<number | undefined>(undefined); // ID è ora di tipo number
   const [body, setBody] = useState<string>('');
   const [responseData, setResponseData] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -162,7 +162,7 @@ const ApiTestComponent: React.FC = () => {
           else if (action === 'getOne') response = await sites.getOne(String(id)); // Convert id to string
           else if (action === 'create') response = await sites.create(parsedBody as LinkFormData);
           else if (action === 'update') {
-            response = await sites.update(id as bigint, parsedBody as LinkFormData); // Passa l'ID numerico
+            response = await sites.update(id as number, parsedBody as LinkFormData); // Passa l'ID numerico
           }
           break;
 
