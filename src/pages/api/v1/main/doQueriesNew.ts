@@ -3,6 +3,7 @@
 import type { APIRoute } from 'astro'
 import { makeHandleRequest } from '@/scripts/http/handleRequest'
 import * as sites from '@/scripts/db/sites'
+import type { CreateLinkRequest } from '@/types/api'
 
 
 // --- Definizione della callback API ---
@@ -15,6 +16,7 @@ const apiRouter = async (
     const data = request ? await request.json().catch(() => ({})) : {}
 
     switch (type) {
+
         /* ---- GET /sites ---- */
         case "getSites": {
             if (method !== "GET") {
@@ -37,6 +39,24 @@ const apiRouter = async (
 
             return await sites.getSiteById(id);
         }
+
+        case 'getSitesByUserId':
+
+            if (method !== "GET") {
+                throw new Error("Invalid method for getSitesByUserId");
+            }
+
+            const { userId } = params;
+
+            if (method !== 'GET') throw new Error('Invalid method for getSitesByUserId')
+            if (!userId) {
+                throw new Error("User ID is required for getSitesByUserId");
+            }
+            return await sites.getSitesByUserId(userId)
+
+        case 'postSite':
+            if (method !== 'POST') throw new Error('Invalid method for createSite')
+            return await sites.insertSite(data as CreateLinkRequest)
 
         /* ---- altri tipi non gestiti ---- */
         default:

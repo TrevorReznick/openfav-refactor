@@ -1,6 +1,6 @@
 import { supabase } from '@/providers/supabaseAuth'
-import { QUERY_MAIN_TABLE } from '@/constants'
-import { supabaseUpdate, supabaseQuery, supabaseInsert, supabaseDelete } from '~/scripts/db_old/supabase'
+import { SITES_REL_QUERY } from '@/constants'
+import { supabaseUpdate, supabaseQuery, supabaseInsert, supabaseDelete } from '~/scripts/supabase'
 import type {
   CreateLinkRequest,
   MainTableData,
@@ -234,7 +234,7 @@ export async function getSites(): Promise<ApiResponse<MainTableData[]>> {
   try {
     const { data, error } = await supabase
       .from('main_table')
-      .select(QUERY_MAIN_TABLE)
+      .select(SITES_REL_QUERY)
     if (error) {
       throw error;
     }
@@ -256,7 +256,7 @@ export async function getSiteById(id: string): Promise<ApiResponse<MainTableData
   try {
     const { data, error } = await supabase
       .from('main_table')
-      .select(QUERY_MAIN_TABLE)
+      .select(SITES_REL_QUERY)
       .eq('id', id); // Filtra per id
     if (error) {
       throw error;

@@ -31,3 +31,30 @@ sub_main_table (
   AI
 )
 `
+export const SITES_REL_QUERY_WITH_USER = `
+  *,
+  main_table (
+    id,
+    description,
+    icon,
+    image,
+    logo,
+    name,
+    title,
+    url,
+    categories_tags (
+      id_area,
+      id_cat,
+      tag_3,
+      tag_4,
+      tag_5,
+      id_provider,
+      ratings,
+      AI_think,
+      AI_summary
+    )
+  )
+`
+const SITE_MAIN = {
+
+}

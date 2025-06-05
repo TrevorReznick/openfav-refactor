@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro'
 import { createClient } from '@supabase/supabase-js'
-import { supabaseUpdate, supabaseQuery, supabaseInsert, supabaseDelete } from '~/scripts/db_old/supabase'
+import { supabaseUpdate, supabaseQuery, supabaseInsert, supabaseDelete } from '~/scripts/supabase'
 
 
 export const GET: APIRoute = async ({ url }) => {

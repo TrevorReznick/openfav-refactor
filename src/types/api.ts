@@ -132,39 +132,9 @@ export interface CategoriesTagsData {
     AI_summary?: string
 }
 
-export interface CreateLinkRequest {
-    // Main Table Fields
-    description?: string
-    icon?: string
-    image?: string
-    logo?: string
-    name: string
-    title?: string
-    url: string
-
-    // Sub Main Table Fields
-    user_id: string
-    accessible?: boolean
-    domain_exists?: boolean
-    html_content_exists?: boolean
-    is_public?: boolean
-    secure?: boolean
-    status_code?: number
-    type?: string
-    valid_url?: boolean
-    AI?: boolean
-
-    // Categories Tag Fields
-    id_area?: number
-    id_cat?: number
-    id_provider?: number
-    ratings?: any
-    tag_3?: string | number
-    tag_4?: string | number
-    tag_5?: string | number
-    AI_think?: string
-    AI_summary?: string
-
-    // Common Fields
-    id_src?: string | number
+export interface CreateLinkRequest
+    extends MainTableData,
+    Partial<SubMainTableData>,
+    Partial<CategoriesTagsData> {
+    user_id: string; // obbligatorio (da SubMainTableData)
 }
