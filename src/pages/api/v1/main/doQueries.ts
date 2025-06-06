@@ -3,6 +3,7 @@
 import type { APIRoute } from 'astro'
 import { makeHandleRequest } from '@/scripts/http/handleRequest'
 import * as sites from '@/scripts/db/sites'
+import * as events from '@/scripts/db/events'
 import type { CreateLinkRequest } from '@/types/api'
 
 
@@ -46,20 +47,32 @@ const apiRouter = async (
                 throw new Error("Invalid method for getSitesByUserId");
             }
 
-            const { userId } = params;
+            const { userId } = params
 
             if (method !== 'GET') throw new Error('Invalid method for getSitesByUserId')
+
             if (!userId) {
                 throw new Error("User ID is required for getSitesByUserId");
             }
+
             return await sites.getSitesByUserId(userId)
 
         case 'postSite':
+
             if (method !== 'POST') throw new Error('Invalid method for createSite')
+
             return await sites.insertSite(data as CreateLinkRequest)
 
         /* ---- altri tipi non gestiti ---- */
+
+        case 'getEvents':
+
+            if (method !== 'GET') throw new Error('Invalid method for getEvents')
+
+            return await events.getEvents()
+
         default:
+
             throw new Error(`Unknown operation type: ${type}`);
     }
 

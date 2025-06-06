@@ -55,6 +55,17 @@ export const SITES_REL_QUERY_WITH_USER = `
     )
   )
 `
-const SITE_MAIN = {
-
-}
+export const EVENT_LOGS = `
+  id,
+  id_event_type,
+  id_event_family,
+  user_id,
+  event_data,
+  event_type (        
+    event_type, 
+    event_description
+  ),
+  event_family (
+    event_family
+  )
+`

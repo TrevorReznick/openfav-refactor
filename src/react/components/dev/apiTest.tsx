@@ -1,7 +1,7 @@
 // src/components/BasicApiTest.tsx
 
 import React from 'react';
-import { sites } from '@/api/apiClient'
+import { sites, events } from '@/api/apiClient'
 
 
 const userId = '9446217e-49e8-49f9-84dc-822ed8df969b'
@@ -34,6 +34,18 @@ const example_site = {
   function_id: '1'      // Changed to string
 }
 
+const example_new_event = {
+  id: 235,
+  id_event_type: 3,
+  id_event_family: 2,
+}
+
+const example_update_event = {
+  id: 5,
+  id_event_type: 8,
+  id_event_family: 2
+}
+
 const BasicApiTest = () => {
   const handleTestClick = async () => {
     console.log('🔄 Avvio chiamate api...')
@@ -47,6 +59,8 @@ const BasicApiTest = () => {
       const _sites_by_user = await sites.getByUserId(userId); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _sites_by_user)
       const _sites_post = await sites.create(example_site); // Chiama la funzione definita in apiClient
+      const _events_logs = await events.getAll(); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _events_logs)
     } catch (error) {
       console.error('❌ Errore durante la chiamata:', error)
     }

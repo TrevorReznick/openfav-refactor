@@ -50,19 +50,23 @@ export const lists = {
     getListsByUserId: (userId: string): Promise<ApiResponse<UserList[]>> => fetchElements<UserList>('listsByUserId', { userId }),
     getOne: (id: number): Promise<ApiResponse<UserList>> => fetchElement<UserList>('list', id),
     create: (data: CreateListData): Promise<ApiResponse<UserList>> => createElement<UserList>('list', data),
-    update: (id: number, data: UpdateListData): Promise<ApiResponse<UserList>> =>
-        updateElement<UserList>('lists', id, data),
+    update: (id: number, data: UpdateListData): Promise<ApiResponse<UserList>> => updateElement<UserList>('lists', id, data),
     delete: (id: number): Promise<ApiResponse<void>> => deleteElement('list', id),
-};
-
-
+}
 
 export const collections = {
     getAll: (): Promise<ApiResponse<Collection[]>> => fetchElements<Collection>('collections'),
     getOne: (id: string): Promise<ApiResponse<Collection>> => fetchElement<Collection>('collection', id),
-    create: (data: CollectionFormData): Promise<ApiResponse<Collection>> =>
-        createElement<Collection>('collection', data),
-    update: (id: string, data: Partial<CollectionFormData>): Promise<ApiResponse<Collection>> =>
-        updateElement<Collection>('collection', id, data),
+    create: (data: CollectionFormData): Promise<ApiResponse<Collection>> => createElement<Collection>('collection', data),
+    update: (id: string, data: Partial<CollectionFormData>): Promise<ApiResponse<Collection>> => updateElement<Collection>('collection', id, data),
     delete: (id: string): Promise<ApiResponse<void>> => deleteElement('collection', id),
-};
+}
+
+export const events = {
+    getAll: (): Promise<ApiResponse<any[]>> => fetchElements<any>('events'),
+    create: (data: any): Promise<ApiResponse<any>> => createElement<any>('event', data),
+    update: (id: number, data: any): Promise<ApiResponse<any>> => updateElement<any>('event', id, data),
+    delete: (id: number): Promise<ApiResponse<void>> => deleteElement('event', id),
+    getById: (id: number): Promise<ApiResponse<any>> => fetchElement<any>('event', id),
+    getByUserId: (userId: string): Promise<ApiResponse<any[]>> => fetchElements<any>('eventsByUserId', { userId }),
+}
