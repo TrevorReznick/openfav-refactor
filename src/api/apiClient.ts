@@ -2,7 +2,7 @@ import { makeRequest } from '@/api/apiBuilder';
 import type { ApiResponse, Link, Collection, UserList, CreateListData, UpdateListData, LinkFormData, CollectionFormData } from '@/types/api';
 
 const API_ENDPOINT = import.meta.env.API_ENDPOINT || '/api/v1/main/doQueries'
-console.log('API Endpoint:', API_ENDPOINT)
+//console.log('API Endpoint:', API_ENDPOINT)
 
 /**
  * Funzioni generiche per operazioni CRUD.

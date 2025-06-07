@@ -28,6 +28,7 @@ const apiRouter = async (
         }
 
         /* ---- GET /sites/:id ---- */
+
         case "getSite": {
             if (method !== "GET") {
                 throw new Error("Invalid method for getSiteById");
@@ -70,6 +71,12 @@ const apiRouter = async (
             if (method !== 'GET') throw new Error('Invalid method for getEvents')
 
             return await events.getEvents()
+
+        case 'postEvent':
+
+            if (method !== 'POST') throw new Error('Invalid method for getEvents')
+
+            return await events.insertEvent(data)
 
         default:
 

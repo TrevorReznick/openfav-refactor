@@ -35,9 +35,9 @@ const example_site = {
 }
 
 const example_new_event = {
-  id: 235,
   id_event_type: 3,
   id_event_family: 2,
+  user_id: '9446217e-49e8-49f9-84dc-822ed8df969b'
 }
 
 const example_update_event = {
@@ -60,6 +60,8 @@ const BasicApiTest = () => {
       console.log('✅ Risultato della chiamata:', _sites_by_user)
       const _sites_post = await sites.create(example_site); // Chiama la funzione definita in apiClient
       const _events_logs = await events.getAll(); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _events_logs)
+      const _post_event = await events.create(example_new_event); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _events_logs)
     } catch (error) {
       console.error('❌ Errore durante la chiamata:', error)
