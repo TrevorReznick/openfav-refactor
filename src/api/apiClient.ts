@@ -21,7 +21,7 @@ const createElement = <T>(type: string, data: any): Promise<ApiResponse<T>> =>
 
 // PUT methods
 const updateElement = <T>(type: string, id: string | number, data: any): Promise<ApiResponse<T>> =>
-    makeRequest<T>(`${API_ENDPOINT}?type=update${capitalize(type)}`, { id, ...data }, 'PUT');
+    makeRequest<T>(`${API_ENDPOINT}?type=update${capitalize(type)}&id=${id}`, data, 'PUT');
 
 // DELETE methods
 const deleteElement = (type: string, id: string | number): Promise<ApiResponse<void>> =>

@@ -41,7 +41,7 @@ const example_new_event = {
 }
 
 const example_update_event = {
-  id: 5,
+  id: 239,
   id_event_type: 8,
   id_event_family: 2
 }
@@ -61,8 +61,10 @@ const BasicApiTest = () => {
       const _sites_post = await sites.create(example_site); // Chiama la funzione definita in apiClient
       const _events_logs = await events.getAll(); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _events_logs)
-      const _post_event = await events.create(example_new_event); // Chiama la funzione definita in apiClient
+      const _post_event = await events.create(example_new_event) // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _events_logs)
+      const _update_event = await events.update(239, example_update_event) // Chiama la funzione definita in apiClient
+
     } catch (error) {
       console.error('❌ Errore durante la chiamata:', error)
     }

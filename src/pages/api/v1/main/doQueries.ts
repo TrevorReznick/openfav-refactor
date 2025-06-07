@@ -78,6 +78,17 @@ const apiRouter = async (
 
             return await events.insertEvent(data)
 
+        case 'updateEvent':
+            if (method !== 'PUT') throw new Error('Invalid method for updateEvent')
+
+            const { id } = params
+            if (!id) {
+                throw new Error("ID is required for updateEvent");
+            }
+
+
+            return await events.updateEvent(data, id)
+
         default:
 
             throw new Error(`Unknown operation type: ${type}`);
