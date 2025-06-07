@@ -66,6 +66,16 @@ const apiRouter = async (
 
         /* ---- altri tipi non gestiti ---- */
 
+        case 'deleteEvent':
+            if (method !== 'DELETE') throw new Error('Invalid method for deleteEvent')
+
+            const { id: eventId } = params
+            if (!eventId) {
+                throw new Error("ID is required for deleteEvent");
+            }
+
+            return await events.deleteEvent(eventId)
+
         case 'getEvents':
 
             if (method !== 'GET') throw new Error('Invalid method for getEvents')
@@ -112,6 +122,6 @@ export const PUT: APIRoute = async ({ request, url }) => {
     return await handleRequest('PUT', url, request)
 }
 
-export const DEL: APIRoute = async ({ url }) => {
+export const DELETE: APIRoute = async ({ url }) => {
     return await handleRequest('DELETE', url)
 }

@@ -63,7 +63,8 @@ const BasicApiTest = () => {
       console.log('✅ Risultato della chiamata:', _events_logs)
       const _post_event = await events.create(example_new_event) // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _events_logs)
-      const _update_event = await events.update(239, example_update_event) // Chiama la funzione definita in apiClient
+      const _delete_event = await events.delete(251) // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _delete_event)
 
     } catch (error) {
       console.error('❌ Errore durante la chiamata:', error)

@@ -25,7 +25,7 @@ const updateElement = <T>(type: string, id: string | number, data: any): Promise
 
 // DELETE methods
 const deleteElement = (type: string, id: string | number): Promise<ApiResponse<void>> =>
-    makeRequest<void>(`${API_ENDPOINT}?type=delete${capitalize(type)}`, { id }, 'DELETE');
+    makeRequest<void>(`${API_ENDPOINT}?type=delete${capitalize(type)}&id=${id}`, undefined, 'DELETE');
 
 /**
  * Helper per capitalizzare la prima lettera di una stringa.
