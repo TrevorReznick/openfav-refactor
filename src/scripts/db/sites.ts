@@ -1,4 +1,4 @@
-import { supabaseQuery, supabaseInsert } from "~/scripts/supabase";
+import { supabaseQuery, supabaseInsert, supabaseUpdate, supabaseDelete } from "~/scripts/supabase";
 import { SITES_REL_QUERY, SITES_REL_QUERY_WITH_USER, QUERY_SITES_CATEGORIES } from '@/constants'
 import type {
   CreateLinkRequest,
@@ -8,6 +8,18 @@ import type {
   ApiResponse,
   SiteTagData
 } from '@/types/api';
+
+// Dummy implementation for getRelatedData, replace with your actual logic
+const getRelatedData = async (id: number) => {
+  // Example: fetch related data from other tables if needed
+  return {};
+};
+
+export const deleteSite = async (id: string | number) => {
+
+  return await supabaseDelete('main_table', (query) => query.eq('id', id))
+
+}
 
 export const getSites = async () => {
   return await supabaseQuery('main_table', {
@@ -23,7 +35,7 @@ export const getSiteById = async (id: string | number) => {
 }
 
 export const getSitesByUserId = async (userId: string) => {
-  return await supabaseQuery('main_table', {
+  return await supabaseQuery('sub_main_table', {
     select: SITES_REL_QUERY_WITH_USER,
     filter: (query) => query.eq('user_id', userId)
   })
@@ -44,6 +56,7 @@ export const insertSite = async (
   linkData: CreateLinkRequest
 ): Promise<ApiResponse<{ id: string | number }>> => {
   try {
+    console.log('Inserting site with data:', linkData);
     // --- 1. Inserisci nel main_table ---
     const mainTableData: MainTableData = {
       description: linkData.description ?? undefined,
@@ -148,6 +161,130 @@ export const insertSite = async (
     };
   }
 };
+
+/**
+* Funzione principale per aggiornare un sito e i suoi dati associati.
+*/
+export const updateSite = async (
+  id: string,
+  data: Partial<MainTableData & SubMainTableData & CategoriesTagsData> & { tags?: SiteTagData[] }
+): Promise<ApiResponse<any>> => {
+  // Validazione ID
+  const numericId = parseInt(id, 10)
+  if (!numericId || isNaN(numericId)) {
+    return {
+      error: `ID non valido: ${id}`,
+      status: 400
+    }
+  }
+
+  try {
+    // --- 1. Aggiorna main_table ---
+    const mainData: Partial<MainTableData> = {
+      description: data.description,
+      icon: data.icon,
+      image: data.image,
+      logo: data.logo,
+      name: data.name,
+      title: data.title,
+      url: data.url
+    }
+
+    const mainResult = await supabaseUpdate<MainTableData>(
+      'main_table',
+      mainData,
+      (query) => query.eq('id', numericId)
+    )
+
+    if (!mainResult.success) {
+      throw new Error(`Errore nell'aggiornamento della tabella principale: ${mainResult.error}`)
+    }
+
+    // --- 2. Aggiorna sub_main_table se ci sono dati validi ---
+    const subMainData: Partial<any> = {}
+
+    if (data.user_id !== undefined) subMainData.user_id = data.user_id
+    if (data.accessible !== undefined) subMainData.accessible = data.accessible
+    if (data.domain_exists !== undefined) subMainData.domain_exists = data.domain_exists
+    if (data.html_content_exists !== undefined) subMainData.html_content_exists = data.html_content_exists
+    if (data.is_public !== undefined) subMainData.is_public = data.is_public
+    if (data.secure !== undefined) subMainData.secure = data.secure
+    if (data.status_code !== undefined) subMainData.status_code = data.status_code
+    if (data.valid_url !== undefined) subMainData.valid_url = data.valid_url
+    if (data.type !== undefined) subMainData.type = data.type
+    if (data.AI !== undefined) subMainData.AI = data.AI
+
+    if (Object.keys(subMainData).length > 0) {
+      const subMainResult = await supabaseUpdate(
+        'sub_main_table',
+        subMainData,
+        (query) => query.eq('id_src', numericId)
+      )
+
+      if (!subMainResult.success) {
+        throw new Error(`Errore nell'aggiornamento di sub_main_table: ${subMainResult.error}`)
+      }
+    }
+
+    // --- 3. Aggiorna categories_tags se ci sono dati validi ---
+    const categoryTagsData: Partial<any> = {}
+
+    if (data.id_area !== undefined) categoryTagsData.id_area = data.id_area
+    if (data.id_cat !== undefined) categoryTagsData.id_cat = data.id_cat
+    if (data.id_provider !== undefined) categoryTagsData.id_provider = data.id_provider
+    if (data.ratings !== undefined) categoryTagsData.ratings = data.ratings
+    if (data.AI_summary !== undefined) categoryTagsData.AI_summary = data.AI_summary
+    if (data.AI_think !== undefined) categoryTagsData.AI_think = data.AI_think
+
+    if (Object.keys(categoryTagsData).length > 0) {
+      const categoryResult = await supabaseUpdate(
+        'categories_tags',
+        categoryTagsData,
+        (query) => query.eq('id_src', numericId)
+      )
+
+      if (!categoryResult.success) {
+        throw new Error(`Errore nell'aggiornamento di categories_tags: ${categoryResult.error}`)
+      }
+    }
+
+    // --- 4. Se ci sono tag, aggiorna site_tags solo tramite update ---
+    if (data.tags && Array.isArray(data.tags)) {
+      for (const tag of data.tags) {
+        const updateResult = await supabaseUpdate<SiteTagData>(
+          'site_tags',
+          {
+            tag_type: tag.tag_type,
+            tag_value: tag.tag_value
+          },
+          (query) =>
+            query
+              .eq('id_src', numericId)
+              .eq('tag_type', tag.tag_type)
+        );
+        if (!updateResult.success) {
+          throw new Error(`Errore nell'aggiornamento del tag (${tag.tag_type}): ${updateResult.error}`);
+        }
+      }
+    }
+
+    // --- 5. Restituisce il risultato finale ---
+    return {
+      data: {
+        id: numericId,
+        ...(mainResult.data ? mainResult.data : {}), // Dati aggiornati da main_table
+        ...(await getRelatedData(numericId)) // Dati extra (categorie, area, ecc.)
+      },
+      status: 200
+    };
+  } catch (error: any) {
+    console.error('Errore durante l’aggiornamento:', error.message)
+    return {
+      error: error.message || 'Internal server error',
+      status: 500
+    }
+  }
+}
 
 export const insertSiteOld = async (
   linkData: CreateLinkRequest

@@ -18,6 +18,20 @@ const apiRouter = async (
 
     switch (type) {
 
+        /* ---- DELETE /sites/:id ---- */
+
+        case "deleteSite": {
+            if (method !== "DELETE") {
+                throw new Error("Invalid method for deleteSite");
+            }
+            const { id } = params
+            if (!id) {
+                throw new Error("ID is required for deleteSite");
+            }
+            return await sites.deleteSite(id)
+        }
+
+
         /* ---- GET /sites ---- */
         case "getSites": {
             if (method !== "GET") {
@@ -69,6 +83,12 @@ const apiRouter = async (
             if (method !== 'POST') throw new Error('Invalid method for createSite')
 
             return await sites.insertSite(data as CreateLinkRequest)
+
+        case 'updateSite':
+
+            if (method !== 'PUT') throw new Error('Invalid method for updateSite')
+
+            return await sites.updateSite(params.id, data)
 
         /* ---- altri tipi non gestiti ---- */
 

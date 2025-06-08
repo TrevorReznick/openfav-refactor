@@ -4,20 +4,21 @@ import React from 'react';
 import { sites, events } from '@/api/apiClient'
 
 
-const userId = '9446217e-49e8-49f9-84dc-822ed8df969b'
+const userId = 'c9b775e4-3a69-438d-b967-e10f58a51240'
 
 const example_site = {
-  title: 'Test Site',
+  title: 'this is a test site',
   url: 'https://my_example.com',
-  description: 'Test site created via API',
-  user_id: '9446217e-49e8-49f9-84dc-822ed8df969b',
+  description: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+  user_id: 'c9b775e4-3a69-438d-b967-e10f58a51240',
   accessible: true,
   domain_exists: true,
   html_content_exists: false,
   is_public: true,
+  name: 'Dummy Site Name',
   secure: true,
   status_code: 200,
-  type: 'example_type',
+  type: 'website',
   valid_url: true,
   AI: false,
   id_area: 1,
@@ -89,6 +90,10 @@ const BasicApiTest = () => {
       const _sites_by_user = await sites.getByUserId(userId); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _sites_by_user)
       const _sites_post = await sites.create(example_site); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _sites_post)
+      const _site_update = await sites.update(212, example_site); // Chiama la funzione definita in apiClient
+      const _site_delete = await sites.delete(223); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _site_delete)
       const _events_logs = await events.getAll(); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _events_logs)
       const _post_event = await events.create(example_new_event) // Chiama la funzione definita in apiClient
