@@ -5,7 +5,8 @@ import type {
   MainTableData,
   SubMainTableData,
   CategoriesTagsData,
-  ApiResponse
+  ApiResponse,
+  SiteTagData
 } from '@/types/api';
 
 export const getSites = async () => {
@@ -40,6 +41,115 @@ export const getSitesCategories = async (/*userId: string*/) => {
 }
 
 export const insertSite = async (
+  linkData: CreateLinkRequest
+): Promise<ApiResponse<{ id: string | number }>> => {
+  try {
+    // --- 1. Inserisci nel main_table ---
+    const mainTableData: MainTableData = {
+      description: linkData.description ?? undefined,
+      icon: linkData.icon ?? undefined,
+      image: linkData.image ?? undefined,
+      logo: linkData.logo ?? undefined,
+      name: linkData.name,
+      title: linkData.title ?? undefined,
+      url: linkData.url
+    };
+
+    const mainResult = await supabaseInsert<MainTableData>('main_table', mainTableData);
+
+    if (!mainResult.success || !mainResult.data || mainResult.data.length === 0) {
+      throw new Error('Failed to insert into main_table');
+    }
+
+    const insertedMainRecord = mainResult.data[0];
+    let sourceId = insertedMainRecord.id;
+
+    if (sourceId === undefined) {
+      throw new Error('Inserted main_table record does not have a valid id');
+    }
+
+    // Convert bigint to string se necessario
+    if (typeof sourceId === 'bigint') {
+      sourceId = sourceId.toString();
+    }
+
+    // --- 2. Inserisci nel sub_main_table ---
+    const subMainTableData: SubMainTableData = {
+      id_src: sourceId,
+      user_id: linkData.user_id,
+      accessible: linkData.accessible ?? false,
+      domain_exists: linkData.domain_exists ?? false,
+      html_content_exists: linkData.html_content_exists ?? false,
+      is_public: linkData.is_public ?? true,
+      secure: linkData.secure ?? true,
+      status_code: linkData.status_code ?? undefined,
+      valid_url: linkData.valid_url ?? true,
+      type: linkData.type ?? '',
+      AI: linkData.AI ?? false
+    };
+
+    const subMainResult = await supabaseInsert<SubMainTableData>('sub_main_table', subMainTableData);
+
+    if (!subMainResult.success) {
+      throw new Error('Failed to insert into sub_main_table');
+    }
+
+    // --- 3. Se ci sono dati, inserisci in categories_tags ---
+    if (
+      linkData.id_area !== undefined ||
+      linkData.id_cat !== undefined ||
+      linkData.id_provider !== undefined
+    ) {
+      const categoriesTagsData: CategoriesTagsData = {
+        id_src: sourceId,
+        id_area: linkData.id_area ?? -1,
+        id_cat: linkData.id_cat ?? -1,
+        id_provider: linkData.id_provider ?? -1,
+        ratings: linkData.ratings ?? -1,
+        AI_think: linkData.AI_think ?? undefined,
+        AI_summary: linkData.AI_summary ?? undefined
+      };
+
+      const categoriesResult = await supabaseInsert<CategoriesTagsData>(
+        'categories_tags',
+        categoriesTagsData
+      );
+
+      if (!categoriesResult.success) {
+        throw new Error('Failed to insert into categories_tags');
+      }
+    }
+
+    // --- 4. Se ci sono tag, inseriscili in site_tags ---
+    if (linkData.tags && linkData.tags.length > 0) {
+      const tagsToInsert = linkData.tags.map(tag => ({
+        id_src: sourceId,
+        tag_type: tag.tag_type,
+        tag_value: tag.tag_value
+      }));
+
+      const tagsResult = await supabaseInsert<SiteTagData>('site_tags', tagsToInsert);
+
+      if (!tagsResult.success) {
+        throw new Error('Failed to insert into site_tags');
+      }
+    }
+
+    // --- 5. Restituisci l'ID del record creato ---
+    return {
+      data: { id: sourceId },
+      status: 200
+    };
+  } catch (error: any) {
+    console.error('Error creating site with associations:', error.message);
+    return {
+      error: error.message || 'Internal server error',
+      status: 500
+    };
+  }
+};
+
+export const insertSiteOld = async (
   linkData: CreateLinkRequest
 ): Promise<ApiResponse<{ id: string | number }>> => {
   try {

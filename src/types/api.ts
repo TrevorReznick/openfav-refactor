@@ -123,18 +123,27 @@ export interface CategoriesTagsData {
     id_src: string | number | bigint
     id_area: number
     id_cat: number
+    /*
     tag_3: string | number
     tag_4: string | number
     tag_5: string | number
+    */
     id_provider?: number
     ratings?: any
     AI_think?: string
     AI_summary?: string
 }
 
+export interface SiteTagData {
+    tag_type: number; // 3 = ambito, 4 = tecnologia, 5 = sottocategoria
+    tag_value: number; // riferimento a sub_categories.id
+    tag_name?: string; // nome leggibile del tag (es. "React")
+}
+
 export interface CreateLinkRequest
     extends MainTableData,
     Partial<SubMainTableData>,
     Partial<CategoriesTagsData> {
-    user_id: string; // obbligatorio (da SubMainTableData)
+    user_id: string; // obbligatorio
+    tags?: SiteTagData[]; // Nuovo campo per i tag
 }
