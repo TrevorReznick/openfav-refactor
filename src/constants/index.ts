@@ -31,6 +31,23 @@ sub_main_table (
   AI
 )
 `
+export const QUERY_SITES_CATEGORIES = `
+  id_src,
+  main_table (
+    *
+  ),
+  areas (
+    area
+  ),
+  categories (
+    id,
+    category
+  ),
+  tags:site_tags (
+    tag_type,
+    sub_category:tag_value ( sub_category )
+  )
+`
 export const SITES_REL_QUERY_WITH_USER = `
   *,
   main_table (

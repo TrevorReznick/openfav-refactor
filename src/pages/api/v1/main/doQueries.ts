@@ -58,6 +58,12 @@ const apiRouter = async (
 
             return await sites.getSitesByUserId(userId)
 
+        case 'getSitesCategories':
+
+            if (method !== 'GET') throw new Error('Invalid method for getSitesCategories')
+
+            return await sites.getSitesCategories()
+
         case 'postSite':
 
             if (method !== 'POST') throw new Error('Invalid method for createSite')

@@ -1,5 +1,5 @@
 import { supabaseQuery, supabaseInsert } from "~/scripts/supabase";
-import { SITES_REL_QUERY, SITES_REL_QUERY_WITH_USER } from '@/constants'
+import { SITES_REL_QUERY, SITES_REL_QUERY_WITH_USER, QUERY_SITES_CATEGORIES } from '@/constants'
 import type {
   CreateLinkRequest,
   MainTableData,
@@ -22,9 +22,20 @@ export const getSiteById = async (id: string | number) => {
 }
 
 export const getSitesByUserId = async (userId: string) => {
-  return await supabaseQuery('sub_main_table', {
+  return await supabaseQuery('main_table', {
     select: SITES_REL_QUERY_WITH_USER,
     filter: (query) => query.eq('user_id', userId)
+  })
+}
+
+export const getSitesCategories = async (/*userId: string*/) => {
+  return await supabaseQuery('categories_tags', {
+    select: QUERY_SITES_CATEGORIES,
+    //filter: (query) => query.eq('user_id', userId),
+    order: {
+      column: 'id',
+      ascending: true
+    }
   })
 }
 

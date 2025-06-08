@@ -43,6 +43,7 @@ export const sites = {
     create: (data: LinkFormData): Promise<ApiResponse<Link>> => createElement<Link>('site', data),
     update: (id: string, data: Partial<LinkFormData>): Promise<ApiResponse<Link>> => updateElement<Link>('site', id, data),
     delete: (id: string): Promise<ApiResponse<void>> => deleteElement('sites', id),
+    joinCategories: (): Promise<ApiResponse<UserList[]>> => fetchElements<UserList>('sitesCategories')
 };
 
 export const lists = {

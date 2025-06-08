@@ -65,6 +65,8 @@ const BasicApiTest = () => {
       console.log('✅ Risultato della chiamata:', _events_logs)
       const _delete_event = await events.delete(251) // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _delete_event)
+      const _sites_categories = await sites.joinCategories(); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _sites_categories)
 
     } catch (error) {
       console.error('❌ Errore durante la chiamata:', error)
