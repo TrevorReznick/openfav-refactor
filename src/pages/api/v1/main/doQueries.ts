@@ -4,6 +4,7 @@ import type { APIRoute } from 'astro'
 import { makeHandleRequest } from '@/scripts/http/handleRequest'
 import * as sites from '@/scripts/db/sites'
 import * as events from '@/scripts/db/events'
+import * as lists from '@/scripts/db/lists'
 import type { CreateLinkRequest } from '@/types/api'
 
 
@@ -124,6 +125,18 @@ const apiRouter = async (
 
 
             return await events.updateEvent(data, id)
+
+            case 'getLists':
+                if (method !== 'GET') throw new Error('Invalid method for getSites')
+                return await lists.getLists()
+              case 'getListsByUserId':
+                if (method !== 'GET') throw new Error('Invalid method for getSites')
+                return await lists.getListsByUserId(params.userId)
+            /* 
+             case 'getList':
+                if (method !== 'GET') throw new Error('Invalid method for getSites')
+                return await getListById(parseInt(params.id))
+            */
 
         default:
 
