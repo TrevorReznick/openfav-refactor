@@ -8,6 +8,7 @@ export const getLists = async () => {
 }
 
 export async function getListsByUserId(userId) {
+    console.log('controllo parametro', userId)
     return await supabaseQuery('lists_users', {        
         select: '*',
         filter: (query) => query.eq('id_user', userId)
