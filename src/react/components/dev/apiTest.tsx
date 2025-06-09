@@ -1,10 +1,11 @@
 // src/components/BasicApiTest.tsx
 
 import React from 'react';
-import { sites, events } from '@/api/apiClient'
+import { sites, events, lists } from '@/api/apiClient'
 
 
-const userId = 'c9b775e4-3a69-438d-b967-e10f58a51240'
+//const userId = 'c9b775e4-3a69-438d-b967-e10f58a51240'
+const userId = '9446217e-49e8-49f9-84dc-822ed8df969b'
 
 const example_site = {
   title: 'this is a test site',
@@ -83,7 +84,7 @@ const BasicApiTest = () => {
 
     try {
 
-      const _sites = await sites.getAll(); // Chiama la funzione definita in apiClient
+      /*const _sites = await sites.getAll(); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _sites)
       const _sites_by_id = await sites.getOne(156); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _sites_by_id)
@@ -102,6 +103,12 @@ const BasicApiTest = () => {
       console.log('✅ Risultato della chiamata:', _delete_event)
       const _sites_categories = await sites.joinCategories(); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _sites_categories)
+      */
+      const _lists = await lists.getAll(); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _lists)
+      const _lists_by_userId = await lists.getListsByUserId(userId); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _lists_by_userId)
+      
 
     } catch (error) {
       console.error('❌ Errore durante la chiamata:', error)
