@@ -1,5 +1,6 @@
 import { supabaseQuery, supabaseInsert, supabaseUpdate, supabaseDelete } from '~/scripts/supabase'
 import { supabase } from '@/providers/supabaseAuth'
+import type { UserList, CreateListData, UpdateListData } from '@/types/api'
 
 export const getLists = async () => {
     return await supabaseQuery('lists_users', {
@@ -9,10 +10,33 @@ export const getLists = async () => {
 
 export async function getListsByUserId(userId) {
     console.log('controllo parametro', userId)
-    return await supabaseQuery('lists_users', {        
+    return await supabaseQuery('lists_users', {
         select: '*',
         filter: (query) => query.eq('id_user', userId)
     })
+}
+
+export async function getListById(id) {
+    return await supabaseQuery('lists_users', {
+        select: '*',
+        filter: (query) => query.eq('id', id)
+    })
+}
+
+export async function createList(data: UserList) {
+    return await supabaseInsert('lists_users', data)
+}
+
+export async function updateList(id: number, data: UserList) {
+    const tableName = 'lists_users'
+    const result = await supabaseUpdate(tableName, data, (query) => query.eq('id', id))
+    if (!result.success) {
+        throw new Error(result.error)
+    }
+    return result.data
+}
+export async function deleteList(id: number) {
+    return await supabaseDelete('lists_users', (query) => query.eq('id', id))
 }
 
 /*

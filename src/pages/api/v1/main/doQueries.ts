@@ -126,17 +126,40 @@ const apiRouter = async (
 
             return await events.updateEvent(data, id)
 
-            case 'getLists':
-                if (method !== 'GET') throw new Error('Invalid method for getSites')
-                return await lists.getLists()
-              case 'getListsByUserId':
-                if (method !== 'GET') throw new Error('Invalid method for getSites')
-                return await lists.getListsByUserId(params.userId)
-            /* 
-             case 'getList':
-                if (method !== 'GET') throw new Error('Invalid method for getSites')
-                return await getListById(parseInt(params.id))
-            */
+        case 'getLists':
+            if (method !== 'GET') throw new Error('Invalid method for getSites')
+            return await lists.getLists()
+        case 'getListsByUserId':
+            if (method !== 'GET') throw new Error('Invalid method for getSites')
+            return await lists.getListById(params.id)
+        case 'getList':
+            if (method !== 'GET') throw new Error('Invalid method for getSites')
+            return await lists.getListById(params.id)
+        case 'postList':
+            if (method !== 'POST') throw new Error('Invalid method for postList')
+            return await lists.createList(data)
+        case 'updateList':
+            if (method !== 'PUT') throw new Error('Invalid method for updateList')
+            const { id: listId } = params
+            if (!listId) {
+                throw new Error("ID is required for updateList");
+            }
+            const numericListId = Number(listId)
+            if (isNaN(numericListId)) {
+                throw new Error("ID must be a number for updateList");
+            }
+            return await lists.updateList(numericListId, data)
+        case 'deleteList':
+            if (method !== 'DELETE') throw new Error('Invalid method for deleteList')
+            const { id: listIdToDelete } = params
+            if (!listIdToDelete) {
+                throw new Error("ID is required for deleteList");
+            }
+            const numericListIdToDelete = Number(listIdToDelete)
+            if (isNaN(numericListIdToDelete)) {
+                throw new Error("ID must be a number for deleteList");
+            }
+            return await lists.deleteList(numericListIdToDelete)
 
         default:
 

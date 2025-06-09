@@ -4,6 +4,7 @@ import React from 'react';
 import { sites, events, lists } from '@/api/apiClient'
 
 
+
 //const userId = 'c9b775e4-3a69-438d-b967-e10f58a51240'
 const userId = '9446217e-49e8-49f9-84dc-822ed8df969b'
 
@@ -78,6 +79,15 @@ const example_update_event = {
   id_event_family: 2
 }
 
+const testUserList = {
+  name: "Lista preferiti",
+  id_user: '9446217e-49e8-49f9-84dc-822ed8df969b', // UUID di esempio
+  description: "Questa è una lista di esempio",
+  public: true,
+  created_at: "2024-06-09T10:00:00Z",
+  modified_at: "2024-06-09T12:00:00Z"
+};
+
 const BasicApiTest = () => {
   const handleTestClick = async () => {
     console.log('🔄 Avvio chiamate api...')
@@ -108,7 +118,13 @@ const BasicApiTest = () => {
       console.log('✅ Risultato della chiamata:', _lists)
       const _lists_by_userId = await lists.getListsByUserId(userId); // Chiama la funzione definita in apiClient
       console.log('✅ Risultato della chiamata:', _lists_by_userId)
-      
+      const _list_by_id = await lists.getOne(1); // Chiama la funzione definita in apiClient
+      const _post_user_list = await lists.create(testUserList); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _post_user_list)
+      const _update_user_list = await lists.update(1, testUserList); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _update_user_list)
+      const _delete_user_list = await lists.delete(1); // Chiama la funzione definita in apiClient
+      console.log('✅ Risultato della chiamata:', _delete_user_list)
 
     } catch (error) {
       console.error('❌ Errore durante la chiamata:', error)

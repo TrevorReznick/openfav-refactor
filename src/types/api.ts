@@ -76,8 +76,9 @@ export interface LinkFormData {
 }
 
 export interface UserList {
-    id: number;
+    id?: number;
     name: string;
+    id_user: UUID;
     description: string | null;
     public: boolean;
     created_at: string;

@@ -51,7 +51,7 @@ export const lists = {
     getListsByUserId: (userId: string): Promise<ApiResponse<UserList[]>> => fetchElements<UserList>('listsByUserId', { userId }),
     getOne: (id: number): Promise<ApiResponse<UserList>> => fetchElement<UserList>('list', id),
     create: (data: CreateListData): Promise<ApiResponse<UserList>> => createElement<UserList>('list', data),
-    update: (id: number, data: UpdateListData): Promise<ApiResponse<UserList>> => updateElement<UserList>('lists', id, data),
+    update: (id: number, data: UpdateListData): Promise<ApiResponse<UserList>> => updateElement<UserList>('list', id, data),
     delete: (id: number): Promise<ApiResponse<void>> => deleteElement('list', id),
 }
 
