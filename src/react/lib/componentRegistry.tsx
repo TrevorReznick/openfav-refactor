@@ -43,5 +43,12 @@ componentLib
             group: 'debug'
         }
     })
+    .register('debug-auth', {
+        import: () => import('~/react/components/debug/DebugAuth'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'auth'
+        }
+    })
 
 export default componentLib
