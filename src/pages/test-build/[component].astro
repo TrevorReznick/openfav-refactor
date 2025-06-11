@@ -1,14 +1,12 @@
 ---
 import Layout from '@/layouts/ThemeLayout.astro'
-import HeaderTitle from '@/components/HeaderTitle.astro'
 import AppClient from '@/react/AppClient'
 import { componentLib } from '@/react/lib/componentLib'
 import type { AppClientProps } from '@/types/components'
-//import TestComponent from '~/react/components/TestComponent'
 
-const { Title, subTitle } = Astro.props
 const { component } = Astro.params
 
+// Debug: Component validation
 const isValidComponent = componentLib.has(component || '')
 
 // Get component metadata if available
@@ -16,13 +14,11 @@ const metadata = isValidComponent
   ? componentLib.getMetadata(component || '')
   : null
 
+// Prepare client props
 const clientProps: AppClientProps = {
   componentName: component || '',
   useQueryString: true,
 }
-
-// Old Test both approaches
-const TestComponent = 'TestComponent' // This will be loaded from routes
 ---
 
 <Layout

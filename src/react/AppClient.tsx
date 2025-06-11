@@ -6,6 +6,7 @@ import DynamicWrapper from '@/react/DynamicWrapper'
 import { NavigationProvider } from '~/react/hooks/navigationContext'
 import { ThemeProvider } from '@/react/providers/themeProvider'
 import { ThemeToggle } from '@/react/components/ThemeToggle'
+import { AuthProvider } from '@/react/hooks/authContext'
 import componentLib from '@/react/lib/componentRegistry' // Path corretto
 import LoadingFallback from '@/react/components/common/LoadFallback'
 
@@ -37,10 +38,14 @@ const AppClient: FC<AppClientProps> = ({
   showThemeToggle = false,
   showToaster = true
 }) => {
-  // Providers di base con QueryClient
+  // Base providers with QueryClient and Auth
   const providers = [
     ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </QueryClientProvider>
     ),
     ThemeProvider,
     NavigationProvider,

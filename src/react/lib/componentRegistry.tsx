@@ -36,8 +36,8 @@ componentLib
             group: 'debug'
         }
     })
-    .register('api-test-V1', {
-        import: () => import('~/react/components/debug/apiTest'),
+    .register('debug-api', {
+        import: () => import('~/react/components/debug/ApiTest'),
         metadata: {
             description: 'API Test Console',
             group: 'debug'

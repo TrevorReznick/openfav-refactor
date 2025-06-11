@@ -1,6 +1,6 @@
 import { supabase } from '@/providers/supabaseAuth'
 import { currentPath, userStore } from '@/store'
-import type { UserSession } from '~/types/old/userSession'
+import type { UserSession } from '~/types/users'
 
 export class UserHelper {
   // ... (singleton e costruttore)
@@ -22,6 +22,12 @@ export class UserHelper {
       createdAt: new Date(user.created_at),
       lastLogin: new Date(user.last_sign_in_at),
       isAuthenticated: true,
+      provider: user.app_metadata?.provider || 'email',
+      tokens: {
+        accessToken: null,
+        refreshToken: null,
+        expiresAt: 0
+      },
       metadata: {
         provider: user.app_metadata?.provider || 'email',
         avatarUrl: user.user_metadata?.avatar_url
@@ -68,7 +74,11 @@ export class UserHelper {
     console.log('[UserHelper] getCompleteSession - Risultato:', { ...userInfo, tokens });
     return {
       ...userInfo,
-      tokens
+      tokens: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresAt: tokens.expiresAt ?? 0 // or another default number if preferred
+      }
     };
   }
 
@@ -99,9 +109,15 @@ export class UserHelper {
       createdAt: new Date(),
       lastLogin: new Date(),
       isAuthenticated: false,
+      provider: 'email',
       tokens: {
         accessToken: null,
-        refreshToken: null
+        refreshToken: null,
+        expiresAt: 0
+      },
+      metadata: {
+        provider: 'email',
+        avatarUrl: undefined
       }
     };
   }

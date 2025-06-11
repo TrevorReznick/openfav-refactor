@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
   }, [instanceId]);
   
-  const userHelper = UserHelper.getInstance();
+  const userHelper = new UserHelper();
 
   const refreshSession = async () => {
     try {
@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext)
   if (context === undefined) {
     console.warn('useAuth must be used within an AuthProvider');
     // Return a default context instead of throwing to prevent app crashes
