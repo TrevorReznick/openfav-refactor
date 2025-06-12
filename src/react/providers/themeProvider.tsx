@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { map } from 'nanostores';
 
@@ -35,7 +37,7 @@ export const ThemeContext = React.createContext<ThemeContextType>({
   systemTheme: undefined,
 });
 
-export function ThemeWrapper({
+function ThemeWrapper({
   children,
   initialTheme = 'system',
   initialSystemTheme,
@@ -176,3 +178,5 @@ export function useTheme() {
   }
   return context;
 }
+
+export default ThemeWrapper;

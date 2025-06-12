@@ -1,4 +1,6 @@
-import { createContext, useContext, useEffect, useCallback } from 'react'
+'use client'
+
+import { createContext, useContext, useEffect, useCallback, useState } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, previousPath } from '@/store'
 import { toast } from 'sonner'
@@ -12,11 +14,19 @@ interface NavigationContextType {
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined)
 
 export const NavigationProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isClient, setIsClient] = useState(false)
   const current = useStore(currentPath)
   const previous = useStore(previousPath)
 
+  // Set client flag on mount
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   // Sync router with store
   useEffect(() => {
+    if (!isClient) return
+    
     const updatePath = () => currentPath.set(window.location.pathname)
     
     // Initial sync
@@ -25,7 +35,7 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
     // Handle browser navigation
     window.addEventListener('popstate', updatePath)
     return () => window.removeEventListener('popstate', updatePath)
-  }, [])
+  }, [isClient])
 
   /**
    * Navigate to a new path
@@ -46,6 +56,8 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
    * Perform the actual navigation
    */
   const performNavigation = (path: string, state?: Record<string, unknown>) => {
+    if (!isClient) return
+    
     previousPath.set(current)
     currentPath.set(path)
     window.history.pushState(state ?? {}, '', path)
