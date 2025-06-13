@@ -25,3 +25,10 @@ export const themeStore = atom({
   theme: 'system',
   systemTheme: 'light'
 })
+export function useLoading() {
+  return {
+    isLoading: loadingStore.get(),
+    message: messageStore.get()
+  };
+}
+
