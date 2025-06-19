@@ -146,7 +146,7 @@ const Navbar = () => {
                 Login
               </a>
               <a
-                href="/signup"
+                href="/build/login"
                 className="hidden md:inline-flex items-center px-5 py-2.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors"
               >
                 Sign Up
