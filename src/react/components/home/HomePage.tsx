@@ -1,26 +1,15 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { motion, useInView, useAnimation } from 'framer-motion';
-import { FeatureCard } from './FeatureCard';
-import { StepCard } from './StepCard';
-import { HeroSection } from './HeroSection';
+import { motion, useInView } from 'framer-motion';
+import { HeroSection } from '@/react/components/home/sub/HeroSection'
 import { 
   Rocket, 
   Zap, 
   Box, 
   Trophy, 
   Users as UsersIcon, 
-  ThumbsUp, 
-  Monitor, 
-  ShoppingBag, 
-  Star, 
-  Sparkles, 
-  FolderPlus, 
-  FileSearch, 
-  Mail, 
-  ListChecks, 
-  BookOpen 
+  ThumbsUp
 } from 'lucide-react';
 
 export const HomePage = () => {
@@ -80,48 +69,28 @@ export const HomePage = () => {
     }
   ];
 
-  // Animazione per le sezioni
-  const sectionVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
-    }
-  };
-
   // Riferimenti per l'animazione
   const featuresRef = useRef(null);
   const stepsRef = useRef(null);
   
   const isInViewFeatures = useInView(featuresRef, { once: true, amount: 0.2 });
   const isInViewSteps = useInView(stepsRef, { once: true, amount: 0.2 });
-  const controls = useAnimation();
-
-  useEffect(() => {
-    if (isInViewFeatures || isInViewSteps) {
-      controls.start('visible');
-    }
-  }, [isInViewFeatures, isInViewSteps, controls]);
 
   return (
     <div className="flex flex-col overflow-hidden">
       <HeroSection />
       
       {/* Features Section */}
-      <motion.section 
+      <section 
         ref={featuresRef}
-        initial="hidden"
-        animate={isInViewFeatures ? 'visible' : 'hidden'}
-        variants={sectionVariants}
-        className="py-20 px-6 relative"
+        className="py-20 px-6 relative overflow-hidden"
       >
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-grid-white/[0.02]" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/50 to-background" />
         </div>
         
-        <div className="container mx-auto max-w-7xl">
+        <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-16">
             <motion.h2 
               className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent"
@@ -140,6 +109,7 @@ export const HomePage = () => {
               Everything you need to organize your digital life
             </motion.p>
           </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <motion.div
@@ -154,77 +124,76 @@ export const HomePage = () => {
                     ease: "easeOut"
                   }
                 } : {}}
+                className="glass-card p-6 rounded-xl hover:shadow-lg transition-all duration-300"
               >
-                <FeatureCard
-                  icon={feature.icon}
-                  title={feature.title}
-                  description={feature.description}
-                  className="h-full"
-                />
+                <div className="h-12 w-12 rounded-lg bg-primary/20 flex items-center justify-center mb-4">
+                  <feature.icon className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2 text-foreground">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground">
+                  {feature.description}
+                </p>
               </motion.div>
             ))}
           </div>
         </div>
-      </motion.section>
+      </section>
 
-      {/* How It Works */}
-      <motion.section 
+      {/* How It Works Section */}
+      <section 
         ref={stepsRef}
-        initial="hidden"
-        animate={isInViewSteps ? 'visible' : 'hidden'}
-        variants={sectionVariants}
-        className="py-20 px-6 relative overflow-hidden"
+        className="py-20 px-6 bg-secondary/50 relative overflow-hidden"
       >
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-gradient-to-b from-background to-muted/10" />
           <div className="absolute inset-0 bg-dot-white/[0.05]" />
         </div>
         
-        <div className="container mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <motion.h2 
-              className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              How It Works
-            </motion.h2>
-            <motion.p 
-              className="text-xl text-muted-foreground max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              Get started in just a few simple steps
-            </motion.p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="container mx-auto max-w-4xl">
+          <motion.h2 
+            className="text-4xl font-bold text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInViewSteps ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+          >
+            How It Works
+          </motion.h2>
+          
+          <div className="space-y-8">
             {steps.map((step, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, x: -20 }}
                 animate={isInViewSteps ? { 
                   opacity: 1, 
-                  y: 0,
+                  x: 0,
                   transition: { 
-                    delay: 0.2 + (index * 0.1),
-                    duration: 0.5,
-                    ease: "easeOut"
+                    delay: 0.1 * index,
+                    duration: 0.5
                   }
                 } : {}}
+                className="glass-card p-6 rounded-xl hover:shadow-lg transition-all duration-300"
               >
-                <StepCard
-                  number={step.number}
-                  title={step.title}
-                  description={step.description}
-                  className="h-full"
-                />
+                <div className="flex items-start gap-6">
+                  <div className="flex-shrink-0 h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
+                    {step.number}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2 text-foreground">
+                      {step.title}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
-      </motion.section>
+      </section>
     </div>
   );
 }
