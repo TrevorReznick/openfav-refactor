@@ -4,7 +4,7 @@ import { UserHelper } from '@/auth/getAuth'
 
 export const onRequest = defineMiddleware(async ({ url, redirect }, next) => {
 
-    const protectedPaths = ['/test-build/dashboard', '/admin']
+    const protectedPaths = ['/build/dashboard', '/admin']
     const authPaths = ['/login', '/register', '/api/auth/']
 
     if (authPaths.some((path) => url.pathname.startsWith(path))) {

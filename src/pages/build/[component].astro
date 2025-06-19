@@ -1,0 +1,56 @@
+---
+import Layout from '@/layouts/ThemeLayout.astro'
+import AppClient from '@/react/AppClient'
+import { componentLib } from '@/react/lib/componentLib'
+import type { AppClientProps } from '@/types/components'
+import { PageContainer } from '@/react/components/ui/PageContainer'
+
+const { component } = Astro.params
+
+// Debug: Component validation
+const isValidComponent = componentLib.has(component || '')
+
+// Get component metadata if available
+const metadata = isValidComponent
+  ? componentLib.getMetadata(component || '')
+  : null
+
+// Prepare client props
+const clientProps: AppClientProps = {
+  componentName: component || '',
+  useQueryString: true,
+}
+---
+
+<Layout
+  title={typeof metadata?.description === 'string'
+    ? metadata?.description
+    : 'Dynamic Component'}
+>
+  <PageContainer
+    title={isValidComponent
+      ? `${(component ?? '').charAt(0).toUpperCase() + (component ?? '').slice(1)} Component`
+      : 'Component Not Found'}
+    description={isValidComponent
+      ? String(metadata?.description ?? '')
+      : `The requested component "${component}" is not registered.`}
+  >
+    {
+      isValidComponent ? (
+        <AppClient client:load {...clientProps} />
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-destructive text-lg">
+            The requested component "{component}" is not registered.
+          </p>
+        </div>
+      )
+    }
+  </PageContainer>
+
+  <div class="mt-6">
+    <a href="/" class="text-primary hover:text-primary/80 transition-colors">
+      ← Back to Home
+    </a>
+  </div>
+</Layout>

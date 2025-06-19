@@ -1,7 +1,7 @@
 import { Button } from '@/react/components/ui/button';
 
 export const HeroSection = () => (
-  <section className="relative py-24 px-6 overflow-hidden">
+  <section className="relative pt-32 pb-20 px-6 bg-secondary/50 overflow-hidden">
     {/* Background gradient */}
     <div className="absolute inset-0 -z-10">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/30" />

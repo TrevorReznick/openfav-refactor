@@ -83,11 +83,11 @@ export const HomePage = () => {
       {/* Features Section */}
       <section 
         ref={featuresRef}
-        className="py-20 px-6 relative overflow-hidden"
+        className="py-24 px-6 bg-secondary/50 relative overflow-hidden"
       >
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-grid-white/[0.02]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/50 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/30" />
+          <div className="absolute inset-0 bg-grid-white/5" />
         </div>
         
         <div className="container mx-auto max-w-4xl">
@@ -144,11 +144,11 @@ export const HomePage = () => {
       {/* How It Works Section */}
       <section 
         ref={stepsRef}
-        className="py-20 px-6 bg-secondary/50 relative overflow-hidden"
+        className="py-28 px-6 bg-secondary/50 relative overflow-hidden"
       >
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-b from-background to-muted/10" />
-          <div className="absolute inset-0 bg-dot-white/[0.05]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/30" />
+          <div className="absolute inset-0 bg-grid-white/5" />
         </div>
         
         <div className="container mx-auto max-w-4xl">
