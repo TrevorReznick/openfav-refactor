@@ -140,12 +140,6 @@ const Navbar = () => {
           ) : (
             <>
               <a
-                href="/login"
-                className="hidden md:inline-flex items-center px-5 py-2.5 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                Login
-              </a>
-              <a
                 href="/build/login"
                 className="hidden md:inline-flex items-center px-5 py-2.5 text-base font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors"
               >
