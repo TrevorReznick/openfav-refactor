@@ -127,28 +127,28 @@ const DebugAuth = () => {
     }
     
     try {
-      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
+      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL
       // Usa il formato corretto della chiave con il prefisso
       
-      const response = await fetch(`${redisApiUrl}/session/${user.id}`);
+      const response = await fetch(`${redisApiUrl}/session/${user.id}`)
       
-      const data = await response.json();
-      console.log('Redis GET response:', data);
+      const data = await response.json()
+      console.log('Redis GET response:', data)
       setRedisStatus({ 
         success: response.ok, 
         message: response.ok ? "Session retrieved from Redis" : "No session found", 
         data 
-      });
+      })
     } catch (error) {
       console.error('Redis GET error:', error);
-      setRedisStatus({ success: false, message: String(error) });
+      setRedisStatus({ success: false, message: String(error) })
     }
   };
 
   const testRedisDelete = async () => {
     if (!user?.id) {
-      setRedisStatus({ success: false, message: "No user ID available" });
-      return;
+      setRedisStatus({ success: false, message: "No user ID available" })
+      return
     }
     
     try {
@@ -157,14 +157,14 @@ const DebugAuth = () => {
       
       const response = await fetch(`${redisApiUrl}/delete/${user.id}`, {
         method: 'DELETE'
-      });
+      })
       
-      const data = await response.json();
-      console.log('Redis DELETE response:', data);
-      setRedisStatus({ success: response.ok, message: "Session deleted from Redis", data });
+      const data = await response.json()
+      console.log('Redis DELETE response:', data)
+      setRedisStatus({ success: response.ok, message: "Session deleted from Redis", data })
     } catch (error) {
-      console.error('Redis DELETE error:', error);
-      setRedisStatus({ success: false, message: String(error) });
+      console.error('Redis DELETE error:', error)
+      setRedisStatus({ success: false, message: String(error) })
     }
   };
 
@@ -264,17 +264,30 @@ const DebugAuth = () => {
             </button>
           </div>
           
-          {redisStatus.message && (
+            {redisStatus.message && (
             <div className={`text-xs p-1 rounded ${redisStatus.success ? 'bg-green-800' : 'bg-red-800'}`}>
               {redisStatus.message}
             </div>
-          )}
-          
-          {redisStatus.data && (
+            )}
+            
+            {redisStatus.data && (
             <div className="mt-1 max-h-24 overflow-auto text-xs break-words">
-              <pre className="whitespace-pre-wrap">{JSON.stringify(redisStatus.data, null, 2)}</pre>
+              <pre className="whitespace-pre-wrap">
+              {JSON.stringify(
+                (() => {
+                // Exclude tokens from the object if present
+                if (redisStatus.data && typeof redisStatus.data === 'object') {
+                  const { tokens, ...rest } = redisStatus.data;
+                  return rest;
+                }
+                return redisStatus.data;
+                })(),
+                null,
+                2
+              )}
+              </pre>
             </div>
-          )}
+            )}
         </div>
       </div>
 
