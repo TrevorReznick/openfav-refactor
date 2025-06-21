@@ -1,5 +1,5 @@
 import { defineMiddleware } from 'astro:middleware'
-import { UserHelper } from '@/auth/getAuth'
+import { UserHelper } from '@/scripts/auth/getAuth'
 
 
 export const onRequest = defineMiddleware(async ({ url, redirect }, next) => {

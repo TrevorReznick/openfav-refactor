@@ -41,12 +41,28 @@ const DebugAuth = () => {
     checkAuth();
   }, []);
 
-  // Debug: Aggiungiamo log per verificare lo stato di autenticazione
+  // Helper function to safely log user data with truncated tokens
+  const safeLogUser = (userData: any) => {
+    if (!userData) return null;
+    
+    return {
+      ...userData,
+      tokens: userData.tokens ? {
+        accessToken: userData.tokens.accessToken ? 
+          `${userData.tokens.accessToken.substring(0, 10)}...` : null,
+        refreshToken: userData.tokens.refreshToken ?
+          `${userData.tokens.refreshToken.substring(0, 10)}...` : null,
+        expiresAt: userData.tokens.expiresAt
+      } : null
+    };
+  };
+
+  // Debug: Log authentication state
   useEffect(() => {
     console.log('🔐 Auth Debug:');
     console.log('- isAuthenticated:', isAuthenticated);
     console.log('- loading:', loading);
-    console.log('- user:', user);
+    console.log('- user:', safeLogUser(user));
     console.log('- current path:', current);
   }, [isAuthenticated, loading, user, current]);
 

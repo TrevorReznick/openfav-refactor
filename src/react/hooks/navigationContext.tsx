@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useCallback, useState } from 'rea
 import { useStore } from '@nanostores/react'
 import { currentPath, previousPath } from '@/store'
 import { toast } from 'sonner'
+import { AuthProvider } from '@/react/hooks/authContext'
 
 interface NavigationContextType {
   navigate: (path: string) => Promise<void>
@@ -81,15 +82,17 @@ export const NavigationProvider = ({ children }: { children: React.ReactNode }) 
   }, [previous, navigate])
 
   return (
-    <NavigationContext.Provider 
-      value={{ 
-        navigate, 
-        goBack, 
-        currentPath: current
-      }}
-    >
-      {children}
-    </NavigationContext.Provider>
+    <AuthProvider>
+      <NavigationContext.Provider 
+        value={{ 
+          navigate, 
+          goBack, 
+          currentPath: current
+        }}
+      >
+        {children}
+      </NavigationContext.Provider>
+    </AuthProvider>
   )
 }
 

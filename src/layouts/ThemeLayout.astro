@@ -4,6 +4,7 @@ import '@/styles/custom.css'
 import '@/styles/shadcn.css'
 
 // Import client components with dynamic imports
+import { AuthProvider } from '@/react/hooks/authContext'
 import ClientNavbar from '@/react/components/common/ClientNavbar'
 import ThemeWrapper from '@/react/providers/themeProvider'
 import NavigationWrapper from '@/react/components/common/NavigationWrapper'
@@ -30,14 +31,16 @@ const { title } = Astro.props
     </head>
     <body>
         <ThemeWrapper client:load>
-            <NavigationWrapper client:load>
-                <main class="min-h-screen bg-background">
-                    <ClientNavbar client:load />
-                    <div class="container py-6 pt-24">
-                        <slot />
-                    </div>
-                </main>
-            </NavigationWrapper>
+            <AuthProvider>
+                <NavigationWrapper client:load>
+                    <main class="min-h-screen bg-background">
+                        <ClientNavbar client:load />
+                        <div class="container py-6 pt-24">
+                            <slot />
+                        </div>
+                    </main>
+                </NavigationWrapper>
+            </AuthProvider>
         </ThemeWrapper>
 
         <!-- Load theme styles immediately to prevent flash of unstyled content -->

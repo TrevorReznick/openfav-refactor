@@ -37,19 +37,24 @@ export class UserHelper {
 
   // Ottiene i token della sessione
   public async getSessionTokens(): Promise<{
-    accessToken: string | null;
-    refreshToken: string | null;
-    expiresAt?: number;
+    accessToken: string | null
+    refreshToken: string | null
+    expiresAt?: number
   }> {
     try {
-      console.log('[UserHelper] Richiedo session tokens...');
+      console.log('[UserHelper] Richiedo session tokens...')
       const response = await fetch('/api/v1/auth/signin', {
         method: 'GET',
         credentials: 'include'
       });
-      const { session } = await response.json();
+      const { session } = await response.json()
 
-      console.log('[UserHelper] Risposta tokens:', session);
+      console.log('[UserHelper] Risposta tokens:', session)
+
+      // Aggiorna lo store se c'è l'utente
+      if (session?.user) {
+        userStore.set(session.user);
+      }
 
       return {
         accessToken: session?.access_token || null,
@@ -57,21 +62,21 @@ export class UserHelper {
         expiresAt: session?.expires_at
       };
     } catch (error) {
-      console.error('[UserHelper] Error getting session tokens:', error);
+      console.error('[UserHelper] Error getting session tokens:', error)
       return {
         accessToken: null,
         refreshToken: null
-      };
+      }
     }
   }
 
   // Ottiene informazioni complete (utente + sessione)
   public async getCompleteSession(): Promise<UserSession> {
-    console.log('[UserHelper] getCompleteSession - Inizio');
-    const userInfo = this.getUserInfo();
-    const tokens = await this.getSessionTokens();
+    console.log('[UserHelper] getCompleteSession - Inizio')
+    const userInfo = this.getUserInfo()
+    const tokens = await this.getSessionTokens()
 
-    console.log('[UserHelper] getCompleteSession - Risultato:', { ...userInfo, tokens });
+    console.log('[UserHelper] getCompleteSession - Risultato:', { ...userInfo, tokens })
     return {
       ...userInfo,
       tokens: {
@@ -79,24 +84,24 @@ export class UserHelper {
         refreshToken: tokens.refreshToken,
         expiresAt: tokens.expiresAt ?? 0 // or another default number if preferred
       }
-    };
+    }
   }
 
   // Verifica se l'utente è autenticato
   public isAuthenticated(): boolean {
-    const auth = !!userStore.get();
-    console.log('[UserHelper] isAuthenticated:', auth);
-    return auth;
+    const auth = !!userStore.get()
+    console.log('[UserHelper] isAuthenticated:', auth)
+    return auth
   }
 
   // Verifica se il token è scaduto
   public isTokenExpired(): boolean {
-    const user = userStore.get();
-    if (!user) return true;
+    const user = userStore.get()
+    if (!user) return true
 
     const expiresAt = user.exp;
-    const isExpired = expiresAt ? Date.now() >= expiresAt * 1000 : true;
-    console.log('[UserHelper] isTokenExpired:', isExpired);
+    const isExpired = expiresAt ? Date.now() >= expiresAt * 1000 : true
+    console.log('[UserHelper] isTokenExpired:', isExpired)
     return isExpired;
   }
 
@@ -119,6 +124,6 @@ export class UserHelper {
         provider: 'email',
         avatarUrl: undefined
       }
-    };
+    }
   }
 }
