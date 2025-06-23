@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
 import { UserHelper } from '~/scripts/auth/getAuth'
@@ -13,15 +13,52 @@ const signOut = async () => {
 
 const DebugAuth = () => {
   console.log('🔍 [DebugAuth] Rendering component...');
+
+  // Usa gli hook direttamente nel corpo del componente
   const current = useStore(currentPath);
   const user = useStore(userStore);
-  const userHelper = useRef(new UserHelper()).current;
+
+  // Mantieni un'istanza stabile di UserHelper
+  const userHelper = React.useRef(new UserHelper()).current;
+
   const [redisStatus, setRedisStatus] = useState<{
     success?: boolean;
     message?: string;
     data?: any;
   }>({});
+
   const isAuthenticated = !!user?.id;
+  const loading = false;
+
+  // Debug: Verifica manuale della sessione (solo quando cambia user.id)
+  useEffect(() => {
+    console.log('🔍 [DebugAuth] User changed:', {
+      userId: user?.id,
+      isAuthenticated
+    });
+
+    if (!user?.id) return;
+
+    const checkAuth = async () => {
+      console.log('🔍 [DebugAuth] Manual auth check:');
+      try {
+        const isAuth = userHelper.isAuthenticated();
+        console.log('- UserHelper.isAuthenticated():', isAuth);
+
+        const isExpired = userHelper.isTokenExpired();
+        console.log('- Token expired:', isExpired);
+
+        const userInfo = userHelper.getUserInfo();
+        console.log('- User info from store:', userInfo);
+
+        console.log('- Cookies available:', document.cookie ? 'yes' : 'no');
+      } catch (e) {
+        console.error('Error checking auth:', e);
+      }
+    };
+
+    checkAuth();
+  }, [user?.id, isAuthenticated, userHelper]);
 
   // Helper function to safely log user data with truncated tokens
   const safeLogUser = (userData: any) => {
@@ -38,32 +75,7 @@ const DebugAuth = () => {
     };
   };
 
-  // Verifica manuale della sessione (solo quando cambia user.id)
-  useEffect(() => {
-    console.log('🔍 [DebugAuth] User changed:', {
-      userId: user?.id,
-      isAuthenticated
-    });
-    if (!user?.id) return;
-
-    const checkAuth = async () => {
-      console.log('🔍 [DebugAuth] Manual auth check:');
-      try {
-        const isAuth = userHelper.isAuthenticated();
-        console.log('- UserHelper.isAuthenticated():', isAuth);
-        const isExpired = userHelper.isTokenExpired();
-        console.log('- Token expired:', isExpired);
-        const userInfo = userHelper.getUserInfo();
-        console.log('- User info from store:', userInfo);
-        console.log('- Cookies available:', document.cookie ? 'yes' : 'no');
-      } catch (e) {
-        console.error('Error checking auth:', e);
-      }
-    };
-    checkAuth();
-  }, [user?.id, isAuthenticated, userHelper]);
-
-  // Log authentication state SOLO al mount o cambio user.id
+  // Debug: Log authentication state SOLO al mount o cambio user.id
   useEffect(() => {
     console.log('🔐 Auth Debug:');
     console.log('- isAuthenticated:', isAuthenticated);
@@ -71,6 +83,7 @@ const DebugAuth = () => {
     console.log('- safe user data:', safeLogUser(user));
     console.log('- current path:', current);
 
+    // Verifica aggiuntiva della sessione SOLO al mount o cambio user.id
     const checkSession = async () => {
       try {
         const tokens = await userHelper.getSessionTokens();
@@ -86,10 +99,11 @@ const DebugAuth = () => {
         console.error('❌ Error checking session:', error);
       }
     };
+
     checkSession();
   }, [user?.id]); // <-- SOLO quando cambia l'id utente
 
-  // Funzioni per testare Redis
+  // Funzioni per testare Redis con il prefisso corretto
   const testRedisSet = async () => {
     if (!user?.id) {
       setRedisStatus({ success: false, message: "No user ID available" });
@@ -123,7 +137,9 @@ const DebugAuth = () => {
 
       const response = await fetch(`${redisApiUrl}/set-session`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(sessionData)
       });
 
@@ -178,6 +194,15 @@ const DebugAuth = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="p-4 bg-yellow-100 text-yellow-800">
+        <h2 className="text-lg font-bold">Loading Authentication...</h2>
+        <p>Checking if user is authenticated...</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Debug panel */}
@@ -186,7 +211,7 @@ const DebugAuth = () => {
         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
           <div>Status:</div>
           <div className={isAuthenticated ? "text-green-400" : "text-red-400"}>
-            {isAuthenticated ? "Authenticated ✅" : "Not Authenticated ❌"}
+            {loading ? "Loading..." : isAuthenticated ? "Authenticated ✅" : "Not Authenticated ❌"}
           </div>
           <div>User:</div>
           <div>{user ? (user.email || JSON.stringify(user).substring(0, 20) + "...") : "null"}</div>
@@ -201,6 +226,7 @@ const DebugAuth = () => {
               : "N/A"}
           </div>
         </div>
+
         <div className="mt-3 flex space-x-2">
           <button
             className="px-2 py-1 bg-blue-600 rounded text-xs"
@@ -248,6 +274,7 @@ const DebugAuth = () => {
             Sign Out
           </button>
         </div>
+
         {/* Redis Debug Section */}
         <div className="mt-4 border-t border-gray-600 pt-2">
           <h3 className="font-bold mb-2">Redis Debug</h3>
@@ -271,11 +298,13 @@ const DebugAuth = () => {
               Delete Redis
             </button>
           </div>
+
           {redisStatus.message && (
             <div className={`text-xs p-1 rounded ${redisStatus.success ? 'bg-green-800' : 'bg-red-800'}`}>
               {redisStatus.message}
             </div>
           )}
+
           {redisStatus.data && (
             <div className="mt-1 max-h-24 overflow-auto text-xs break-words">
               <pre className="whitespace-pre-wrap">
