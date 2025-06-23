@@ -1,6 +1,6 @@
-import { supabase } from '@/providers/supabaseAuth'
 import { currentPath, userStore } from '@/store'
 import type { UserSession } from '~/types/users'
+import { handleSignOut } from '@/react/hooks/useAuthActions'
 
 export class UserHelper {
   // ... (singleton e costruttore)
@@ -125,5 +125,47 @@ export class UserHelper {
         avatarUrl: undefined
       }
     }
+  }
+
+  // Effettua il refresh della sessione
+  public async refreshSession(): Promise<boolean> {
+    try {
+      console.log('[UserHelper] Refreshing session...');
+      const tokens = await this.getSessionTokens();
+      
+      if (!tokens.refreshToken) {
+        console.warn('[UserHelper] No refresh token available');
+        return false;
+      }
+
+      const response = await fetch('/api/v1/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: tokens.refreshToken })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to refresh session');
+      }
+
+      const data = await response.json();
+      console.log('[UserHelper] Session refreshed successfully');
+      
+      // Aggiorna lo store con i nuovi token
+      if (data.session?.user) {
+        userStore.set(data.session.user);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('[UserHelper] Error refreshing session:', error);
+      return false;
+    }
+  }
+
+  // Effettua il logout utilizzando la funzione centralizzata
+  public async signOut(): Promise<boolean> {
+    console.log('[UserHelper] Signing out...');
+    return await handleSignOut();
   }
 }

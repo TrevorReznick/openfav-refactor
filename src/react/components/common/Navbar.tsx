@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { Menu, LogOut } from 'lucide-react'
-import { supabase } from '@/providers/supabaseAuth'
-import { toast } from 'sonner'
 import { Button } from '@/react/components/ui/button'
 import { useNavigation as useNav } from '@/react/hooks/navigationContext'
 import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
 import { UserHelper } from '~/scripts/auth/getAuth'
 import { ThemeToggle } from './ThemeToggle'
+import { handleSignOut } from '@/react/hooks/useAuthActions'
 
 interface NavItem {
   id: string
@@ -75,26 +74,10 @@ const Navbar = () => {
     return true
   })
 
-  const handleSignOut = async () => {
-    if (typeof window === 'undefined') return
-    
-    try {
-      await supabase.auth.signOut()
-      userStore.set({
-        id: '',
-        email: '',
-        user_metadata: {},
-        app_metadata: {},
-        created_at: '',
-        last_sign_in_at: new Date().toISOString(),
-        exp: 0
-      })
+  const handleSignOutClick = async () => {
+    const success = await handleSignOut()
+    if (success) {
       setIsAuthenticated(false)
-      window.location.href = '/'
-      toast.success('Logged out successfully')
-    } catch (error) {
-      toast.error('Logout failed')
-      console.error(error)
     }
   }
 
@@ -122,15 +105,15 @@ const Navbar = () => {
           <ThemeToggle />
           
           {isAuthenticated ? (
-            <>
-              <button
-                onClick={handleSignOut}
-                className="hidden md:inline-flex items-center px-4 py-2 text-base font-medium text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <LogOut className="w-5 h-5 mr-1.5" />
-                Sign Out
-              </button>
-            </>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+              onClick={handleSignOutClick}
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
           ) : (
             <>
               <a
