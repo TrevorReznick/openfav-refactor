@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
 import { UserHelper } from '~/scripts/auth/getAuth'
@@ -7,28 +7,25 @@ import { UserHelper } from '~/scripts/auth/getAuth'
 const signOut = async () => {
   if (typeof window !== 'undefined') {
     document.cookie = 'token=; Max-Age=0; path=/;';
-    localStorage.removeItem('openfav-userId')
-    localStorage.removeItem('sb-access-token')
-    localStorage.removeItem('sb-refresh-token')
-    userStore.set(null)
+    localStorage.removeItem('user');
   }
 };
 
 const DebugAuth = () => {
   console.log('🔍 [DebugAuth] Rendering component...');
-  const current = useStore(currentPath)
-  const user = useStore(userStore)
-  const userHelper = useRef(new UserHelper()).current
+  const current = useStore(currentPath);
+  const user = useStore(userStore);
+  const userHelper = useRef(new UserHelper()).current;
   const [redisStatus, setRedisStatus] = useState<{
-    success?: boolean
-    message?: string
-    data?: any
-  }>({})
-  const isAuthenticated = !!user?.id
+    success?: boolean;
+    message?: string;
+    data?: any;
+  }>({});
+  const isAuthenticated = !!user?.id;
 
   // Helper function to safely log user data with truncated tokens
   const safeLogUser = (userData: any) => {
-    if (!userData) return null
+    if (!userData) return null;
     return {
       ...userData,
       tokens: userData.tokens ? {
@@ -38,71 +35,69 @@ const DebugAuth = () => {
           `${userData.tokens.refreshToken.substring(0, 10)}...` : null,
         expiresAt: userData.tokens.expiresAt
       } : null
-    }
-  }
+    };
+  };
 
   // Verifica manuale della sessione (solo quando cambia user.id)
   useEffect(() => {
     console.log('🔍 [DebugAuth] User changed:', {
       userId: user?.id,
       isAuthenticated
-    })
-    if (!user?.id) return
+    });
+    if (!user?.id) return;
 
     const checkAuth = async () => {
+      console.log('🔍 [DebugAuth] Manual auth check:');
       try {
-        const isAuth = userHelper.isAuthenticated()
-        const isExpired = userHelper.isTokenExpired()
-
-        console.log('🔍 [DebugAuth] Manual auth check:')
-        console.log('- UserHelper.isAuthenticated():', isAuth)
-        console.log('- Token expired:', isExpired)
-        console.log('- User info from store:', user)
-        console.log('- Cookies available:', document.cookie ? 'yes' : 'no')
+        const isAuth = userHelper.isAuthenticated();
+        console.log('- UserHelper.isAuthenticated():', isAuth);
+        const isExpired = userHelper.isTokenExpired();
+        console.log('- Token expired:', isExpired);
+        const userInfo = userHelper.getUserInfo();
+        console.log('- User info from store:', userInfo);
+        console.log('- Cookies available:', document.cookie ? 'yes' : 'no');
       } catch (e) {
-        console.error('Error checking auth:', e)
+        console.error('Error checking auth:', e);
       }
-    }
-
-    checkAuth()
-  }, [user?.id])
+    };
+    checkAuth();
+  }, [user?.id, isAuthenticated, userHelper]);
 
   // Log authentication state SOLO al mount o cambio user.id
   useEffect(() => {
-    console.log('🔐 Auth Debug:')
-    console.log('- isAuthenticated:', isAuthenticated)
-    console.log('- user object:', user)
-    console.log('- safe user data:', safeLogUser(user))
-    console.log('- current path:', current)
+    console.log('🔐 Auth Debug:');
+    console.log('- isAuthenticated:', isAuthenticated);
+    console.log('- user object:', user);
+    console.log('- safe user data:', safeLogUser(user));
+    console.log('- current path:', current);
 
     const checkSession = async () => {
       try {
-        const tokens = await userHelper.getSessionTokens()
-        console.log('🔄 Tokens from userHelper:', tokens)
-        const isAuth = userHelper.isAuthenticated()
-        console.log('🔒 isAuthenticated:', isAuth)
+        const tokens = await userHelper.getSessionTokens();
+        console.log('🔄 Tokens from userHelper:', tokens);
+        const isAuth = userHelper.isAuthenticated();
+        console.log('🔒 isAuthenticated:', isAuth);
         if (user?.id && (!tokens || !tokens.accessToken)) {
-          console.warn('⚠️ User exists but has no valid tokens!')
-          console.log('- User ID:', user.id)
-          console.log('- Stored tokens:', user.tokens)
+          console.warn('⚠️ User exists but has no valid tokens!');
+          console.log('- User ID:', user.id);
+          console.log('- Stored tokens:', user.tokens);
         }
       } catch (error) {
-        console.error('❌ Error checking session:', error)
+        console.error('❌ Error checking session:', error);
       }
-    }
-
-    checkSession()
-  }, [user?.id])
+    };
+    checkSession();
+  }, [user?.id]); // <-- SOLO quando cambia l'id utente
 
   // Funzioni per testare Redis
   const testRedisSet = async () => {
     if (!user?.id) {
-      setRedisStatus({ success: false, message: "No user ID available" })
-      return
+      setRedisStatus({ success: false, message: "No user ID available" });
+      return;
     }
 
     try {
-      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL
+      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
       const sessionData = {
         session: {
           id: user.id,
@@ -124,64 +119,64 @@ const DebugAuth = () => {
           }
         },
         expirySeconds: 3600
-      }
+      };
 
       const response = await fetch(`${redisApiUrl}/set-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(sessionData)
-      })
+      });
 
-      const data = await response.json()
-      console.log('Redis SET response:', data)
-      setRedisStatus({ success: response.ok, message: "Session saved to Redis", data })
+      const data = await response.json();
+      console.log('Redis SET response:', data);
+      setRedisStatus({ success: response.ok, message: "Session saved to Redis", data });
     } catch (error) {
-      console.error('Redis SET error:', error)
-      setRedisStatus({ success: false, message: String(error) })
+      console.error('Redis SET error:', error);
+      setRedisStatus({ success: false, message: String(error) });
     }
-  }
+  };
 
   const testRedisGet = async () => {
     if (!user?.id) {
-      setRedisStatus({ success: false, message: "No user ID available" })
-      return
+      setRedisStatus({ success: false, message: "No user ID available" });
+      return;
     }
 
     try {
-      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL
-      const response = await fetch(`${redisApiUrl}/session/${user.id}`)
-      const data = await response.json()
-      console.log('Redis GET response:', data)
+      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
+      const response = await fetch(`${redisApiUrl}/session/${user.id}`);
+      const data = await response.json();
+      console.log('Redis GET response:', data);
       setRedisStatus({
         success: response.ok,
         message: response.ok ? "Session retrieved from Redis" : "No session found",
         data
-      })
+      });
     } catch (error) {
-      console.error('Redis GET error:', error)
-      setRedisStatus({ success: false, message: String(error) })
+      console.error('Redis GET error:', error);
+      setRedisStatus({ success: false, message: String(error) });
     }
-  }
+  };
 
   const testRedisDelete = async () => {
     if (!user?.id) {
-      setRedisStatus({ success: false, message: "No user ID available" })
-      return
+      setRedisStatus({ success: false, message: "No user ID available" });
+      return;
     }
 
     try {
-      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL
+      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
       const response = await fetch(`${redisApiUrl}/delete/${user.id}`, {
         method: 'DELETE'
-      })
-      const data = await response.json()
-      console.log('Redis DELETE response:', data)
-      setRedisStatus({ success: response.ok, message: "Session deleted from Redis", data })
+      });
+      const data = await response.json();
+      console.log('Redis DELETE response:', data);
+      setRedisStatus({ success: response.ok, message: "Session deleted from Redis", data });
     } catch (error) {
-      console.error('Redis DELETE error:', error)
-      setRedisStatus({ success: false, message: String(error) })
+      console.error('Redis DELETE error:', error);
+      setRedisStatus({ success: false, message: String(error) });
     }
-  }
+  };
 
   return (
     <div>
@@ -210,9 +205,9 @@ const DebugAuth = () => {
           <button
             className="px-2 py-1 bg-blue-600 rounded text-xs"
             onClick={async () => {
-              const session = await userHelper.getSessionTokens()
-              console.log('Session check:', session)
-              alert(session ? 'Session exists' : 'No session found')
+              const session = await userHelper.getSessionTokens();
+              console.log('Session check:', session);
+              alert(session ? 'Session exists' : 'No session found');
             }}
           >
             Check Session
@@ -220,7 +215,7 @@ const DebugAuth = () => {
           <button
             className="px-2 py-1 bg-green-600 rounded text-xs"
             onClick={() => {
-              window.location.href = '/api/v1/auth/signin'
+              window.location.href = '/api/v1/auth/signin';
             }}
           >
             Sign In
@@ -228,12 +223,17 @@ const DebugAuth = () => {
           <button
             className="px-2 py-1 bg-purple-600 rounded text-xs"
             onClick={async () => {
-              if (typeof signOut === 'function') {
-                await signOut()
-              } else {
-                if (userStore.set) userStore.set(null)
+              if (userHelper && typeof userHelper.refreshSession === 'function') {
+                await userHelper.refreshSession();
               }
-              window.location.reload()
+              if (typeof signOut === 'function') {
+                await signOut();
+              } else if (userHelper && typeof userHelper.signOut === 'function') {
+                await userHelper.signOut();
+              } else {
+                if (userStore.set) userStore.set(null);
+              }
+              window.location.reload();
             }}
           >
             Refresh
@@ -241,8 +241,8 @@ const DebugAuth = () => {
           <button
             className="px-2 py-1 bg-red-600 rounded text-xs"
             onClick={async () => {
-              await signOut()
-              window.location.reload()
+              await signOut();
+              window.location.reload();
             }}
           >
             Sign Out
@@ -256,19 +256,19 @@ const DebugAuth = () => {
               className="px-2 py-1 bg-blue-500 rounded text-xs"
               onClick={testRedisGet}
             >
-            Get Redis
+              Get Redis
             </button>
             <button
               className="px-2 py-1 bg-green-500 rounded text-xs"
               onClick={testRedisSet}
             >
-            Set Redis
+              Set Redis
             </button>
             <button
               className="px-2 py-1 bg-red-500 rounded text-xs"
               onClick={testRedisDelete}
             >
-            Delete Redis
+              Delete Redis
             </button>
           </div>
           {redisStatus.message && (
@@ -282,10 +282,10 @@ const DebugAuth = () => {
                 {JSON.stringify(
                   (() => {
                     if (redisStatus.data && typeof redisStatus.data === 'object') {
-                      const { tokens, ...rest } = redisStatus.data
-                      return rest
+                      const { tokens, ...rest } = redisStatus.data;
+                      return rest;
                     }
-                    return redisStatus.data
+                    return redisStatus.data;
                   })(),
                   null,
                   2
@@ -297,7 +297,6 @@ const DebugAuth = () => {
       </div>
 
       {/* Barra di stato dell'autenticazione */}
-      {/* Barra di stato dell'autenticazione */}
       <div className={`p-2 text-white text-sm ${isAuthenticated ? 'bg-green-600' : 'bg-red-600'}`}>
         Auth Status: {isAuthenticated ? 'Authenticated ✅' : 'Not Authenticated ❌'}
         {isAuthenticated && user && (
@@ -305,7 +304,7 @@ const DebugAuth = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DebugAuth
+export default DebugAuth;

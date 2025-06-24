@@ -5,12 +5,16 @@ import { handleSignOut } from '@/react/hooks/useAuthActions'
 const REDIS_API_URL = import.meta.env.PUBLIC_REDIS_API_URL
 
 export class UserHelper {
-    // Verifica se esiste una sessione Redis per l'utente
+    private readonly STORAGE_KEY = 'openfav-userId'
+    private readonly SESSION_DURATION = 60 * 60 * 24 * 7 // 7 days
+
+    // === REDIS SESSION MANAGEMENT ===
+
     public async checkRedisSession(userId: string): Promise<boolean> {
+        if (!userId) return false
+
         try {
             console.log('[UserHelper][Redis] Checking session for user ID:', userId)
-            if (!userId) return false
-
             const response = await fetch(`${REDIS_API_URL}/session/${userId}`, {
                 method: 'GET',
                 credentials: 'include'
@@ -29,7 +33,6 @@ export class UserHelper {
         }
     }
 
-    // Crea una nuova sessione Redis
     public async createRedisSession(): Promise<boolean> {
         try {
             const user = this.getUserInfo()
@@ -42,7 +45,7 @@ export class UserHelper {
                 body: JSON.stringify({
                     userId: user.id,
                     email: user.email,
-                    expiresIn: 60 * 60 * 24 * 7 // 7 days
+                    expiresIn: this.SESSION_DURATION
                 })
             })
 
@@ -59,7 +62,6 @@ export class UserHelper {
         }
     }
 
-    // Elimina la sessione Redis
     public async deleteRedisSession(): Promise<boolean> {
         try {
             const userId = this.getUserInfo().id
@@ -83,7 +85,45 @@ export class UserHelper {
         }
     }
 
-    // Recupera l'autenticazione da Redis
+    // === HELPER METHODS ===
+
+    // Metodo centrale per ottenere l'utente corrente dallo store
+    private getCurrentUser() {
+        return userStore.get()
+    }
+
+    // Sincronizza store e localStorage
+    private syncUserStorage(user: any) {
+        if (user?.id) {
+            userStore.set(user)
+            localStorage.setItem(this.STORAGE_KEY, user.id)
+        }
+    }
+
+    // Costruisce oggetto UserSession standardizzato
+    private buildUserSession(user: any): UserSession {
+        return {
+            id: user.id || '',
+            email: user.email || '',
+            fullName: user.user_metadata?.full_name || 'Utente',
+            createdAt: new Date(user.created_at || Date.now()),
+            lastLogin: new Date(user.last_sign_in_at || Date.now()),
+            isAuthenticated: true,
+            provider: user.app_metadata?.provider || 'email',
+            tokens: {
+                accessToken: user.access_token || null,
+                refreshToken: user.refresh_token || null,
+                expiresAt: user.expires_at || 0
+            },
+            metadata: {
+                provider: user.app_metadata?.provider || 'email',
+                avatarUrl: user.user_metadata?.avatar_url
+            }
+        }
+    }
+
+    // === PUBLIC API - NOMI ORIGINALI MANTENUTI ===
+
     public async getAuthFromRedis(): Promise<UserSession | null> {
         const userId = this.getUserIdFromStorage()
         if (!userId) return null
@@ -97,12 +137,21 @@ export class UserHelper {
 
             if (!sessionData || !sessionData.session) return null
 
-            const isTokenValid = this.isTokenExpired()
-            if (!isTokenValid) {
-                userStore.set(sessionData.session) // <--- AGGIUNTO
-                return sessionData.session
+            console.log('[UserHelper][Redis] Session data from Redis:', sessionData.session)
+
+            // Prima aggiorna lo store con i dati Redis
+            userStore.set(sessionData.session)
+
+            // POI verifica se il token è valido (ora che lo store è aggiornato)
+            const isTokenValid = !this.isTokenExpired()
+            console.log('[UserHelper][Redis] Token valid after Redis update:', isTokenValid)
+
+            if (isTokenValid) {
+                return this.buildUserSession(sessionData.session)
             }
 
+            console.log('[UserHelper][Redis] Token expired, clearing store')
+            userStore.set(null) // Pulisce se il token è scaduto
             return null
         } catch (error) {
             console.error('[UserHelper][Redis] Error getting auth from Redis:', error)
@@ -110,9 +159,8 @@ export class UserHelper {
         }
     }
 
-    // Ottiene i dati base dell'utente
     public getUserInfo(): UserSession {
-        const user = userStore.get()
+        const user = this.getCurrentUser()
         console.log('[UserHelper][Store] getUserInfo:', user)
 
         if (!user) {
@@ -120,27 +168,9 @@ export class UserHelper {
             return this.getEmptyUser()
         }
 
-        return {
-            id: user.id,
-            email: user.email,
-            fullName: user.user_metadata?.full_name || 'Utente',
-            createdAt: new Date(user.created_at),
-            lastLogin: new Date(user.last_sign_in_at),
-            isAuthenticated: true,
-            provider: user.app_metadata?.provider || 'email',
-            tokens: {
-                accessToken: null,
-                refreshToken: null,
-                expiresAt: 0
-            },
-            metadata: {
-                provider: user.app_metadata?.provider || 'email',
-                avatarUrl: user.user_metadata?.avatar_url
-            }
-        }
+        return this.buildUserSession(user)
     }
 
-    // Utente vuoto per stato iniziale/logout
     private getEmptyUser(): UserSession {
         return {
             id: '',
@@ -162,16 +192,15 @@ export class UserHelper {
         }
     }
 
-    // Verifica se l'utente è autenticato
     public isAuthenticated(): boolean {
-        const auth = !!userStore.get()
+        const user = this.getCurrentUser()
+        const auth = !!user && !this.isTokenExpired()
         console.log('[UserHelper][Auth] isAuthenticated:', auth)
         return auth
     }
 
-    // Verifica se il token è scaduto
     public isTokenExpired(): boolean {
-        const user = userStore.get()
+        const user = this.getCurrentUser()
         if (!user) return true
 
         const expiresAt = user.exp
@@ -180,7 +209,117 @@ export class UserHelper {
         return isExpired
     }
 
-    // Metodi di test per Redis
+    public getUserIdFromStorage(): string | null {
+        // Priorità: store corrente > localStorage
+        const user = this.getCurrentUser()
+        if (user?.id) return user.id
+
+        return localStorage.getItem(this.STORAGE_KEY)
+    }
+
+    public async getSessionTokens(): Promise<{
+        accessToken: string | null
+        refreshToken: string | null
+        expiresAt?: number
+    }> {
+        try {
+            console.log('[UserHelper][Redis] Richiedo session tokens...')
+
+            // Prima verifica se esiste una sessione Redis per evitare chiamate inutili
+            const redisAuth = await this.getAuthFromRedis()
+            if (redisAuth) {
+                console.log('[UserHelper][Redis] Sessione recuperata da Redis:', redisAuth)
+                return {
+                    accessToken: redisAuth.tokens.accessToken,
+                    refreshToken: redisAuth.tokens.refreshToken,
+                    expiresAt: redisAuth.tokens.expiresAt
+                }
+            }
+
+            // Se non c'è sessione Redis, effettua la richiesta al server
+            const response = await fetch('/api/v1/auth/signin', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            const { session } = await response.json()
+
+            console.log('[UserHelper][Auth] Risposta tokens:', session)
+
+            // Aggiorna lo store se c'è l'utente
+            if (session?.user) {
+                this.syncUserStorage(session.user)
+            }
+
+            return {
+                accessToken: session?.access_token || null,
+                refreshToken: session?.refresh_token || null,
+                expiresAt: session?.expires_at
+            }
+        } catch (error) {
+            console.error('[UserHelper][Redis] Error getting session tokens:', error)
+            return {
+                accessToken: null,
+                refreshToken: null
+            }
+        }
+    }
+
+    public async getCompleteSession(): Promise<UserSession> {
+        console.log('[UserHelper][Debug] getCompleteSession - Inizio');
+
+        // Verifica se l'utente è già autenticato
+        // Unifica la logica di autenticazione e recupero sessione
+        let userSession: UserSession | null = null
+
+        if (this.isAuthenticated()) {
+            console.log('[UserHelper][Debug] Utente già autenticato');
+            userSession = this.getUserInfo()
+            console.log('[UserHelper][Debug] isAuthenticated:', userSession.isAuthenticated)
+        } else {
+            const redisAuth = await this.getAuthFromRedis()
+            if (redisAuth) {
+                console.log('[UserHelper][Debug] Sessione recuperata da Redis:', redisAuth)
+                userSession = redisAuth
+                console.log('[UserHelper][Debug][Redis] isAuthenticated:', userSession.isAuthenticated)
+            }
+        }
+
+        if (userSession && userSession.isAuthenticated) {
+            return userSession
+        }
+
+        // Se non autenticato, richiedi i token al backend
+        const tokens = await this.getSessionTokens()
+
+        // Dopo aver aggiornato lo store, ri-verifica l'autenticazione
+        if (this.isAuthenticated()) {
+            console.log('[UserHelper][Debug] Utente autenticato dopo recupero tokens');
+            const userInfo = this.getUserInfo()
+            return {
+                ...userInfo,
+                tokens: {
+                    accessToken: tokens.accessToken,
+                    refreshToken: tokens.refreshToken,
+                    expiresAt: tokens.expiresAt ?? 0
+                }
+            }
+        }
+
+        // Se ancora non autenticato, restituisci sessione vuota con i token recuperati
+        console.log('[UserHelper][Debug] Sessione non valida, restituisco utente vuoto');
+        const emptyUser = this.getEmptyUser()
+        return {
+            ...emptyUser,
+            tokens: {
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken,
+                expiresAt: tokens.expiresAt ?? 0
+            }
+        };
+    }
+
+    // === REDIS TESTING METHODS ===
+
     public async testRedisSet(key: string, value: string): Promise<boolean> {
         try {
             const response = await fetch(`${REDIS_API_URL}/test/set`, {
@@ -216,103 +355,6 @@ export class UserHelper {
         } catch (error) {
             console.error('[UserHelper][Redis] Error testing Redis delete:', error)
             return false
-        }
-    }
-
-    // Recupera l'ID utente da localStorage
-    public getUserIdFromStorage(): string | null {
-        return localStorage.getItem('openfav-userId')
-    }
-
-    // Richiedi i token di autenticazione
-    public async getSessionTokens(): Promise<{
-        accessToken: string | null
-        refreshToken: string | null
-        expiresAt?: number
-    }> {
-        try {
-            console.log('[UserHelper][Redis] Richiedo session tokens...')
-
-            // Verifica se esiste una sessione Redis
-            const redisAuth = await this.getAuthFromRedis()
-            if (redisAuth) {
-                console.log('[UserHelper][Redis] Sessione recuperata da Redis:', redisAuth)
-                return {
-                    accessToken: redisAuth.tokens.accessToken,
-                    refreshToken: redisAuth.tokens.refreshToken,
-                    expiresAt: redisAuth.tokens.expiresAt
-                }
-            }
-
-            // Se non c'è sessione Redis, effettua la richiesta al server
-            const response = await fetch('/api/v1/auth/signin', {
-                method: 'GET',
-                credentials: 'include'
-            })
-            const { session } = await response.json()
-
-            console.log('[UserHelper][Auth] Risposta tokens:', session)
-
-            // Aggiorna lo store se c'è l'utente
-            if (session?.user) {
-                userStore.set(session.user)
-                localStorage.setItem('openfav-userId', session.user.id)
-            }
-
-            return {
-                accessToken: session?.access_token || null,
-                refreshToken: session?.refresh_token || null,
-                expiresAt: session?.expires_at
-            }
-        } catch (error) {
-            console.error('[UserHelper][Redis] Error getting session tokens:', error)
-            return {
-                accessToken: null,
-                refreshToken: null
-            }
-        }
-    }
-
-    public async getCompleteSession(): Promise<UserSession> {
-        console.log('[UserHelper][Debug] getCompleteSession - Inizio');
-
-        // Verifica se l'utente è già autenticato
-        if (this.isAuthenticated()) {
-            console.log('[UserHelper][Debug] Utente già autenticato');
-            const userInfo = this.getUserInfo();
-            return {
-                ...userInfo,
-                isAuthenticated: true // forza isAuthenticated a true
-            }
-        }
-
-        // Verifica se esiste una sessione Redis
-        const redisAuth = await this.getAuthFromRedis()
-
-        if (redisAuth) {
-            console.log('[UserHelper][Debug] Sessione recuperata da Redis:', redisAuth)
-            if (!userStore.get()) {
-                userStore.set(redisAuth)
-            }
-            return {
-                ...redisAuth,
-                isAuthenticated: true // forza isAuthenticated a true
-            }
-        }
-
-        // Se non c'è sessione Redis, richiedi i token al backend
-        const tokens = await this.getSessionTokens()
-        const userInfo = this.getUserInfo() // ora lo store è aggiornato
-
-        console.log('[UserHelper][Debug] getCompleteSession - Risultato:', { ...userInfo, tokens })
-        return {
-            ...userInfo,
-            isAuthenticated: true, // forza isAuthenticated a true
-            tokens: {
-                accessToken: tokens.accessToken,
-                refreshToken: tokens.refreshToken,
-                expiresAt: tokens.expiresAt ?? 0
-            }
         }
     }
 }

@@ -8,7 +8,7 @@ import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
 import { UserHelper } from '~/scripts/auth/getAuth'
 import { ThemeToggle } from './ThemeToggle'
-import { handleSignOut } from '@/react/hooks/useAuthActions'
+import { handleSignOut } from '@/scripts/auth/utils'
 
 interface NavItem {
   id: string
