@@ -36,6 +36,13 @@ componentLib
             group: 'auth'
         }
     })
+    .register('debug-session', {
+        import: () => import('~/react/components/debug/DebugSession'),
+        metadata: {
+            description: 'Session Debug Component',
+            group: 'debug'
+        }
+    })
     .register('posts', {
         import: () => import('~/react/components/examples/PostsComponent'),
         metadata: {

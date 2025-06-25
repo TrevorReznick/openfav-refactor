@@ -67,7 +67,7 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   })
   console.log('[Api] user is logged in')
 
-  return redirect('/build/debug-auth')
+  return redirect('/test', 302)
 };
 
 export const GET: APIRoute = async ({ cookies }) => {

@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
 import { UserHelper } from '~/scripts/auth/getAuth'
+import { userHelper } from '~/scripts/auth/getAuth';
 
 // Dummy signOut function; replace with your actual signOut logic or import if available
 const signOut = async () => {
@@ -12,7 +13,16 @@ const signOut = async () => {
     localStorage.removeItem('sb-refresh-token')
     userStore.set(null)
   }
-};
+}
+
+
+
+// Per ottenere la sessione
+const session = await userHelper.getSessionManager().getCompleteSession()
+console.log('🔍 [DebugAuth][SessionManager] Session:', session)
+
+// Per invalidare la sessione
+//await userHelper.getSessionManager().invalidateSession()
 
 const DebugAuth = () => {
   console.log('🔍 [DebugAuth] Rendering component...');

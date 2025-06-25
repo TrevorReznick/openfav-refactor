@@ -6,9 +6,8 @@ import { Button } from '@/react/components/ui/button'
 import { useNavigation as useNav } from '@/react/hooks/navigationContext'
 import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
-import { UserHelper } from '~/scripts/auth/getAuth'
+import { sessionManager } from '~/scripts/auth/sessionManager'
 import { ThemeToggle } from './ThemeToggle'
-import { handleSignOut } from '@/scripts/auth/utils'
 
 interface NavItem {
   id: string
@@ -47,16 +46,27 @@ const Navbar = () => {
   const user = useStore(userStore)
   const { navigate } = useSafeNavigation()
   const current = useStore(currentPath)
-  const [userHelper] = useState(() => new UserHelper())
   
   useEffect(() => {
     setIsClient(true)
     const checkAuth = async () => {
-      const authStatus = await userHelper.isAuthenticated()
-      setIsAuthenticated(!!authStatus)
+      try {
+        const session = await sessionManager.getCompleteSession()
+        setIsAuthenticated(!!session?.id)
+      } catch (error) {
+        console.error('Error checking auth status:', error)
+        setIsAuthenticated(false)
+      }
     }
     checkAuth()
-  }, [userHelper])
+    
+    // Ascolta i cambiamenti nello store
+    const unsubscribe = userStore.subscribe((userData) => {
+      setIsAuthenticated(!!userData?.id)
+    })
+    
+    return () => unsubscribe()
+  }, [])
 
   const navItems: NavItem[] = [
     { id: 'home', href: '/', label: 'Home' },
@@ -75,9 +85,11 @@ const Navbar = () => {
   })
 
   const handleSignOutClick = async () => {
-    const success = await handleSignOut()
-    if (success) {
-      setIsAuthenticated(false)
+    try {
+      await sessionManager.invalidateSession()
+      // Lo store verrà aggiornato tramite la subscription in useEffect
+    } catch (error) {
+      console.error('Error during sign out:', error)
     }
   }
 
@@ -167,8 +179,8 @@ const Navbar = () => {
             {isAuthenticated ? (
               <li className="md:hidden">
                 <button
-                  onClick={() => {
-                    handleSignOut()
+                  onClick={async () => {
+                    await handleSignOutClick()
                     setIsMenuOpen(false)
                   }}
                   className="w-full text-left py-2 pl-3 pr-4 text-red-600 hover:bg-red-50 rounded md:hover:bg-transparent md:border-0 md:hover:text-red-700 md:p-0 dark:text-red-400 md:dark:hover:text-red-500 dark:hover:bg-red-900/30"

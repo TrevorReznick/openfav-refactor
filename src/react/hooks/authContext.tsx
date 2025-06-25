@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
+import { sessionManager } from '~/scripts/auth/sessionManager'
 import { userStore } from '@/store'
-import { UserHelper } from '~/scripts/auth/getAuth'
 import type { UserSession } from '~/types/auth/userSession'
-import { handleSignOut } from '@/react/hooks/useAuthActions'
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -21,23 +20,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<UserSession | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const userHelper = new UserHelper()
-
   const refreshSession = async () => {
     try {
       setLoading(true)
-      const session = await userHelper.getCompleteSession()
-      setUser(session)
-      setIsAuthenticated(session.isAuthenticated)
+      const session = await sessionManager.getCompleteSession()
+      if (session) {
+        setUser(session)
+        setIsAuthenticated(true)
+        userStore.set(session) // Aggiorna lo store con i dati della sessione
+      } else {
+        setUser(null)
+        setIsAuthenticated(false)
+        userStore.set(null)
+      }
+    } catch (error) {
+      console.error('Error refreshing session:', error)
+      setUser(null)
+      setIsAuthenticated(false)
+      userStore.set(null)
     } finally {
       setLoading(false)
     }
   }
 
   const signOut = async () => {
-    await handleSignOut()
-    setUser(null)
-    setIsAuthenticated(false)
+    try {
+      await sessionManager.invalidateSession()
+    } catch (error) {
+      console.error('Error during sign out:', error)
+    } finally {
+      setUser(null)
+      setIsAuthenticated(false)
+      userStore.set(null)
+    }
   }
 
   useEffect(() => {
