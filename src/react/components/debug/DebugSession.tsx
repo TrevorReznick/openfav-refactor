@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { sessionManager } from '~/scripts/auth/sessionManager'
+import { userStore } from '@/store'
+import type { UserSession } from '~/types/users'
 
 export const SessionManagerTest = () => {
   const [session, setSession] = useState<any>(null)
@@ -138,6 +140,17 @@ export const SessionManagerTest = () => {
           }}
         >
           {loading ? 'Processing...' : 'Invalidate Session'}
+        </button>
+        <button 
+          onClick={() => {
+            const userId = localStorage.getItem('openfav-userId');
+            const storeData = userStore.get();
+            console.log('DEBUG Storage:', { userId, storeData });
+            alert(`LocalStorage: ${userId}\nStore: ${JSON.stringify(storeData)}`);
+          }}
+          style={{ marginTop: '10px' }}
+        >
+          Debug Storage State
         </button>
       </div>
 

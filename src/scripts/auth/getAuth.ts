@@ -326,8 +326,43 @@ export class UserHelper {
         }
     }
 
-    // Crea una nuova sessione Redis
     public async createRedisSession(): Promise<boolean> {
+        try {
+            const user = this.getUserInfo()
+            if (!user.id) {
+                console.error('[UserHelper] Cannot create Redis session: Missing user ID')
+                return false
+            }
+    
+            console.log('[UserHelper][Redis] Creating session for user:', user.id)
+            
+            const response = await fetch(`${REDIS_API_URL}/session`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    userId: user.id,
+                    email: user.email,
+                    expiresIn: 60 * 60 * 24 * 7 // 7 days
+                })
+            })
+    
+            if (!response.ok) {
+                const errorText = await response.text()
+                throw new Error(`Redis session creation failed: ${response.status} - ${errorText}`)
+            }
+    
+            const data = await response.json()
+            console.log('[UserHelper][Redis] Session creation response:', data)
+            return data.success === true
+        } catch (error) {
+            console.error('[UserHelper][Redis] Error creating Redis session:', error)
+            return false
+        }
+    }
+
+    // Crea una nuova sessione Redis
+    public async createRedisSessionOld(): Promise<boolean> {
         try {
             const user = this.getUserInfo()
             if (!user.id) return false
