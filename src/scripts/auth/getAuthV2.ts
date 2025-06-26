@@ -74,101 +74,61 @@ export class UserHelper {
         refreshToken: string | null
         expiresAt?: number
     }> {
-        if (typeof window === 'undefined') {
-            return { accessToken: null, refreshToken: null }
-        }
-    
+        if (typeof window === 'undefined') return { accessToken: null, refreshToken: null }
+
         const userId = this.getUserIdFromStorage()
-        
-        // 1. Controlla se l'utente è già autenticato
-        if (this.isAuthenticated()) {
-            console.log('[UserHelper][Redis] User already authenticated, skipping token request')
-            const userInfo = this.getUserInfo()
-            return {
-                accessToken: userInfo.tokens.accessToken,
-                refreshToken: userInfo.tokens.refreshToken,
-                expiresAt: userInfo.tokens.expiresAt
-            }
-        }
-    
-        // 2. Controlla se esiste una sessione Redis
-        console.log('[UserHelper][Redis] Checking for Redis session...')
-        const redisAuth = await this.getAuthFromRedis(userId || undefined)
-        
-        if (redisAuth) {
-            console.log('[UserHelper][Redis] Session found in Redis:', redisAuth)
-            return {
-                accessToken: redisAuth.tokens.accessToken,
-                refreshToken: redisAuth.tokens.refreshToken,
-                expiresAt: redisAuth.tokens.expiresAt
-            }
-        }
-    
+        if (!userId) return { accessToken: null, refreshToken: null }
+
         try {
-            console.log('[UserHelper][Redis] Requesting new session tokens...')
-            
-            // 3. Richiedi nuovi token al backend
+            // Se l'utente è già autenticato, non effettuare ulteriori chiamate
+            if (this.isAuthenticated()) {
+                console.log('[UserHelper][Redis] User already authenticated, skipping token request');
+                return {
+                    accessToken: this.getUserInfo().tokens.accessToken,
+                    refreshToken: this.getUserInfo().tokens.refreshToken,
+                    expiresAt: this.getUserInfo().tokens.expiresAt
+                };
+            }
+
+            console.log('[UserHelper][Redis] Richiedo session tokens...');
+
+            // Verifica se esiste una sessione Redis
+            const redisAuth = await this.getAuthFromRedis();
+            if (redisAuth) {
+                console.log('[UserHelper][Redis] Sessione recuperata da Redis:', redisAuth);
+                return {
+                    accessToken: redisAuth.tokens.accessToken,
+                    refreshToken: redisAuth.tokens.refreshToken,
+                    expiresAt: redisAuth.tokens.expiresAt
+                };
+            }
+
+            // Se non c'è sessione Redis, effettua la richiesta al server
             const response = await fetch('/api/v1/auth/signin', {
                 method: 'GET',
                 credentials: 'include'
-            })
-            
-            if (!response.ok) {
-                throw new Error(`Auth failed with status: ${response.status}`)
+            });
+            const { session } = await response.json();
+
+            console.log('[UserHelper][Redis] Risposta tokens:', session);
+
+            // Aggiorna lo store se c'è l'utente
+            if (session?.user) {
+                userStore.set(session.user);
+                localStorage.setItem('openfav-userId', session.user.id);
             }
-            
-            const data = await response.json()
-            console.log('[UserHelper][Auth] Full API response:', data)
-            
-            const session = data.session
-            if (!session) {
-                throw new Error('No session data in response')
-            }
-    
-            // 4. SALVATAGGIO CRITICO - Aggiunto qui
-            if (session.user?.id) {
-                // A. Salva ID utente nel localStorage
-                localStorage.setItem('openfav-userId', session.user.id)
-                console.log('[UserHelper][Storage] Saved userId to localStorage:', session.user.id)
-                
-                // B. Crea oggetto sessione completo
-                const userSession: UserSession = {
-                    id: session.user.id,
-                    email: session.user.email || '',
-                    fullName: session.user.user_metadata?.full_name || 'Utente',
-                    createdAt: new Date(session.user.created_at || Date.now()),
-                    lastLogin: new Date(session.user.last_sign_in_at || Date.now()),
-                    isAuthenticated: true,
-                    provider: session.user.app_metadata?.provider || 'email',
-                    tokens: {
-                        accessToken: session.access_token || null,
-                        refreshToken: session.refresh_token || null,
-                        expiresAt: session.expires_at || 0
-                    },
-                    metadata: {
-                        provider: session.user.app_metadata?.provider || 'email',
-                        avatarUrl: session.user.user_metadata?.avatar_url || undefined
-                    }
-                }
-                
-                // C. Aggiorna lo store
-                userStore.set(userSession)
-                console.log('[UserHelper][Store] Updated user store:', userSession)
-            } else {
-                console.warn('[UserHelper][Auth] Session user data missing ID', session.user)
-            }
-    
+
             return {
-                accessToken: session.access_token || null,
-                refreshToken: session.refresh_token || null,
-                expiresAt: session.expires_at
-            }
+                accessToken: session?.access_token || null,
+                refreshToken: session?.refresh_token || null,
+                expiresAt: session?.expires_at
+            };
         } catch (error) {
-            console.error('[UserHelper][Redis] Error getting session tokens:', error)
+            console.error('[UserHelper][Redis] Error getting session tokens:', error);
             return {
                 accessToken: null,
                 refreshToken: null
-            }
+            };
         }
     }
 
