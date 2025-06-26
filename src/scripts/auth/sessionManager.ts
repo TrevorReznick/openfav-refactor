@@ -9,7 +9,7 @@ class SessionManager {
     };
     private CACHE_TTL = 5 * 60 * 1000; // 5 minuti
 
-    private constructor() {}
+    private constructor() { }
 
     static getInstance(): SessionManager {
         if (!SessionManager.instance) {
@@ -18,26 +18,31 @@ class SessionManager {
         return SessionManager.instance;
     }
 
+    private loadingPromise: Promise<UserSession | null> | null = null;
+
     async getCompleteSession(): Promise<UserSession | null> {
-        // Controlla se la cache è valida
         if (this.isCacheValid()) {
             return this.sessionCache.session;
         }
-
-        try {
-            const session = await userHelper.getCompleteSession();
-            
-            if (session) {
-                this.updateCache(session);
-                return session;
-            }
-            
-            return null;
-        } catch (error) {
-            console.error('[SessionManager] Error getting session:', error);
-            // Fallback alla cache se disponibile
-            return this.sessionCache.session;
+        if (this.loadingPromise) {
+            return this.loadingPromise;
         }
+        this.loadingPromise = (async () => {
+            try {
+                const session = await userHelper.getCompleteSession();
+                if (session) {
+                    this.updateCache(session);
+                    return session;
+                }
+                return null;
+            } catch (error) {
+                console.error('[SessionManager] Error getting session:', error);
+                return this.sessionCache.session;
+            } finally {
+                this.loadingPromise = null;
+            }
+        })();
+        return this.loadingPromise;
     }
 
     async invalidateSession(): Promise<void> {
@@ -60,15 +65,15 @@ class SessionManager {
     }
 
     // --- Metodi di supporto ---
-    
+
     private isCacheValid(): boolean {
-        return !!this.sessionCache.session && 
-               (Date.now() - this.sessionCache.timestamp < this.CACHE_TTL) &&
-               !this.isSessionExpired(this.sessionCache.session);
+        return !!this.sessionCache.session &&
+            (Date.now() - this.sessionCache.timestamp < this.CACHE_TTL) &&
+            !this.isSessionExpired(this.sessionCache.session);
     }
 
     private isSessionExpired(session: UserSession): boolean {
-        return session.tokens.expiresAt 
+        return session.tokens.expiresAt
             ? Date.now() >= session.tokens.expiresAt
             : false;
     }

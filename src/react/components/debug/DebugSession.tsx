@@ -12,6 +12,20 @@ export const SessionManagerTest = () => {
 
   // Check authentication status on component mount
   useEffect(() => {
+    const loadSession = async () => {
+      setLoading(true)
+      const sess = await sessionManager.getCompleteSession()
+      setSession(sess)
+      const auth = sessionManager.isAuthenticated()
+      setIsAuthenticated(auth)
+      setMessage(`[Auth Status] ${auth ? 'Authenticated' : 'Not authenticated'}`)
+      setLoading(false)
+      if (sess) {
+        console.log('[ThisPage] Session loaded successfully')
+      }
+    }
+    loadSession()
+    /*
     const checkAuth = async () => {
       try {
         setLoading(true);
@@ -32,6 +46,7 @@ export const SessionManagerTest = () => {
     };
     
     checkAuth();
+    */
   }, []);
 
   const loadSession = async () => {

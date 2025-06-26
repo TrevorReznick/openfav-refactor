@@ -6,7 +6,8 @@ import { handleSignOut } from '@/react/hooks/useAuthActions'
 const REDIS_API_URL = import.meta.env.PUBLIC_REDIS_API_URL
 
 export class UserHelper {
-    // Verifica se esiste una sessione Redis per l'utente
+
+    private static getAuthFromRedisCount = 0
 
     public getSessionManager() {
         return sessionManager
@@ -42,19 +43,24 @@ export class UserHelper {
 
         // Verifica se l'utente è già autenticato
         if (this.isAuthenticated()) {
-            console.log('[UserHelper][Redis] User already authenticated, skipping token request');
-            return this.getUserInfo();
+            // Se il token è scaduto, prova a rinnovare la sessione
+            if (this.isTokenExpired()) {
+                console.log('[UserHelper][Redis] Token scaduto, provo a rinnovare la sessione...');
+                await this.getSessionTokens() // oppure chiama una funzione di refresh
+            }
+            return this.getUserInfo()
         }
 
         // Verifica se esiste una sessione Redis
-        const redisAuth = await this.getAuthFromRedis();
+        const redisAuth = await this.getAuthFromRedis()
+        console.log('[UserHelper][Redis] Tento di recuperare la sessione da Redis...')
         if (redisAuth) {
-            console.log('[UserHelper][Redis] Sessione recuperata da Redis:', redisAuth);
+            console.log('[UserHelper][Redis] Sessione recuperata da Redis:', redisAuth)
             return redisAuth;
         }
 
         // Se non c'è sessione Redis, richiedi i token al backend
-        const userInfo = this.getUserInfo();
+        const userInfo = this.getUserInfo()
         const tokens = await this.getSessionTokens();
 
         console.log('[UserHelper][Redis] getCompleteSession - Risultato:', { ...userInfo, tokens });
@@ -77,9 +83,9 @@ export class UserHelper {
         if (typeof window === 'undefined') {
             return { accessToken: null, refreshToken: null }
         }
-    
+
         const userId = this.getUserIdFromStorage()
-        
+
         // 1. Controlla se l'utente è già autenticato
         if (this.isAuthenticated()) {
             console.log('[UserHelper][Redis] User already authenticated, skipping token request')
@@ -90,11 +96,11 @@ export class UserHelper {
                 expiresAt: userInfo.tokens.expiresAt
             }
         }
-    
+
         // 2. Controlla se esiste una sessione Redis
         console.log('[UserHelper][Redis] Checking for Redis session...')
         const redisAuth = await this.getAuthFromRedis(userId || undefined)
-        
+
         if (redisAuth) {
             console.log('[UserHelper][Redis] Session found in Redis:', redisAuth)
             return {
@@ -103,34 +109,34 @@ export class UserHelper {
                 expiresAt: redisAuth.tokens.expiresAt
             }
         }
-    
+
         try {
             console.log('[UserHelper][Redis] Requesting new session tokens...')
-            
+
             // 3. Richiedi nuovi token al backend
             const response = await fetch('/api/v1/auth/signin', {
                 method: 'GET',
                 credentials: 'include'
             })
-            
+
             if (!response.ok) {
                 throw new Error(`Auth failed with status: ${response.status}`)
             }
-            
+
             const data = await response.json()
             console.log('[UserHelper][Auth] Full API response:', data)
-            
+
             const session = data.session
             if (!session) {
                 throw new Error('No session data in response')
             }
-    
+
             // 4. SALVATAGGIO CRITICO - Aggiunto qui
             if (session.user?.id) {
                 // A. Salva ID utente nel localStorage
                 localStorage.setItem('openfav-userId', session.user.id)
                 console.log('[UserHelper][Storage] Saved userId to localStorage:', session.user.id)
-                
+
                 // B. Crea oggetto sessione completo
                 const userSession: UserSession = {
                     id: session.user.id,
@@ -150,14 +156,14 @@ export class UserHelper {
                         avatarUrl: session.user.user_metadata?.avatar_url || undefined
                     }
                 }
-                
+
                 // C. Aggiorna lo store
                 userStore.set(userSession)
                 console.log('[UserHelper][Store] Updated user store:', userSession)
             } else {
                 console.warn('[UserHelper][Auth] Session user data missing ID', session.user)
             }
-    
+
             return {
                 accessToken: session.access_token || null,
                 refreshToken: session.refresh_token || null,
@@ -177,10 +183,11 @@ export class UserHelper {
      * Se non viene fornito un userId, tenta di recuperare la sessione dal cookie
      */
     public async getAuthFromRedis(userId?: string): Promise<UserSession | null> {
+        UserHelper.getAuthFromRedisCount++;
+        console.log(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] Fetching Redis session data...`);
         const targetUserId = userId || this.getUserIdFromStorage();
 
         try {
-            console.log('[UserHelper][Redis] Fetching session data...');
             const endpoint = targetUserId
                 ? `${REDIS_API_URL}/session/${targetUserId}`
                 : `${REDIS_API_URL}/session`; // Endpoint che accetta solo il cookie
@@ -195,19 +202,19 @@ export class UserHelper {
 
             if (!response.ok) {
                 if (response.status === 404) {
-                    console.log('[UserHelper][Redis] No active session found');
+                    console.log(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] No active session found`);
                 } else {
-                    console.error(`[UserHelper][Redis] Error fetching session: ${response.status} ${response.statusText}`);
+                    console.error(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] Error fetching session: ${response.status} ${response.statusText}`);
                 }
                 return null;
             }
 
-            const sessionData = await response.json();
-            console.log('[UserHelper][Redis] Session data from API:', sessionData);
+            const sessionData = await response.json()
+            console.log(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] Session data from Redis API:`, sessionData);
 
             // Se l'API restituisce la sessione direttamente
             if (sessionData?.id) {
-                console.log('[UserHelper][Redis] Valid session data found');
+                console.log(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] Valid session Redis data found`);
                 // Aggiorna lo storage locale con l'ID utente
                 if (!targetUserId && sessionData.id) {
                     localStorage.setItem('openfav-userId', sessionData.id);
@@ -219,16 +226,16 @@ export class UserHelper {
 
             // Se l'API restituisce la sessione in una proprietà 'session'
             if (sessionData?.session) {
-                console.log('[UserHelper][Redis] Session data found in .session property');
+                console.log(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] Session data found in .session property`);
                 // Update the store with Redis session data
                 userStore.set(sessionData.session);
                 return sessionData.session;
             }
 
-            console.warn('[UserHelper][Redis] No valid session data found in response');
+            console.warn(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] No valid session data found in response`);
             return null;
         } catch (error) {
-            console.error('[UserHelper][Redis] Error getting auth from Redis:', error);
+            console.error(`[UserHelper][Redis][${UserHelper.getAuthFromRedisCount}] Error getting auth from Redis:`, error);
             return null;
         }
     }
@@ -333,9 +340,9 @@ export class UserHelper {
                 console.error('[UserHelper] Cannot create Redis session: Missing user ID')
                 return false
             }
-    
+
             console.log('[UserHelper][Redis] Creating session for user:', user.id)
-            
+
             const response = await fetch(`${REDIS_API_URL}/session`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -346,12 +353,12 @@ export class UserHelper {
                     expiresIn: 60 * 60 * 24 * 7 // 7 days
                 })
             })
-    
+
             if (!response.ok) {
                 const errorText = await response.text()
                 throw new Error(`Redis session creation failed: ${response.status} - ${errorText}`)
             }
-    
+
             const data = await response.json()
             console.log('[UserHelper][Redis] Session creation response:', data)
             return data.success === true
