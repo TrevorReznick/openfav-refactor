@@ -1,83 +1,90 @@
 import { userHelper } from '@/scripts/auth/getAuth'
+import type { UserSession } from '~/types/users'
 
 class SessionManager {
     private static instance: SessionManager;
-    private sessionCache: Map<string, { session: any; timestamp: number }> = new Map();
+    private sessionCache: { session: UserSession | null; timestamp: number } = {
+        session: null,
+        timestamp: 0
+    };
     private CACHE_TTL = 5 * 60 * 1000; // 5 minuti
 
-    private constructor() { }
+    private constructor() {}
 
     static getInstance(): SessionManager {
         if (!SessionManager.instance) {
             SessionManager.instance = new SessionManager()
         }
-        console.log('[SessionManager] Instance created')
         return SessionManager.instance;
     }
 
-    async getCompleteSession() {
-        const userId = userHelper.getUserIdFromStorage();
-        if (userId) {
-            const cached = this.sessionCache.get(userId);
-            if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
-                return cached.session;
-            }
+    async getCompleteSession(): Promise<UserSession | null> {
+        // Controlla se la cache è valida
+        if (this.isCacheValid()) {
+            return this.sessionCache.session;
         }
 
         try {
-            // 2. Prova a recuperare la sessione dal server
-            const session = await userHelper.getAuthFromRedis();
+            const session = await userHelper.getCompleteSession();
+            
             if (session) {
-                // Aggiorna la cache con la nuova sessione
-                this.sessionCache.set(session.id, { 
-                    session, 
-                    timestamp: Date.now() 
-                });
-                console.log('[SessionManager] Session cached in memory');
+                this.updateCache(session);
                 return session;
-            } else {
-                console.warn('[SessionManager] No session data found in Redis');
             }
+            
+            return null;
         } catch (error) {
             console.error('[SessionManager] Error getting session:', error);
-        }
-        return null;
-    }
-
-    async invalidateSession() {
-        const userId = userHelper.getUserIdFromStorage();
-        if (userId) {
-            this.sessionCache.delete(userId);
-            await userHelper.clearAuth(); // Delega la pulizia a UserHelper
+            // Fallback alla cache se disponibile
+            return this.sessionCache.session;
         }
     }
 
-    async createSession() {
-        // Crea una nuova sessione Redis tramite userHelper
-        return await userHelper.createRedisSession();
+    async invalidateSession(): Promise<void> {
+        this.clearCache();
+        await userHelper.clearAuth();
     }
 
-    async refreshSession() {
-        const userId = userHelper.getUserIdFromStorage();
-        if (userId) {
-            this.sessionCache.delete(userId);
-            return this.getCompleteSession();
-        }
-        return null;
+    async createSession(): Promise<boolean> {
+        this.clearCache();
+        return userHelper.createRedisSession();
     }
 
-    /**
-     * Verifica se l'utente è autenticato
-     * @returns Promise<boolean> True se l'utente è autenticato, altrimenti false
-     */
-    public async isAuthenticated(): Promise<boolean> {
-        try {
-            const isAuthenticated = await userHelper.isAuthenticated()
-            return isAuthenticated
-        } catch (error) {
-            console.error('[SessionManager] Error checking authentication status:', error);
-            return false;
-        }
+    async refreshSession(): Promise<UserSession | null> {
+        this.clearCache();
+        return this.getCompleteSession();
+    }
+
+    public isAuthenticated(): boolean {
+        return userHelper.isAuthenticated();
+    }
+
+    // --- Metodi di supporto ---
+    
+    private isCacheValid(): boolean {
+        return !!this.sessionCache.session && 
+               (Date.now() - this.sessionCache.timestamp < this.CACHE_TTL) &&
+               !this.isSessionExpired(this.sessionCache.session);
+    }
+
+    private isSessionExpired(session: UserSession): boolean {
+        return session.tokens.expiresAt 
+            ? Date.now() >= session.tokens.expiresAt
+            : false;
+    }
+
+    private updateCache(session: UserSession): void {
+        this.sessionCache = {
+            session,
+            timestamp: Date.now()
+        };
+    }
+
+    private clearCache(): void {
+        this.sessionCache = {
+            session: null,
+            timestamp: 0
+        };
     }
 }
 
