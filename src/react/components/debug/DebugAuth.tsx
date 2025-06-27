@@ -15,15 +15,6 @@ const signOut = async () => {
   }
 }
 
-
-
-// Per ottenere la sessione
-const session = await userHelper.getSessionManager().getCompleteSession()
-console.log('🔍 [DebugAuth][SessionManager] Session:', session)
-
-// Per invalidare la sessione
-//await userHelper.getSessionManager().invalidateSession()
-
 const DebugAuth = () => {
   console.log('🔍 [DebugAuth] Rendering component...');
   const current = useStore(currentPath)
@@ -173,6 +164,22 @@ const DebugAuth = () => {
     }
   }
 
+  const handleGetSession = async () => {
+    try {
+      const session = await userHelper.getCompleteSession();
+      if (!session) {
+        alert('Session is null or does not exist');
+        console.log('🔍 [DebugAuth] No active session found');
+        return;
+      }
+      console.log('🔍 [DebugAuth] Session:', session);
+      alert('Session exists and is valid');
+    } catch (error) {
+      console.error('Error getting session:', error);
+      alert('Error checking session: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+  };
+
   const testRedisDelete = async () => {
     if (!user?.id) {
       setRedisStatus({ success: false, message: "No user ID available" })
@@ -219,11 +226,7 @@ const DebugAuth = () => {
         <div className="mt-3 flex space-x-2">
           <button
             className="px-2 py-1 bg-blue-600 rounded text-xs"
-            onClick={async () => {
-              const session = await userHelper.getSessionTokens()
-              console.log('Session check:', session)
-              alert(session ? 'Session exists' : 'No session found')
-            }}
+            onClick={handleGetSession}
           >
             Check Session
           </button>
