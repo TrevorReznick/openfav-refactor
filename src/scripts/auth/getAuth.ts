@@ -7,10 +7,10 @@ import { handleSignOut } from '@/react/hooks/useAuthActions'
 
 // Configurazione dell'URL di base dell'API Redis
 const getRedisBaseUrl = () => {
-  // Se esiste la variabile d'ambiente, usala, altrimenti usa l'URL di default
-  const baseUrl = import.meta.env.PUBLIC_REDIS_API_URL || 'https://openfav-node.fly.dev/api'
-  // Rimuovi lo slash finale se presente
-  return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+    // Se esiste la variabile d'ambiente, usala, altrimenti usa l'URL di default
+    const baseUrl = import.meta.env.PUBLIC_REDIS_API_URL || 'https://openfav-node.fly.dev/api'
+    // Rimuovi lo slash finale se presente
+    return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
 };
 
 const REDIS_BASE_URL = getRedisBaseUrl()
@@ -56,24 +56,26 @@ export class UserHelper {
         if (this.isAuthenticated()) {
             console.log('[UserHelper][Redis] User is already authenticated, getting user info...');
             const userInfo = this.getUserInfo();
-            
+
             // Verifica la connettività a Redis
-            const redisAvailable = await this.checkRedisConnection();
+            /*
+            const redisAvailable = await this.checkRedisConnection()
             if (!redisAvailable) {
                 console.warn('[UserHelper][Redis] Redis server is not available, skipping session check');
                 return userInfo;
             }
+            */
 
             // Verifica se la sessione Redis esiste, altrimenti creala
             if (userInfo.id) {
                 try {
                     console.log('[UserHelper][Redis] Checking for existing Redis session...');
                     const hasRedisSession = await this.checkRedisSession(userInfo.id);
-                    
+
                     if (!hasRedisSession) {
                         console.log('[UserHelper][Redis] No active Redis session found, creating a new one...');
                         const sessionCreated = await this.createRedisSession();
-                        
+
                         if (!sessionCreated) {
                             console.warn('[UserHelper][Redis] Failed to create Redis session');
                         } else {
@@ -87,14 +89,14 @@ export class UserHelper {
                     // Non blocchiamo il flusso in caso di errore con Redis
                 }
             }
-            
+
             return userInfo;
         }
 
         // 2. Verifica se esiste una sessione Redis
         console.log('[UserHelper][Redis] Checking for existing Redis session...');
         const redisAuth = await this.getAuthFromRedis();
-        
+
         if (redisAuth) {
             console.log('[UserHelper][Redis] Session found in Redis, updating store...');
             // Aggiorna lo store con i dati di Redis
@@ -108,7 +110,7 @@ export class UserHelper {
         try {
             const tokens = await this.getSessionTokens();
             const userInfo = this.getUserInfo();
-            
+
             console.log('[UserHelper][Redis] New session created:', { ...userInfo, tokens });
             return {
                 ...userInfo,
@@ -215,13 +217,13 @@ export class UserHelper {
                 // C. Aggiorna lo store
                 userStore.set(userSession)
                 console.log('[UserHelper][Store] Updated user store:', userSession)
-                
+
                 // D. Crea la sessione Redis
                 try {
                     console.log('[UserHelper][Redis] Creating Redis session after login...')
                     const redisSessionCreated = await this.createRedisSession()
                     console.log('[UserHelper][Redis] Redis session created:', redisSessionCreated)
-                    
+
                     if (!redisSessionCreated) {
                         console.warn('[UserHelper][Redis] Failed to create Redis session after login')
                     }
@@ -373,48 +375,49 @@ export class UserHelper {
     // Verifica se l'utente è autenticato
     public isAuthenticated(): boolean {
         const user = userStore.get()
-        
+
         // Se non c'è utente, non è autenticato
         if (!user) {
             console.log('[UserHelper][Auth] No user in store')
             return false
         }
-        
+
         // Se l'utente ha esplicitamente isAuthenticated a false, non è autenticato
         if (user.isAuthenticated === false) {
             console.log('[UserHelper][Auth] User explicitly not authenticated')
             return false
         }
-        
+
         // Verifica se il token è valido
         const tokenValid = this.isTokenValid(user.tokens?.accessToken, user.tokens?.expiresAt)
-        
+
         // Se il token non è valido ma abbiamo un utente, potremmo voler aggiornare lo stato
         if (!tokenValid && user.id) {
             console.log('[UserHelper][Auth] Token not valid, updating user state')
-            userStore.update(u => ({
-                ...u,
+            const currentUser = userStore.get();
+            userStore.set({
+                ...currentUser,
                 isAuthenticated: false
-            }))
+            });
         }
-        
+
         console.log('[UserHelper][Auth] isAuthenticated:', tokenValid, {
             hasUser: !!user,
             userId: user.id,
             hasToken: !!user.tokens?.accessToken,
             tokenExpired: this.isTokenExpired()
         })
-        
+
         return tokenValid
     }
 
     // Verifica se il token fornito è valido
     private isTokenValid(token: string | null, expiresAt: number | null | undefined): boolean {
         if (!token) return false
-        
+
         // Se expiresAt è 0, il token non ha scadenza
         if (expiresAt === 0) return true
-        
+
         // Altrimenti controlla la scadenza
         const now = Date.now()
         return expiresAt ? now < expiresAt * 1000 : false
@@ -428,20 +431,20 @@ export class UserHelper {
         // Usa il metodo isTokenValid per verificare il token
         const tokenValid = this.isTokenValid(user.tokens?.accessToken, user.tokens?.expiresAt)
         const isExpired = !tokenValid
-        
+
         console.log('[UserHelper][Auth] isTokenExpired:', isExpired, {
             hasToken: !!user.tokens?.accessToken,
             expiresAt: user.tokens?.expiresAt,
             now: Date.now()
         })
-        
+
         return isExpired
     }
 
     public async checkRedisSession(userId: string): Promise<boolean> {
         try {
             console.log('[UserHelper][Redis] Checking for existing Redis session...')
-            const response = await fetch(`${REDIS_API_URL}/session/${userId}`, {
+            const response = await fetch(`${REDIS_BASE_URL}/session/${userId}`, {
                 credentials: 'include',
                 headers: {
                     'Cache-Control': 'no-cache',
@@ -474,7 +477,7 @@ export class UserHelper {
     public async checkRedisConnection(): Promise<boolean> {
         try {
             console.log('[UserHelper][Redis] Checking Redis connection...')
-            const response = await fetch(REDIS_API_URL, {
+            const response = await fetch(REDIS_BASE_URL, {
                 method: 'HEAD',
                 credentials: 'include',
                 headers: {
@@ -482,7 +485,7 @@ export class UserHelper {
                     'Pragma': 'no-cache'
                 }
             })
-            
+
             const isOk = response.ok || response.status === 401 // 401 è accettabile poiché indica che l'endpoint esiste ma richiede autenticazione
             console.log(`[UserHelper][Redis] Redis connection check: ${isOk ? 'OK' : 'Failed'} (${response.status})`)
             return isOk
@@ -496,7 +499,7 @@ export class UserHelper {
         try {
             const user = this.getUserInfo()
             console.log('[UserHelper][Redis] createRedisSession - User info:', user)
-            
+
             if (!user.id) {
                 console.error('[UserHelper][Redis] Cannot create Redis session: Missing user ID')
                 return false
@@ -508,7 +511,7 @@ export class UserHelper {
             }
 
             console.log('[UserHelper][Redis] Creating session for user:', user.id)
-            
+
             const sessionData = {
                 userId: user.id,
                 email: user.email,
@@ -524,7 +527,7 @@ export class UserHelper {
                 },
                 expiresIn: 60 * 60 * 24 * 7 // 7 days
             }
-            
+
             console.log('[UserHelper][Redis] Sending session data to /set-session:', sessionData)
 
             console.log('[UserHelper][Redis] Sending request to:', `${REDIS_BASE_URL}/set-session`);
@@ -532,10 +535,10 @@ export class UserHelper {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${user.tokens.accessToken?.substring(0, 20)}...`
             });
-            
+
             const response = await fetch(`${REDIS_BASE_URL}/set-session`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.tokens.accessToken}`
                 },
@@ -575,7 +578,7 @@ export class UserHelper {
 
             console.log('[UserHelper][Redis] Session creation successful:', responseData);
             return responseData.success === true || responseData.id !== undefined
-            
+
         } catch (error) {
             console.error('[UserHelper][Redis] Error creating Redis session:', error)
             return false
@@ -588,7 +591,7 @@ export class UserHelper {
             const user = this.getUserInfo()
             if (!user.id) return false
 
-            const response = await fetch(`${REDIS_API_URL}/session`, {
+            const response = await fetch(`${REDIS_BASE_URL}/session`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -618,7 +621,7 @@ export class UserHelper {
             const userId = this.getUserIdFromStorage()
             if (!userId) return false
 
-            const response = await fetch(`${REDIS_API_URL}/session/${userId}`, {
+            const response = await fetch(`${REDIS_BASE_URL}/session/${userId}`, {
                 method: 'DELETE',
                 credentials: 'include'
             })
@@ -648,7 +651,7 @@ export class UserHelper {
     // Metodi di test per Redis
     public async testRedisSet(key: string, value: string): Promise<boolean> {
         try {
-            const response = await fetch(`${REDIS_API_URL}/test/set`, {
+            const response = await fetch(`${REDIS_BASE_URL}/test/set`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ key, value })
@@ -662,7 +665,7 @@ export class UserHelper {
 
     public async testRedisGet(key: string): Promise<string | null> {
         try {
-            const response = await fetch(`${REDIS_API_URL}/test/get?key=${encodeURIComponent(key)}`)
+            const response = await fetch(`${REDIS_BASE_URL}/test/get?key=${encodeURIComponent(key)}`)
             if (!response.ok) return null
             const data = await response.json()
             return data?.value || null
@@ -674,7 +677,7 @@ export class UserHelper {
 
     public async testRedisDelete(key: string): Promise<boolean> {
         try {
-            const response = await fetch(`${REDIS_API_URL}/test/delete?key=${encodeURIComponent(key)}`, {
+            const response = await fetch(`${REDIS_BASE_URL}/test/delete?key=${encodeURIComponent(key)}`, {
                 method: 'DELETE'
             })
             return response.ok

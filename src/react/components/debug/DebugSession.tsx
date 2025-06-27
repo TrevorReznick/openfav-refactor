@@ -116,13 +116,90 @@ export const SessionManagerTest = () => {
   const handleCreate = async () => {
     try {
       setLoading(true);
-      const created = await sessionManager.createSession();
-      setMessage(created ? 'Session created' : 'Failed to create session');
-      console.log('🔍 [DebugSession] Session created:', created);
-      if (created) await loadSession();
+      setMessage('Creating test session...');
+      
+      // Get current user data or use test data
+      const currentUser = await sessionManager.getCompleteSession() || {
+        id: `test-user-${Date.now()}`,
+        email: 'test@example.com',
+        fullName: 'Test User',
+        createdAt: new Date(),
+        lastLogin: new Date(),
+        isAuthenticated: true,
+        provider: 'test',
+        tokens: {
+          accessToken: `test-access-${Date.now()}`,
+          refreshToken: `test-refresh-${Date.now()}`,
+          expiresAt: Date.now() + 3600000 // 1 hour from now
+        },
+        metadata: {
+          provider: 'test',
+          avatarUrl: null,
+          githubUsername: null
+        }
+      };
+
+      const sessionData = {
+        session: {
+          id: currentUser.id,
+          email: currentUser.email,
+          fullName: currentUser.fullName || 'Test User',
+          createdAt: currentUser.createdAt?.toISOString() || new Date().toISOString(),
+          lastLogin: currentUser.lastLogin?.toISOString() || new Date().toISOString(),
+          isAuthenticated: true,
+          provider: currentUser.provider || 'test',
+          tokens: {
+            accessToken: currentUser.tokens?.accessToken || `test-access-${Date.now()}`,
+            refreshToken: currentUser.tokens?.refreshToken || `test-refresh-${Date.now()}`,
+            expiresAt: currentUser.tokens?.expiresAt || Date.now() + 3600000
+          },
+          metadata: {
+            provider: currentUser.metadata?.provider || 'test',
+            avatarUrl: currentUser.metadata?.avatarUrl,
+            githubUsername: currentUser.metadata?.githubUsername
+          }
+        },
+        expirySeconds: 3600
+      };
+
+      console.log('🔍 [DebugSession] Creating session with data:', sessionData);
+      
+      // Try to save to Redis if API URL is available
+      const redisApiUrl = import.meta.env.PUBLIC_REDIS_API_URL;
+      if (redisApiUrl) {
+        try {
+          const response = await fetch(`${redisApiUrl}/set-session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(sessionData)
+          });
+          
+          const data = await response.json();
+          console.log('🔍 [DebugSession] Redis SET response:', data);
+          
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to save session to Redis');
+          }
+          
+          setMessage('✅ Session created and saved to Redis');
+        } catch (redisError) {
+          console.error('❌ [DebugSession] Redis error:', redisError);
+          setMessage('⚠️ Session created but failed to save to Redis');
+        }
+      } else {
+        // Fallback to local session creation if Redis is not available
+        const created = await sessionManager.createSession();
+        console.log('🔍 [DebugSession] Local session created:', created);
+        setMessage(created ? '✅ Session created (local)' : '❌ Failed to create local session');
+      }
+      
+      // Reload the session to reflect changes
+      await loadSession();
+      
     } catch (error) {
-      console.error('Error creating session:', error);
-      setMessage('Error creating session');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('❌ [DebugSession] Error creating session:', error);
+      setMessage(`❌ Error: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -180,12 +257,45 @@ export const SessionManagerTest = () => {
           onClick={() => {
             const userId = localStorage.getItem('openfav-userId');
             const storeData = userStore.get();
-            console.log('DEBUG Storage:', { userId, storeData });
-            alert(`LocalStorage: ${userId}\nStore: ${JSON.stringify(storeData)}`);
+            const allStorage = { ...localStorage };
+            
+            console.log('[DebugSession] Storage State:', { 
+              openfavUserId: userId,
+              localStorage: allStorage,
+              userStore: storeData 
+            });
+            
+            const storageInfo = Object.entries(localStorage)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join('\n\n');
+              
+            alert(`=== LocalStorage Debug ===
+            
+🔑 openfav-userId: ${userId || 'not found'}
+
+📦 All LocalStorage Items:
+${storageInfo}
+
+🛒 User Store:
+${JSON.stringify(storeData, null, 2)}`);
           }}
-          style={{ marginTop: '10px' }}
+          style={{
+            marginTop: '10px',
+            padding: '8px 16px',
+            backgroundColor: '#9c27b0',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginLeft: '10px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}
         >
-          Debug Storage State
+          <span>🔍</span>
+          Debug LocalStorage
         </button>
       </div>
 
