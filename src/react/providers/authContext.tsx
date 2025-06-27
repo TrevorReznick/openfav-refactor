@@ -8,7 +8,6 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: UserSession | null;
   loading: boolean;
-  signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 }
 
@@ -43,17 +42,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }
 
-  const signOut = async () => {
-    try {
-      await sessionManager.invalidateSession()
-    } catch (error) {
-      console.error('Error during sign out:', error)
-    } finally {
-      setUser(null)
-      setIsAuthenticated(false)
-      userStore.set(null)
-    }
-  }
+  // La gestione del logout è ora centralizzata in src/scripts/auth/logout.ts
+  // Utilizza direttamente la funzione `logout` esportata da quel modulo
 
   useEffect(() => {
     refreshSession()
@@ -66,7 +56,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isAuthenticated,
         user,
         loading,
-        signOut,
         refreshSession,
       }}
     >
