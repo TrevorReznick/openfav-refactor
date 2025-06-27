@@ -527,6 +527,12 @@ export class UserHelper {
             
             console.log('[UserHelper][Redis] Sending session data to /set-session:', sessionData)
 
+            console.log('[UserHelper][Redis] Sending request to:', `${REDIS_BASE_URL}/set-session`);
+            console.log('[UserHelper][Redis] Request headers:', {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.tokens.accessToken?.substring(0, 20)}...`
+            });
+            
             const response = await fetch(`${REDIS_BASE_URL}/set-session`, {
                 method: 'POST',
                 headers: { 
@@ -535,29 +541,40 @@ export class UserHelper {
                 },
                 credentials: 'include',
                 body: JSON.stringify(sessionData)
-            })
+            });
 
-            const responseText = await response.text()
-            let responseData
-            
+            const responseText = await response.text();
+            console.log('[UserHelper][Redis] Raw response:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries()),
+                body: responseText
+            });
+
+            let responseData;
             try {
-                responseData = responseText ? JSON.parse(responseText) : {}
+                responseData = responseText ? JSON.parse(responseText) : {};
             } catch (e) {
-                console.error('[UserHelper][Redis] Failed to parse response as JSON:', responseText)
-                throw new Error(`Invalid JSON response: ${responseText}`)
+                console.error('[UserHelper][Redis] Failed to parse response as JSON:', responseText, e);
+                throw new Error(`Invalid JSON response: ${responseText}`);
             }
 
             if (!response.ok) {
                 console.error('[UserHelper][Redis] Session creation failed:', {
                     status: response.status,
                     statusText: response.statusText,
-                    response: responseData
-                })
-                return false
+                    response: responseData,
+                    request: {
+                        url: `${REDIS_BASE_URL}/set-session`,
+                        method: 'POST',
+                        body: JSON.parse(JSON.stringify(sessionData)) // Clone per evitare riferimenti circolari
+                    }
+                });
+                return false;
             }
 
-            console.log('[UserHelper][Redis] Session creation successful:', responseData)
-            return true
+            console.log('[UserHelper][Redis] Session creation successful:', responseData);
+            return responseData.success === true || responseData.id !== undefined
             
         } catch (error) {
             console.error('[UserHelper][Redis] Error creating Redis session:', error)
