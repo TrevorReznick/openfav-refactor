@@ -1,3 +1,5 @@
+/// <reference lib="es2015.promise" />
+
 import { userStore } from '@/store'
 import type { UserSession } from '~/types/users'
 import { sessionManager } from '@/scripts/auth/sessionManager'
@@ -41,37 +43,55 @@ export class UserHelper {
     public async getCompleteSession(): Promise<UserSession> {
         console.log('[UserHelper][Redis] getCompleteSession - Inizio');
 
-        // Verifica se l'utente è già autenticato
+        // 1. Verifica se l'utente è già autenticato
         if (this.isAuthenticated()) {
-            // Se il token è scaduto, prova a rinnovare la sessione
-            if (this.isTokenExpired()) {
-                console.log('[UserHelper][Redis] Token scaduto, provo a rinnovare la sessione...');
-                await this.getSessionTokens() // oppure chiama una funzione di refresh
+            console.log('[UserHelper][Redis] User is already authenticated, getting user info...');
+            const userInfo = this.getUserInfo();
+            
+            // Verifica se la sessione Redis esiste, altrimenti creala
+            if (userInfo.id) {
+                const hasRedisSession = await this.checkRedisSession(userInfo.id);
+                if (!hasRedisSession) {
+                    console.log('[UserHelper][Redis] No active Redis session found, creating a new one...');
+                    await this.createRedisSession();
+                }
             }
-            return this.getUserInfo()
+            
+            return userInfo;
         }
 
-        // Verifica se esiste una sessione Redis
-        const redisAuth = await this.getAuthFromRedis()
-        console.log('[UserHelper][Redis] Tento di recuperare la sessione da Redis...')
+        // 2. Verifica se esiste una sessione Redis
+        console.log('[UserHelper][Redis] Checking for existing Redis session...');
+        const redisAuth = await this.getAuthFromRedis();
+        
         if (redisAuth) {
-            console.log('[UserHelper][Redis] Sessione recuperata da Redis:', redisAuth)
+            console.log('[UserHelper][Redis] Session found in Redis, updating store...');
+            // Aggiorna lo store con i dati di Redis
+            userStore.set(redisAuth);
             return redisAuth;
         }
 
-        // Se non c'è sessione Redis, richiedi i token al backend
-        const userInfo = this.getUserInfo()
-        const tokens = await this.getSessionTokens();
-
-        console.log('[UserHelper][Redis] getCompleteSession - Risultato:', { ...userInfo, tokens });
-        return {
-            ...userInfo,
-            tokens: {
-                accessToken: tokens.accessToken,
-                refreshToken: tokens.refreshToken,
-                expiresAt: tokens.expiresAt ?? 0
-            }
-        };
+        // 3. Se non c'è sessione Redis e l'utente non è autenticato,
+        // prova a ottenere una nuova sessione
+        console.log('[UserHelper][Redis] No active session found, requesting new tokens...');
+        try {
+            const tokens = await this.getSessionTokens();
+            const userInfo = this.getUserInfo();
+            
+            console.log('[UserHelper][Redis] New session created:', { ...userInfo, tokens });
+            return {
+                ...userInfo,
+                tokens: {
+                    accessToken: tokens.accessToken,
+                    refreshToken: tokens.refreshToken,
+                    expiresAt: tokens.expiresAt ?? 0
+                }
+            };
+        } catch (error) {
+            console.error('[UserHelper][Redis] Error getting new session:', error);
+            // In caso di errore, restituisci l'utente non autenticato
+            return this.getEmptyUser();
+        }
     }
 
     // Richiedi i token di autenticazione
@@ -164,6 +184,19 @@ export class UserHelper {
                 // C. Aggiorna lo store
                 userStore.set(userSession)
                 console.log('[UserHelper][Store] Updated user store:', userSession)
+                
+                // D. Crea la sessione Redis
+                try {
+                    console.log('[UserHelper][Redis] Creating Redis session after login...')
+                    const redisSessionCreated = await this.createRedisSession()
+                    console.log('[UserHelper][Redis] Redis session created:', redisSessionCreated)
+                    
+                    if (!redisSessionCreated) {
+                        console.warn('[UserHelper][Redis] Failed to create Redis session after login')
+                    }
+                } catch (error) {
+                    console.error('[UserHelper][Redis] Error creating Redis session after login:', error)
+                }
             } else {
                 console.warn('[UserHelper][Auth] Session user data missing ID', session.user)
             }
