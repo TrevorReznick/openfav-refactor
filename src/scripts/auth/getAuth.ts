@@ -440,7 +440,7 @@ export class UserHelper {
 
             console.log('[UserHelper][Redis] Creating session for user:', user.id)
 
-            const response = await fetch(`${REDIS_API_URL}/session`, {
+            const response = await fetch(`${REDIS_API_URL}/set-session`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
