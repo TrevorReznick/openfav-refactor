@@ -3,17 +3,7 @@ import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
 import { UserHelper } from '~/scripts/auth/getAuth'
 import { userHelper } from '~/scripts/auth/getAuth';
-
-// Dummy signOut function; replace with your actual signOut logic or import if available
-const signOut = async () => {
-  if (typeof window !== 'undefined') {
-    document.cookie = 'token=; Max-Age=0; path=/;';
-    localStorage.removeItem('openfav-userId')
-    localStorage.removeItem('sb-access-token')
-    localStorage.removeItem('sb-refresh-token')
-    userStore.set(null)
-  }
-}
+import { debugSignOut } from '~/scripts/auth/logout';
 
 const DebugAuth = () => {
   console.log('🔍 [DebugAuth] Rendering component...');
@@ -239,22 +229,9 @@ const DebugAuth = () => {
             Sign In
           </button>
           <button
-            className="px-2 py-1 bg-purple-600 rounded text-xs"
-            onClick={async () => {
-              if (typeof signOut === 'function') {
-                await signOut()
-              } else {
-                if (userStore.set) userStore.set(null)
-              }
-              window.location.reload()
-            }}
-          >
-            Refresh
-          </button>
-          <button
             className="px-2 py-1 bg-red-600 rounded text-xs"
             onClick={async () => {
-              await signOut()
+              await debugSignOut()
               window.location.reload()
             }}
           >

@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Menu, LogOut } from 'lucide-react'
 import { Button } from '@/react/components/ui/button'
 import { useNavigation as useNav } from '@/react/hooks/navigationContext'
 import { useStore } from '@nanostores/react'
 import { currentPath, userStore } from '@/store'
-import { sessionManager } from '~/scripts/auth/sessionManager'
+import { logout } from '~/scripts/auth/logout'
+import { UserHelper } from '~/scripts/auth/getAuth'
 import { ThemeToggle } from './ThemeToggle'
 
 interface NavItem {
@@ -46,23 +47,28 @@ const Navbar = () => {
   const user = useStore(userStore)
   const { navigate } = useSafeNavigation()
   const current = useStore(currentPath)
+  const userHelper = useRef(new UserHelper()).current
   
   useEffect(() => {
     setIsClient(true)
+    
+    // Funzione per verificare lo stato di autenticazione
     const checkAuth = async () => {
       try {
-        const session = await sessionManager.getCompleteSession()
-        setIsAuthenticated(!!session?.id)
+        const isAuth = userHelper.isAuthenticated()
+        setIsAuthenticated(isAuth)
       } catch (error) {
         console.error('Error checking auth status:', error)
         setIsAuthenticated(false)
       }
     }
+    
     checkAuth()
     
     // Ascolta i cambiamenti nello store
     const unsubscribe = userStore.subscribe((userData) => {
-      setIsAuthenticated(!!userData?.id)
+      const isAuth = !!userData?.id
+      setIsAuthenticated(isAuth)
     })
     
     return () => unsubscribe()
@@ -86,8 +92,9 @@ const Navbar = () => {
 
   const handleSignOutClick = async () => {
     try {
-      await sessionManager.invalidateSession()
-      // Lo store verrà aggiornato tramite la subscription in useEffect
+      // Utilizza la funzione logout centralizzata
+      await logout({ useSupabase: true })
+      // Lo store verrà aggiornato automaticamente
     } catch (error) {
       console.error('Error during sign out:', error)
     }

@@ -14,14 +14,28 @@ export const SessionManagerTest = () => {
   useEffect(() => {
     const loadSession = async () => {
       setLoading(true)
-      const sess = await sessionManager.getCompleteSession()
-      setSession(sess)
-      const auth = sessionManager.isAuthenticated()
-      setIsAuthenticated(auth)
-      setMessage(`[Auth Status] ${auth ? 'Authenticated' : 'Not authenticated'}`)
-      setLoading(false)
-      if (sess) {
-        console.log('[ThisPage] Session loaded successfully')
+      try {
+        const sess = await sessionManager.getCompleteSession()
+        const auth = sessionManager.isAuthenticated()
+        
+        setSession(sess)
+        setIsAuthenticated(auth)
+        
+        if (auth && sess) {
+          const msg = '[ThisPage] Session loaded successfully - User is authenticated'
+          setMessage(msg)
+          console.log(msg)
+        } else {
+          const msg = '[ThisPage] User is not authenticated'
+          setMessage(msg)
+          console.log(msg)
+        }
+      } catch (error) {
+        const errorMsg = `[ThisPage] Error loading session: ${error instanceof Error ? error.message : 'Unknown error'}`
+        setMessage(errorMsg)
+        console.error(errorMsg, error)
+      } finally {
+        setLoading(false)
       }
     }
     loadSession()
@@ -52,22 +66,28 @@ export const SessionManagerTest = () => {
   const loadSession = async () => {
     try {
       setLoading(true)
-      setMessage('Loading session...')
-      console.log('🔍 [DebugSession] Loading session...')
+      const loadingMsg = 'Loading session...'
+      setMessage(loadingMsg)
+      console.log('🔍 [DebugSession]', loadingMsg)
       
       const sessionData = await sessionManager.getCompleteSession()
+      const auth = sessionManager.isAuthenticated()
+      
       console.log('🔍 [DebugSession] Raw session data:', sessionData)
       
-      if (!sessionData) {
-        setMessage('[ThisPage] No active session found')
+      if (!sessionData || !auth) {
+        const msg = '[ThisPage] No active session - User is not authenticated'
+        setMessage(msg)
         setSession(null)
+        console.log(msg)
         return;
       }
       
       setSession(sessionData);
       setLastUpdated(new Date())
-      setMessage('[ThisPage] Session loaded successfully')
-      console.log('🔍 [DebugSession] Session state updated:', sessionData)
+      const successMsg = '[ThisPage] Session loaded successfully'
+      setMessage(successMsg)
+      console.log('🔍 [DebugSession]', successMsg, sessionData)
     } catch (error) {
       console.error('❌ [DebugSession] Error loading session:', error);
       setMessage(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`)
