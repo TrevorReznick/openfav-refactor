@@ -140,21 +140,25 @@ export class UserHelper {
                 // B. Crea oggetto sessione completo
                 const userSession: UserSession = {
                     id: session.user.id,
-                    email: session.user.email || '',
-                    fullName: session.user.user_metadata?.full_name || 'Utente',
-                    createdAt: new Date(session.user.created_at || Date.now()),
-                    lastLogin: new Date(session.user.last_sign_in_at || Date.now()),
-                    isAuthenticated: true,
-                    provider: session.user.app_metadata?.provider || 'email',
+                    email: session.user.email || null,
+                    fullName: session.user.user_metadata?.full_name || null,
+                    createdAt: session.user.created_at ? new Date(session.user.created_at) : null,
+                    lastLogin: session.user.last_sign_in_at ? new Date(session.user.last_sign_in_at) : null,
+                    isAuthenticated: true, // Impostiamo esplicitamente a true qui
+                    provider: session.user.app_metadata?.provider || null,
                     tokens: {
                         accessToken: session.access_token || null,
                         refreshToken: session.refresh_token || null,
                         expiresAt: session.expires_at || 0
                     },
                     metadata: {
-                        provider: session.user.app_metadata?.provider || 'email',
-                        avatarUrl: session.user.user_metadata?.avatar_url || undefined
-                    }
+                        provider: session.user.app_metadata?.provider || null,
+                        avatarUrl: session.user.user_metadata?.avatar_url || null,
+                        githubUsername: session.user.user_metadata?.user_name || null
+                    },
+                    // Aggiungiamo i metadati grezzi per compatibilità
+                    user_metadata: session.user.user_metadata || null,
+                    app_metadata: session.user.app_metadata || null
                 }
 
                 // C. Aggiorna lo store
@@ -305,19 +309,51 @@ export class UserHelper {
     // Verifica se l'utente è autenticato
     public isAuthenticated(): boolean {
         const user = userStore.get()
-        // Se non c'è utente o l'utente ha esplicitamente isAuthenticated a false
-        if (!user || user.isAuthenticated === false) {
-            console.log('[UserHelper][Auth] User is not authenticated')
+        
+        // Se non c'è utente, non è autenticato
+        if (!user) {
+            console.log('[UserHelper][Auth] No user in store')
             return false
         }
         
-        // Verifica la presenza di un token di accesso valido
-        const hasValidToken = user.tokens?.accessToken && 
-                            (user.tokens.expiresAt === 0 || 
-                             (user.tokens.expiresAt && user.tokens.expiresAt > Date.now()))
+        // Se l'utente ha esplicitamente isAuthenticated a false, non è autenticato
+        if (user.isAuthenticated === false) {
+            console.log('[UserHelper][Auth] User explicitly not authenticated')
+            return false
+        }
         
-        console.log('[UserHelper][Auth] isAuthenticated:', hasValidToken)
-        return hasValidToken
+        // Verifica se il token è valido
+        const tokenValid = this.isTokenValid(user.tokens?.accessToken, user.tokens?.expiresAt)
+        
+        // Se il token non è valido ma abbiamo un utente, potremmo voler aggiornare lo stato
+        if (!tokenValid && user.id) {
+            console.log('[UserHelper][Auth] Token not valid, updating user state')
+            userStore.update(u => ({
+                ...u,
+                isAuthenticated: false
+            }))
+        }
+        
+        console.log('[UserHelper][Auth] isAuthenticated:', tokenValid, {
+            hasUser: !!user,
+            userId: user.id,
+            hasToken: !!user.tokens?.accessToken,
+            tokenExpired: this.isTokenExpired()
+        })
+        
+        return tokenValid
+    }
+
+    // Verifica se il token fornito è valido
+    private isTokenValid(token: string | null, expiresAt: number | null | undefined): boolean {
+        if (!token) return false
+        
+        // Se expiresAt è 0, il token non ha scadenza
+        if (expiresAt === 0) return true
+        
+        // Altrimenti controlla la scadenza
+        const now = Date.now()
+        return expiresAt ? now < expiresAt * 1000 : false
     }
 
     // Verifica se il token è scaduto
@@ -325,9 +361,16 @@ export class UserHelper {
         const user = userStore.get()
         if (!user) return true
 
-        const expiresAt = user.exp
-        const isExpired = expiresAt ? Date.now() >= expiresAt * 1000 : true
-        console.log('[UserHelper][Auth] isTokenExpired:', isExpired)
+        // Usa il metodo isTokenValid per verificare il token
+        const tokenValid = this.isTokenValid(user.tokens?.accessToken, user.tokens?.expiresAt)
+        const isExpired = !tokenValid
+        
+        console.log('[UserHelper][Auth] isTokenExpired:', isExpired, {
+            hasToken: !!user.tokens?.accessToken,
+            expiresAt: user.tokens?.expiresAt,
+            now: Date.now()
+        })
+        
         return isExpired
     }
 
