@@ -5,7 +5,16 @@ import type { UserSession } from '~/types/users'
 import { sessionManager } from '@/scripts/auth/sessionManager'
 import { handleSignOut } from '@/react/hooks/useAuthActions'
 
-const REDIS_API_URL = import.meta.env.PUBLIC_REDIS_API_URL
+// Configurazione dell'URL di base dell'API Redis
+const getRedisBaseUrl = () => {
+  // Se esiste la variabile d'ambiente, usala, altrimenti usa l'URL di default
+  const baseUrl = import.meta.env.PUBLIC_REDIS_API_URL || 'https://openfav-node.fly.dev/api'
+  // Rimuovi lo slash finale se presente
+  return baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+};
+
+const REDIS_BASE_URL = getRedisBaseUrl()
+console.log('[UserHelper] Redis Base URL:', REDIS_BASE_URL)
 
 export class UserHelper {
 
@@ -48,12 +57,34 @@ export class UserHelper {
             console.log('[UserHelper][Redis] User is already authenticated, getting user info...');
             const userInfo = this.getUserInfo();
             
+            // Verifica la connettività a Redis
+            const redisAvailable = await this.checkRedisConnection();
+            if (!redisAvailable) {
+                console.warn('[UserHelper][Redis] Redis server is not available, skipping session check');
+                return userInfo;
+            }
+
             // Verifica se la sessione Redis esiste, altrimenti creala
             if (userInfo.id) {
-                const hasRedisSession = await this.checkRedisSession(userInfo.id);
-                if (!hasRedisSession) {
-                    console.log('[UserHelper][Redis] No active Redis session found, creating a new one...');
-                    await this.createRedisSession();
+                try {
+                    console.log('[UserHelper][Redis] Checking for existing Redis session...');
+                    const hasRedisSession = await this.checkRedisSession(userInfo.id);
+                    
+                    if (!hasRedisSession) {
+                        console.log('[UserHelper][Redis] No active Redis session found, creating a new one...');
+                        const sessionCreated = await this.createRedisSession();
+                        
+                        if (!sessionCreated) {
+                            console.warn('[UserHelper][Redis] Failed to create Redis session');
+                        } else {
+                            console.log('[UserHelper][Redis] Successfully created new Redis session');
+                        }
+                    } else {
+                        console.log('[UserHelper][Redis] Using existing Redis session');
+                    }
+                } catch (error) {
+                    console.error('[UserHelper][Redis] Error managing Redis session:', error);
+                    // Non blocchiamo il flusso in caso di errore con Redis
                 }
             }
             
@@ -226,8 +257,8 @@ export class UserHelper {
 
         try {
             const endpoint = targetUserId
-                ? `${REDIS_API_URL}/session/${targetUserId}`
-                : `${REDIS_API_URL}/session`; // Endpoint che accetta solo il cookie
+                ? `${REDIS_BASE_URL}/session/${targetUserId}`
+                : `${REDIS_BASE_URL}/session`; // Endpoint che accetta solo il cookie
 
             const response = await fetch(endpoint, {
                 method: 'GET',
@@ -409,23 +440,54 @@ export class UserHelper {
 
     public async checkRedisSession(userId: string): Promise<boolean> {
         try {
-            console.log('[UserHelper][Redis] Checking session for user ID:', userId)
-            if (!userId) return false
-
+            console.log('[UserHelper][Redis] Checking for existing Redis session...')
             const response = await fetch(`${REDIS_API_URL}/session/${userId}`, {
-                method: 'GET',
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
             })
 
             if (!response.ok) {
-                throw new Error('[UserHelper][Redis] Failed to check Redis session')
+                if (response.status === 404) {
+                    console.log('[UserHelper][Redis] No active session found')
+                    return false
+                }
+                const errorText = await response.text()
+                console.error(`[UserHelper][Redis] Error checking session (${response.status}):`, errorText)
+                return false
             }
 
             const data = await response.json()
-            console.log('[UserHelper][Redis] Session check result:', data)
-            return data?.exists === true
+            console.log('[UserHelper][Redis] Session check response:', data)
+            return data?.active === true || data?.id !== undefined
         } catch (error) {
             console.error('[UserHelper][Redis] Error checking Redis session:', error)
+            return false
+        }
+    }
+
+    /**
+     * Verifica la connettività al server Redis
+     */
+    public async checkRedisConnection(): Promise<boolean> {
+        try {
+            console.log('[UserHelper][Redis] Checking Redis connection...')
+            const response = await fetch(REDIS_API_URL, {
+                method: 'HEAD',
+                credentials: 'include',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            })
+            
+            const isOk = response.ok || response.status === 401 // 401 è accettabile poiché indica che l'endpoint esiste ma richiede autenticazione
+            console.log(`[UserHelper][Redis] Redis connection check: ${isOk ? 'OK' : 'Failed'} (${response.status})`)
+            return isOk
+        } catch (error) {
+            console.error('[UserHelper][Redis] Error checking Redis connection:', error)
             return false
         }
     }
@@ -433,32 +495,70 @@ export class UserHelper {
     public async createRedisSession(): Promise<boolean> {
         try {
             const user = this.getUserInfo()
+            console.log('[UserHelper][Redis] createRedisSession - User info:', user)
+            
             if (!user.id) {
-                console.error('[UserHelper] Cannot create Redis session: Missing user ID')
+                console.error('[UserHelper][Redis] Cannot create Redis session: Missing user ID')
+                return false
+            }
+
+            if (!user.tokens?.accessToken) {
+                console.error('[UserHelper][Redis] Cannot create Redis session: Missing access token')
                 return false
             }
 
             console.log('[UserHelper][Redis] Creating session for user:', user.id)
-
-            const response = await fetch(`${REDIS_API_URL}/set-session`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    userId: user.id,
+            
+            const sessionData = {
+                userId: user.id,
+                email: user.email,
+                accessToken: user.tokens.accessToken,
+                refreshToken: user.tokens.refreshToken || '',
+                expiresAt: user.tokens.expiresAt || 0,
+                userData: {
                     email: user.email,
-                    expiresIn: 60 * 60 * 24 * 7 // 7 days
-                })
+                    fullName: user.fullName,
+                    provider: user.provider,
+                    avatarUrl: user.metadata?.avatarUrl,
+                    metadata: user.metadata
+                },
+                expiresIn: 60 * 60 * 24 * 7 // 7 days
+            }
+            
+            console.log('[UserHelper][Redis] Sending session data to /set-session:', sessionData)
+
+            const response = await fetch(`${REDIS_BASE_URL}/set-session`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.tokens.accessToken}`
+                },
+                credentials: 'include',
+                body: JSON.stringify(sessionData)
             })
 
-            if (!response.ok) {
-                const errorText = await response.text()
-                throw new Error(`Redis session creation failed: ${response.status} - ${errorText}`)
+            const responseText = await response.text()
+            let responseData
+            
+            try {
+                responseData = responseText ? JSON.parse(responseText) : {}
+            } catch (e) {
+                console.error('[UserHelper][Redis] Failed to parse response as JSON:', responseText)
+                throw new Error(`Invalid JSON response: ${responseText}`)
             }
 
-            const data = await response.json()
-            console.log('[UserHelper][Redis] Session creation response:', data)
-            return data.success === true
+            if (!response.ok) {
+                console.error('[UserHelper][Redis] Session creation failed:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    response: responseData
+                })
+                return false
+            }
+
+            console.log('[UserHelper][Redis] Session creation successful:', responseData)
+            return true
+            
         } catch (error) {
             console.error('[UserHelper][Redis] Error creating Redis session:', error)
             return false
