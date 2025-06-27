@@ -4,7 +4,7 @@ import AppClient from '@/react/AppClient'
 import { componentLib } from '@/react/lib/componentLib'
 import type { AppClientProps } from '@/types/components'
 import { PageContainer } from '@/react/components/ui/PageContainer'
-import { AuthProvider } from '@/react/hooks/authContext'
+import { AuthProvider } from '~/react/providers/authContext'
 
 const { component } = Astro.params
 
@@ -51,7 +51,7 @@ const clientProps: AppClientProps = {
 
   <div class="mt-6">
     <a href="/" class="text-primary hover:text-primary/80 transition-colors">
-        ←Back to Home
+      ←Back to Home
     </a>
   </div>
 </Layout>

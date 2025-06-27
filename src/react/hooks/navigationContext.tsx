@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useCallback, useState } from 'rea
 import { useStore } from '@nanostores/react'
 import { currentPath, previousPath } from '@/store'
 import { toast } from 'sonner'
-import { AuthProvider } from '@/react/hooks/authContext'
+import { AuthProvider } from '~/react/providers/authContext'
 
 interface NavigationContextType {
   navigate: (path: string) => Promise<void>
