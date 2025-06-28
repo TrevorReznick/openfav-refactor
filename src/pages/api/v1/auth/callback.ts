@@ -5,6 +5,10 @@ export const GET: APIRoute = async ({ url, cookies, redirect, request }) => {
   const authCode = url.searchParams.get('code')
   const error = url.searchParams.get('error')
 
+  // Aggiungi qui i console.log
+  console.log('🔑 Auth code:', authCode)
+  console.log('🔍 Full URL:', url.toString())
+
   // Handle OAuth errors
   if (error) {
     return redirect(`/login?error=${encodeURIComponent(error)}`)
