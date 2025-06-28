@@ -75,6 +75,77 @@ export class UserHelper {
     }
 
     // Richiedi i token di autenticazione
+    /**
+     * Refreshes the current session tokens
+     * @returns Promise with new tokens or null if refresh fails
+     */
+    public async refreshToken(): Promise<{
+        accessToken: string | null
+        refreshToken: string | null
+        expiresAt?: number
+    } | null> {
+        try {
+            console.log('[UserHelper] Attempting to refresh tokens...');
+            
+            // Get current refresh token
+            const currentUser = this.getUserInfo();
+            const refreshToken = currentUser.tokens?.refreshToken;
+            
+            if (!refreshToken) {
+                console.warn('[UserHelper] No refresh token available');
+                return null;
+            }
+
+            // Call your refresh token endpoint
+            const response = await fetch('/api/auth/refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${refreshToken}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to refresh token: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.accessToken) {
+                throw new Error('No access token in response');
+            }
+
+            // Update the current session with new tokens
+            const updatedUser = {
+                ...currentUser,
+                tokens: {
+                    accessToken: data.accessToken,
+                    refreshToken: data.refreshToken || refreshToken, // Use new refresh token if provided, otherwise keep the old one
+                    expiresAt: data.expiresAt || Date.now() + (data.expiresIn * 1000) || (Date.now() + 3600000) // Default to 1 hour if not provided
+                }
+            };
+
+            // Update the store
+            userStore.set(updatedUser);
+            
+            console.log('[UserHelper] Tokens refreshed successfully');
+            return {
+                accessToken: data.accessToken,
+                refreshToken: data.refreshToken || refreshToken,
+                expiresAt: data.expiresAt || Date.now() + (data.expiresIn * 1000)
+            };
+            
+        } catch (error) {
+            console.error('[UserHelper] Error refreshing tokens:', error);
+            // Clear auth state on refresh failure
+            await this.clearAuth();
+            return null;
+        }
+    }
+
+    /**
+     * Gets the current session tokens, refreshing them if necessary
+     */
     public async getSessionTokens(): Promise<{
         accessToken: string | null
         refreshToken: string | null

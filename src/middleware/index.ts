@@ -12,30 +12,31 @@ export const onRequest = defineMiddleware(async ({ url, redirect }, next) => {
 
     if (protectedPaths.some((path) => url.pathname.startsWith(path))) {
         try {
-            const userHelper = new UserHelper.getInstance()
+            const userHelper = new UserHelper()
             const userSession = await userHelper.getCompleteSession()
 
             if (!userSession.isAuthenticated) {
                 return redirect(`/login?redirect=${encodeURIComponent(url.pathname)}`)
             }
 
-            if (userHelper.isTokenExpired(userSession)) {
+            if (userHelper.isTokenExpired()) {
                 const refreshed = await userHelper.refreshToken()
                 if (!refreshed) {
                     return redirect('/login?session=expired')
                 }
 
-                if (userHelper.isTokenExpired(userSession)) {
+                if (userHelper.isTokenExpired()) {
                     return redirect(`/login?redirect=${encodeURIComponent(url.pathname)}&session=expired`)
                 }
             }
 
             // Verifica ruoli se necessario
-            if (url.pathname.startsWith('/admin')) {
+            /*if (url.pathname.startsWith('/admin')) {
                 if (!userHelper.checkRole('admin')) {
                     return redirect('/unauthorized')
                 }
             }
+            */
 
         } catch (error) {
             console.error('[middleware] Auth error:', error)
