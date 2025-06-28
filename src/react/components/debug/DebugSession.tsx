@@ -206,50 +206,27 @@ export const SessionManagerTest = () => {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>Session Manager Test</h1>
-      <div style={{ marginBottom: '20px' }}>
+    <div className="p-5 font-sans bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Session Manager Test</h1>
+      <div className="mb-5 flex flex-wrap gap-2">
         <button 
           onClick={loadSession} 
           disabled={loading}
-          style={{ 
-            marginRight: '10px', 
-            padding: '8px 16px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          className={`px-4 py-2 rounded-md text-white ${loading ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'} transition-colors`}
         >
           {loading ? 'Loading...' : 'Load Session'}
         </button>
         <button 
           onClick={handleCreate} 
           disabled={loading}
-          style={{ 
-            marginRight: '10px', 
-            padding: '8px 16px',
-            backgroundColor: '#2196F3',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          className={`px-4 py-2 rounded-md text-white ${loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} transition-colors`}
         >
           {loading ? 'Creating...' : 'Create Session'}
         </button>
         <button 
           onClick={handleInvalidate} 
           disabled={loading}
-          style={{ 
-            padding: '8px 16px', 
-            backgroundColor: '#f44336', 
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+          className={`px-4 py-2 rounded-md text-white ${loading ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'} transition-colors`}
         >
           {loading ? 'Processing...' : 'Invalidate Session'}
         </button>
@@ -279,20 +256,7 @@ ${storageInfo}
 🛒 User Store:
 ${JSON.stringify(storeData, null, 2)}`);
           }}
-          style={{
-            marginTop: '10px',
-            padding: '8px 16px',
-            backgroundColor: '#9c27b0',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginLeft: '10px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}
+          className="mt-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md shadow-sm inline-flex items-center gap-2 transition-colors"
         >
           <span>🔍</span>
           Debug LocalStorage
@@ -300,27 +264,18 @@ ${JSON.stringify(storeData, null, 2)}`);
       </div>
 
       {message && (
-        <div style={{ 
-          padding: '10px', 
-          margin: '10px 0', 
-          backgroundColor: message.includes('Error') ? '#ffebee' : '#e8f5e9',
-          borderLeft: `4px solid ${message.includes('Error') ? '#f44336' : '#4caf50'}`
-        }}>
+        <div className={`p-3 my-3 rounded-md ${
+          message.includes('Error') || message.includes('❌')
+            ? 'bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300'
+            : 'bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500 text-green-700 dark:text-green-300'
+        }`}>
           {message}
         </div>
       )}
 
-      <div style={{ marginTop: '20px' }}>
-        <h3>Session Data:</h3>
-        <pre style={{ 
-          backgroundColor: '#f5f5f5', 
-          padding: '15px', 
-          borderRadius: '4px',
-          maxHeight: '400px',
-          overflow: 'auto',
-          whiteSpace: 'pre-wrap',
-          wordWrap: 'break-word'
-        }}>
+      <div className="mt-5">
+        <h3 className="text-lg font-semibold mb-2">Session Data:</h3>
+        <pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md max-h-96 overflow-auto whitespace-pre-wrap break-words text-sm">
           {JSON.stringify(session, null, 2)}
         </pre>
       </div>
