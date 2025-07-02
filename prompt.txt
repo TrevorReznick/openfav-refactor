@@ -1,0 +1,107 @@
+# Prompt: Migrazione e Tokenizzazione Componenti V4 → V3
+
+## Contesto del Workspace
+- **Progetto V3 (Root)**: Astro con supporto React
+  - Componenti React in: `@/react/components/`
+  - Setup: Tailwind CSS configurato
+- **Progetto V4**: Componenti sorgente da migrare
+
+## Obiettivi
+1. **Importare componenti** da V4 a V3
+2. **Tokenizzare il CSS** Tailwind per renderlo riutilizzabile
+3. **Tokenizzare il CSS** dei componenti specifici
+4. **Implementare Singleton Pattern** per l'importazione
+5. **Garantire versatilità** cross-project
+
+## Requisiti Specifici
+
+### Tokenizzazione CSS
+- [ ] Estrarre variabili CSS da Tailwind
+- [ ] Creare design tokens per colori, spaziature, tipografia
+- [ ] Separare CSS componenti-specifico da CSS di utility
+- [ ] Mantenere consistenza visiva tra progetti
+
+### Singleton Pattern
+- [ ] Implementare lazy-loading per componenti
+- [ ] Evitare duplicazioni di CSS
+- [ ] Gestire dipendenze condivise
+- [ ] Cache intelligente per performance
+
+### Struttura Output
+```
+@/react/components/
+├── tokens/
+│   ├── colors.ts
+│   ├── spacing.ts
+│   └── typography.ts
+├── v4-components/
+│   ├── [ComponentName]/
+│   │   ├── index.tsx
+│   │   ├── styles.module.css
+│   │   └── tokens.ts
+│   └── shared/
+│       └── singleton-loader.ts
+```
+
+## Domande Guida
+1. Come gestire conflitti tra design systems V3/V4?
+2. Quale strategia per il rollback in caso di problemi?
+3. Come mantenere la type-safety durante la migrazione?
+4. Performance impact della tokenizzazione?
+
+## Fase 2: Analisi e Adattamento Configurazioni Tailwind
+
+### Analisi Differenze V4 → V3
+- [ ] **Audit configurazioni**: Confrontare `tailwind.config.js` tra progetti
+- [ ] **Identificare breaking changes**: Classi deprecate, nuove utilities, modifiche sintassi
+- [ ] **Mappare differenze**: Creare tabella di equivalenza V4 → V3
+- [ ] **Validare compatibilità**: Plugin, preset, configurazioni custom
+
+### Tokenizzazione Configurazione V4
+- [ ] **File di regole**: Creare sistema rule-based per conversione automatica
+- [ ] **Estrazione tokens**: Automatizzare estrazione da tailwind.config.js V4
+- [ ] **Normalizzazione**: Standardizzare format tra V4/V3
+- [ ] **Validazione**: Verificare integrità post-conversione
+
+### Struttura File di Regole
+```
+config/
+├── migration-rules/
+│   ├── class-mapping.json          # Mappatura classi V4 → V3
+│   ├── config-transform.js         # Trasformazione configurazioni
+│   ├── plugin-compatibility.json   # Compatibilità plugin
+│   └── custom-utilities.js         # Utilities custom V4
+├── extracted-tokens/
+│   ├── v4-colors.json
+│   ├── v4-spacing.json
+│   ├── v4-typography.json
+│   └── v4-components.json
+└── adapted-config/
+    └── tailwind.config.v3.js       # Config adattata per V3
+```
+
+### File di Regole Richiesti
+1. **class-mapping.json**: Equivalenze dirette classi CSS
+2. **config-transform.js**: Logica trasformazione configurazioni
+3. **plugin-compatibility.json**: Gestione plugin V4 non supportati in V3
+4. **custom-utilities.js**: Ricrea utilities custom V4 per V3
+
+### Processo di Tokenizzazione
+1. **Scan**: Analizzare tutti i file V4 per utilizzo classi Tailwind
+2. **Extract**: Estrarre configurazioni, custom CSS, plugin utilizzati
+3. **Transform**: Applicare regole di conversione V4 → V3
+4. **Generate**: Creare tokens compatibili e configurazione V3
+5. **Validate**: Testing automatico compatibilità
+
+## Deliverables Attesi
+- [ ] Script di migrazione automatizzata
+- [ ] **File di regole configurazione** (class-mapping, transforms, compatibility)
+- [ ] **Tailwind config adattata** per V3 con tokens V4
+- [ ] **Report differenze** e strategie di fallback
+- [ ] Documentazione design tokens
+- [ ] Esempi di implementazione Singleton
+- [ ] Testing strategy per compatibilità
+
+---
+
+**Nota**: Considera l'uso di strumenti come Style Dictionary per la gestione dei design tokens, CSS Modules per l'isolamento degli stili, e PostCSS per trasformazioni automatiche delle configurazioni.
