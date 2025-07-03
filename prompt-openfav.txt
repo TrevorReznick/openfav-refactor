@@ -1,0 +1,284 @@
+# Prompt per la Ricreazione del Progetto OpenFav con Astro + React
+
+## 🏗️ Panoramica del Progetto
+Crea un nuovo progetto Astro con React seguendo l'architettura esistente, che include:
+- Astro 5.5+ con React 18+
+- TypeScript
+- Tailwind CSS con configurazione avanzata
+- Vercel come adapter di deploy
+- Strumenti di monitoraggio (Sentry, Spotlight)
+- Gestione dello stato con React Query e Nanostores
+- UI con componenti Radix UI e Lucide Icons
+- Testing con Vitest e Testing Library
+
+## 📁 Struttura del Progetto
+```
+my-astro-app/
+├── .vscode/              # Configurazioni IDE
+├── public/               # File statici
+├── src/
+│   ├── api/              # Endpoint API
+│   ├── components/       # Componenti Astro
+│   ├── constants/        # Costanti dell'applicazione
+│   ├── layouts/          # Layout Astro
+│   ├── lib/              # Librerie e utilità
+│   ├── middleware/       # Middleware
+│   ├── pages/            # Pagine Astro
+│   ├── providers/        # Provider globali
+│   ├── react/            # Codice React
+│   │   ├── components/   # Componenti React
+│   │   ├── hooks/        # Custom Hooks
+│   │   ├── lib/          # Librerie React
+│   │   └── providers/    # Provider React
+│   ├── scripts/          # Script di utilità
+│   ├── store/            # Gestione stato globale
+│   ├── styles/           # Stili globali
+│   ├── types/            # Definizioni TypeScript
+│   └── utils/            # Funzioni di utilità
+├── .env                 # Variabili d'ambiente
+├── astro.config.mjs     # Configurazione Astro
+├── package.json         # Dipendenze e script
+├── tailwind.config.mjs  # Configurazione Tailwind
+└── tsconfig.json       # Configurazione TypeScript
+```
+
+## 🚀 Configurazione Iniziale
+
+### 1. Creazione del Progetto
+```bash
+# Crea nuovo progetto Astro
+npm create astro@latest my-astro-app -- --template minimal --install --typescript strict --no-git
+cd my-astro-app
+
+# Aggiungi React
+npx astro add react
+
+# Aggiungi Tailwind CSS
+npx astro add tailwind
+
+# Installa dipendenze principali
+npm install @astrojs/vercel @astrojs/react @astrojs/tailwind @sentry/astro @spotlightjs/astro @tanstack/react-query nanostores @nanostores/react next-themes framer-motion lucide-react sonner class-variance-authority clsx tailwind-merge tailwindcss-animate @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-slot @radix-ui/react-toast @radix-ui/react-toggle react-error-boundary
+
+# Installa dipendenze di sviluppo
+npm install -D vitest @vitest/coverage-istanbul @testing-library/react @testing-library/jest-dom jsdom vite-tsconfig-paths
+```
+
+### 2. Configurazione Astro
+```javascript
+// astro.config.mjs
+import { defineConfig } from 'astro/config'
+import react from '@astrojs/react'
+import tailwind from '@astrojs/tailwind'
+import sentry from '@sentry/astro'
+import spotlightjs from '@spotlightjs/astro'
+import { fileURLToPath } from 'node:url'
+import vercel from '@astrojs/vercel'
+
+export default defineConfig({
+  output: 'server',
+  integrations: [
+    react(),
+    tailwind({ applyBaseStyles: false }),
+    sentry(),
+    spotlightjs()
+  ],
+  adapter: vercel(),
+  vite: {
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
+    }
+  }
+})
+```
+
+### 3. Configurazione Tailwind
+```javascript
+// tailwind.config.mjs
+import { type Config } from 'tailwindcss'
+import animate from 'tailwindcss-animate'
+
+export default {
+  darkMode: ['class'],
+  content: [
+    './src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
+  ],
+  theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px',
+      },
+    },
+    extend: {
+      colors: {
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+      keyframes: {
+        'accordion-down': {
+          from: { height: 0 },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: 0 },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+    },
+  },
+  plugins: [animate],
+} satisfies Config
+```
+
+## 🧩 Struttura React
+
+### 1. Provider Globali
+```typescript
+// src/react/providers/AppProviders.tsx
+'use client'
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from 'next-themes'
+import { ReactNode, useState } from 'react'
+import { Toaster as Sonner } from 'sonner'
+import { ErrorBoundary } from 'react-error-boundary'
+
+const queryClient = new QueryClient()
+
+export function AppProviders({ children }: { children: ReactNode }) {
+  const [client] = useState(() => queryClient)
+
+  return (
+    <QueryClientProvider client={client}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <ErrorBoundary
+          fallback={<div>Something went wrong</div>}
+          onError={console.error}
+        >
+          {children}
+          <Sonner position="top-right" />
+        </ErrorBoundary>
+      </ThemeProvider>
+    </QueryClientProvider>
+  )
+}
+```
+
+### 2. Componente di Layout
+```typescript
+// src/layouts/Layout.astro
+---
+import { AppProviders } from '@/react/providers/AppProviders'
+import '../styles/globals.css'
+
+interface Props {
+  title?: string
+}
+
+const { title = 'My App' } = Astro.props
+---
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-full bg-background text-foreground">
+    <AppProviders>
+      <slot />
+    </AppProviders>
+  </body>
+</html>
+```
+
+### 3. Esempio di Hook Personalizzato
+```typescript
+// src/react/hooks/useMediaQuery.ts
+'use client'
+
+import { useEffect, useState } from 'react'
+
+export function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia(query)
+    if (media.matches !== matches) {
+      setMatches(media.matches)
+    }
+    const listener = () => setMatches(media.matches)
+    media.addEventListener('change', listener)
+    return () => media.removeEventListener('change', listener)
+  }, [matches, query])
+
+  return matches
+}
+```
+
+## 🚀 Avvio del Progetto
+
+1. Crea un file `.env` con le tue variabili d'ambiente
+2. Installa le dipendenze: `npm install`
+3. Avvia il server di sviluppo: `npm run dev`
+4. Apri http://localhost:4321 nel browser
+
+## 🔧 Script Utili
+
+```json
+{
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
+  }
+}
+```
+
+## 📚 Risorse Aggiuntive
+
+- [Documentazione Astro](https://docs.astro.it/)
+- [Documentazione React](https://react.dev/)
+- [Documentazione Tailwind CSS](https://tailwindcss.com/docs)
+- [Documentazione TanStack Query](https://tanstack.com/query/latest)
+- [Documentazione Radix UI](https://www.radix-ui.com/)
+
+## 📝 Note Aggiuntive
+
+- Assicurati di configurare correttamente le variabili d'ambiente nel file `.env`
+- Personalizza i temi e i colori in base alle tue esigenze
+- Aggiungi i tuoi componenti personalizzati nella cartella `src/react/components`
+- Utilizza i custom hooks per condividere la logica tra i componenti
+- Configura i test per i tuoi componenti nella cartella `src/__tests__`

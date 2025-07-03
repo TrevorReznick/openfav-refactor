@@ -1,0 +1,876 @@
+# OpenFav V6: Piano di Migrazione e Unificazione V4→V3
+
+## 🎯 Panoramica del Progetto
+
+Creazione di OpenFav-V6 che unifica:
+- **Base Architetturale**: Astro 5.5+ + React 18+ (dal V3)
+- **Componenti e Logica**: Migrazione selettiva da V4
+- **Design System**: Tokenizzazione e unificazione Tailwind V4→V3
+- **Pattern Architetturali**: Singleton per gestione componenti cross-project
+
+## 📁 Struttura del Nuovo Progetto V6
+
+```
+openfav-v6/
+├── .vscode/                 # Configurazioni IDE
+├── public/                  # Asset statici
+├── migration/               # ⭐ NUOVO: Tool di migrazione
+│   ├── analyzers/           # Analizzatori V4→V3
+│   ├── transformers/        # Trasformatori automatici
+│   ├── validators/          # Validatori post-migrazione
+│   └── rules/               # Regole di conversione
+├── src/
+│   ├── design-system/       # ⭐ NUOVO: Sistema tokenizzato
+│   │   ├── tokens/          # Design tokens unificati
+│   │   ├── themes/          # Temi V3/V4 compatibili
+│   │   └── migrations/      # Mappature V4→V3
+│   ├── components/          # Componenti Astro nativi
+│   ├── react/
+│   │   ├── components/      # Componenti React V3
+│   │   ├── v4-components/   # ⭐ Componenti migrati da V4
+│   │   ├── shared/          # Singleton e utilities
+│   │   ├── hooks/           # Custom hooks unificati
+│   │   └── providers/       # Provider globali
+│   ├── layouts/
+│   ├── pages/
+│   ├── lib/
+│   ├── utils/
+│   └── types/
+├── config/                  # ⭐ NUOVO: Configurazioni migrazione
+│   ├── migration-rules/
+│   ├── extracted-tokens/
+│   └── adapted-configs/
+└── tools/                   # ⭐ NUOVO: Tool di sviluppo
+    ├── token-extractor.js
+    ├── component-migrator.js
+    └── config-adapter.js
+```
+
+## 🔧 Fase 1: Setup Progetto Base
+
+### 1.1 Inizializzazione Progetto
+```bash
+# Crea il progetto base
+npm create astro@latest openfav-v6 -- --template minimal --install --typescript strict --no-git
+cd openfav-v6
+
+# Aggiungi integrazioni core
+npx astro add react tailwind vercel
+
+# Installa dipendenze estese
+npm install @astrojs/react @astrojs/tailwind @astrojs/vercel \
+@sentry/astro @spotlightjs/astro @tanstack/react-query \
+nanostores @nanostores/react next-themes framer-motion \
+lucide-react sonner class-variance-authority clsx \
+tailwind-merge tailwindcss-animate react-error-boundary \
+@radix-ui/react-dialog @radix-ui/react-dropdown-menu \
+@radix-ui/react-slot @radix-ui/react-toast @radix-ui/react-toggle
+
+# Tool di migrazione e tokenizzazione
+npm install -D vitest @vitest/coverage-istanbul \
+@testing-library/react @testing-library/jest-dom jsdom \
+postcss-preset-env style-dictionary @parcel/transformer-sass \
+tailwindcss-themer chokidar glob
+```
+
+### 1.2 Configurazione Astro Avanzata
+```javascript
+// astro.config.mjs
+import { defineConfig } from 'astro/config'
+import react from '@astrojs/react'
+import tailwind from '@astrojs/tailwind'
+import sentry from '@sentry/astro'
+import spotlightjs from '@spotlightjs/astro'
+import vercel from '@astrojs/vercel'
+import { fileURLToPath } from 'node:url'
+
+export default defineConfig({
+  output: 'server',
+  integrations: [
+    react({
+      experimentalReactChildren: true
+    }),
+    tailwind({ 
+      applyBaseStyles: false,
+      configFile: './config/adapted-configs/tailwind.config.v6.mjs'
+    }),
+    sentry({
+      dsn: process.env.SENTRY_DSN
+    }),
+    spotlightjs()
+  ],
+  adapter: vercel({
+    webAnalytics: { enabled: true }
+  }),
+  vite: {
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@/design-system': fileURLToPath(new URL('./src/design-system', import.meta.url)),
+        '@/v4-components': fileURLToPath(new URL('./src/react/v4-components', import.meta.url)),
+        '@/migration': fileURLToPath(new URL('./migration', import.meta.url))
+      }
+    },
+    css: {
+      modules: {
+        localsConvention: 'camelCase'
+      }
+    }
+  },
+  experimental: {
+    contentCollectionCache: true
+  }
+})
+```
+
+## 🎨 Fase 2: Sistema di Design Tokenizzato
+
+### 2.1 Struttura Design Tokens
+```typescript
+// src/design-system/tokens/index.ts
+export interface DesignTokens {
+  colors: ColorTokens
+  spacing: SpacingTokens  
+  typography: TypographyTokens
+  shadows: ShadowTokens
+  borderRadius: BorderRadiusTokens
+  breakpoints: BreakpointTokens
+}
+
+// src/design-system/tokens/colors.ts
+export const colorTokens = {
+  // Tokens base V3
+  primary: {
+    50: 'hsl(210, 100%, 98%)',
+    100: 'hsl(210, 100%, 95%)',
+    500: 'hsl(210, 100%, 50%)',
+    900: 'hsl(210, 100%, 10%)'
+  },
+  // Mapping V4 → V3
+  v4Migration: {
+    'blue-primary': 'var(--color-primary-500)',
+    'accent-dark': 'var(--color-primary-900)'
+  }
+} as const
+
+// src/design-system/tokens/spacing.ts
+export const spacingTokens = {
+  // Sistema base V3
+  xs: '0.25rem',    // 4px
+  sm: '0.5rem',     // 8px
+  md: '1rem',       // 16px
+  lg: '1.5rem',     // 24px
+  xl: '2rem',       // 32px
+  // Mapping V4 specifici
+  v4Migration: {
+    'gap-tight': 'var(--spacing-xs)',
+    'section-padding': 'var(--spacing-xl)'
+  }
+} as const
+```
+
+### 2.2 Theme Provider Unificato
+```typescript
+// src/react/providers/DesignSystemProvider.tsx
+'use client'
+
+import { createContext, useContext, ReactNode } from 'react'
+import { DesignTokens } from '@/design-system/tokens'
+
+interface DesignSystemContextType {
+  tokens: DesignTokens
+  theme: 'v3' | 'v4' | 'unified'
+  switchTheme: (theme: 'v3' | 'v4' | 'unified') => void
+}
+
+const DesignSystemContext = createContext<DesignSystemContextType | null>(null)
+
+export function DesignSystemProvider({ children }: { children: ReactNode }) {
+  // Implementazione provider con supporto multi-theme
+  return (
+    <DesignSystemContext.Provider value={contextValue}>
+      {children}
+    </DesignSystemContext.Provider>
+  )
+}
+
+export const useDesignSystem = () => {
+  const context = useContext(DesignSystemContext)
+  if (!context) {
+    throw new Error('useDesignSystem must be used within DesignSystemProvider')
+  }
+  return context
+}
+```
+
+## 🔄 Fase 3: Sistema di Migrazione Automatizzata
+
+### 3.1 Analizzatore V4 → V3
+```javascript
+// migration/analyzers/tailwind-analyzer.js
+import { glob } from 'glob'
+import fs from 'fs/promises'
+import path from 'path'
+
+export class TailwindAnalyzer {
+  constructor(v4ProjectPath, v3ProjectPath) {
+    this.v4Path = v4ProjectPath
+    this.v3Path = v3ProjectPath
+    this.differences = new Map()
+  }
+
+  async analyzeDifferences() {
+    // 1. Estrai tutte le classi Tailwind usate in V4
+    const v4Classes = await this.extractTailwindClasses(this.v4Path)
+    
+    // 2. Verifica compatibilità con V3
+    const compatibilityMap = await this.checkCompatibility(v4Classes)
+    
+    // 3. Genera regole di conversione
+    const conversionRules = await this.generateConversionRules(compatibilityMap)
+    
+    return {
+      totalClasses: v4Classes.size,
+      compatibleClasses: compatibilityMap.compatible.length,
+      incompatibleClasses: compatibilityMap.incompatible.length,
+      conversionRules
+    }
+  }
+
+  async extractTailwindClasses(projectPath) {
+    const files = await glob(`${projectPath}/**/*.{tsx,jsx,ts,js,astro}`)
+    const classRegex = /class(?:Name)?=["']([^"']*)["']/g
+    const classes = new Set()
+
+    for (const file of files) {
+      const content = await fs.readFile(file, 'utf-8')
+      let match
+      while ((match = classRegex.exec(content)) !== null) {
+        const classNames = match[1].split(/\s+/)
+        classNames.forEach(className => {
+          if (this.isTailwindClass(className)) {
+            classes.add(className)
+          }
+        })
+      }
+    }
+
+    return classes
+  }
+
+  async checkCompatibility(classes) {
+    const compatible = []
+    const incompatible = []
+    
+    // Carica regole di compatibilità V4→V3
+    const compatibilityRules = await this.loadCompatibilityRules()
+    
+    for (const className of classes) {
+      if (compatibilityRules.direct[className]) {
+        compatible.push({
+          original: className,
+          converted: compatibilityRules.direct[className],
+          type: 'direct'
+        })
+      } else if (compatibilityRules.pattern[className]) {
+        compatible.push({
+          original: className,
+          converted: compatibilityRules.pattern[className],
+          type: 'pattern'
+        })
+      } else {
+        incompatible.push({
+          original: className,
+          reason: 'no_mapping_found',
+          suggestions: this.generateSuggestions(className)
+        })
+      }
+    }
+
+    return { compatible, incompatible }
+  }
+}
+```
+
+### 3.2 Trasformatore Componenti
+```javascript
+// migration/transformers/component-transformer.js
+import { parse } from '@babel/parser'
+import traverse from '@babel/traverse'
+import generate from '@babel/generator'
+
+export class ComponentTransformer {
+  constructor(conversionRules, designTokens) {
+    this.rules = conversionRules
+    this.tokens = designTokens
+  }
+
+  async transformComponent(componentPath) {
+    const content = await fs.readFile(componentPath, 'utf-8')
+    const ast = parse(content, {
+      sourceType: 'module',
+      plugins: ['typescript', 'jsx']
+    })
+
+    traverse(ast, {
+      JSXAttribute(path) {
+        if (path.node.name.name === 'className') {
+          const classValue = path.node.value.value
+          const transformedClasses = this.transformClasses(classValue)
+          path.node.value.value = transformedClasses
+        }
+      },
+      
+      // Trasforma anche styled-components o CSS-in-JS
+      TemplateLiteral(path) {
+        if (this.isStyledComponent(path)) {
+          const transformedCSS = this.transformCSS(path.node.raw)
+          path.node.raw = transformedCSS
+        }
+      }
+    })
+
+    const { code } = generate(ast)
+    return code
+  }
+
+  transformClasses(classString) {
+    return classString
+      .split(/\s+/)
+      .map(className => this.rules.get(className) || className)
+      .join(' ')
+  }
+
+  transformCSS(cssString) {
+    // Trasforma CSS custom usando design tokens
+    return cssString.replace(/var\(--[\w-]+\)/g, (match) => {
+      return this.tokens.getCSSVariable(match) || match
+    })
+  }
+}
+```
+
+### 3.3 Singleton Component Loader
+```typescript
+// src/react/shared/singleton-loader.ts
+interface ComponentCache {
+  [key: string]: {
+    component: React.ComponentType<any>
+    styles?: string
+    loaded: boolean
+    loading: boolean
+  }
+}
+
+class SingletonComponentLoader {
+  private static instance: SingletonComponentLoader
+  private cache: ComponentCache = {}
+  private styleSheet: CSSStyleSheet | null = null
+
+  static getInstance(): SingletonComponentLoader {
+    if (!SingletonComponentLoader.instance) {
+      SingletonComponentLoader.instance = new SingletonComponentLoader()
+    }
+    return SingletonComponentLoader.instance
+  }
+
+  async loadV4Component<T = any>(
+    componentName: string,
+    importFn: () => Promise<{ default: React.ComponentType<T>; styles?: string }>
+  ): Promise<React.ComponentType<T>> {
+    // Verifica cache
+    if (this.cache[componentName]?.loaded) {
+      return this.cache[componentName].component
+    }
+
+    // Evita caricamenti multipli
+    if (this.cache[componentName]?.loading) {
+      return new Promise((resolve) => {
+        const checkLoaded = () => {
+          if (this.cache[componentName]?.loaded) {
+            resolve(this.cache[componentName].component)
+          } else {
+            setTimeout(checkLoaded, 10)
+          }
+        }
+        checkLoaded()
+      })
+    }
+
+    // Inizia caricamento
+    this.cache[componentName] = {
+      component: null as any,
+      loaded: false,
+      loading: true
+    }
+
+    try {
+      const { default: Component, styles } = await importFn()
+      
+      // Carica CSS se presente
+      if (styles && !this.isStyleLoaded(componentName)) {
+        await this.loadComponentStyles(componentName, styles)
+      }
+
+      this.cache[componentName] = {
+        component: Component,
+        styles,
+        loaded: true,
+        loading: false
+      }
+
+      return Component
+    } catch (error) {
+      delete this.cache[componentName]
+      throw error
+    }
+  }
+
+  private async loadComponentStyles(componentName: string, styles: string): Promise<void> {
+    if (!this.styleSheet) {
+      this.styleSheet = new CSSStyleSheet()
+      document.adoptedStyleSheets = [...document.adoptedStyleSheets, this.styleSheet]
+    }
+
+    // Trasforma CSS V4 → V3 se necessario
+    const transformedStyles = await this.transformStyles(styles)
+    
+    try {
+      await this.styleSheet.insertRule(`/* ${componentName} */ ${transformedStyles}`)
+    } catch (error) {
+      console.warn(`Failed to load styles for ${componentName}:`, error)
+    }
+  }
+
+  private async transformStyles(styles: string): Promise<string> {
+    // Applica trasformazioni CSS V4 → V3
+    return styles.replace(/var\(--v4-[\w-]+\)/g, (match) => {
+      const v3Variable = this.getV3Variable(match)
+      return v3Variable || match
+    })
+  }
+
+  private getV3Variable(v4Variable: string): string | null {
+    // Mappatura variabili V4 → V3
+    const mapping: Record<string, string> = {
+      'var(--v4-primary-color)': 'var(--color-primary-500)',
+      'var(--v4-spacing-md)': 'var(--spacing-md)',
+      // ... altre mappature
+    }
+    return mapping[v4Variable] || null
+  }
+
+  private isStyleLoaded(componentName: string): boolean {
+    return document.querySelector(`style[data-component="${componentName}"]`) !== null
+  }
+}
+
+export const componentLoader = SingletonComponentLoader.getInstance()
+
+// Hook per uso semplificato
+export function useV4Component<T = any>(
+  componentName: string,
+  importFn: () => Promise<{ default: React.ComponentType<T>; styles?: string }>
+) {
+  const [Component, setComponent] = React.useState<React.ComponentType<T> | null>(null)
+  const [loading, setLoading] = React.useState(true)
+  const [error, setError] = React.useState<Error | null>(null)
+
+  React.useEffect(() => {
+    componentLoader
+      .loadV4Component(componentName, importFn)
+      .then(setComponent)
+      .catch(setError)
+      .finally(() => setLoading(false))
+  }, [componentName])
+
+  return { Component, loading, error }
+}
+```
+
+## 🛠️ Fase 4: Tool di Automazione
+
+### 4.1 Script Principale di Migrazione
+```javascript
+// tools/migrate-v4-to-v6.js
+import { TailwindAnalyzer } from '../migration/analyzers/tailwind-analyzer.js'
+import { ComponentTransformer } from '../migration/transformers/component-transformer.js'
+import { ConfigAdapter } from '../migration/transformers/config-adapter.js'
+
+class V4ToV6Migrator {
+  constructor(v4Path, v6Path, options = {}) {
+    this.v4Path = v4Path
+    this.v6Path = v6Path
+    this.options = {
+      dryRun: false,
+      componentsToMigrate: [],
+      preserveOriginal: true,
+      ...options
+    }
+  }
+
+  async migrate() {
+    console.log('🚀 Starting V4 → V6 Migration...')
+    
+    // 1. Analisi iniziale
+    const analysis = await this.analyzeProject()
+    console.log(`📊 Analysis complete: ${analysis.totalClasses} classes found`)
+    
+    // 2. Generazione regole conversione
+    const conversionRules = await this.generateConversionRules(analysis)
+    console.log(`📝 Generated ${conversionRules.size} conversion rules`)
+    
+    // 3. Migrazione componenti
+    const migratedComponents = await this.migrateComponents(conversionRules)
+    console.log(`✅ Migrated ${migratedComponents.length} components`)
+    
+    // 4. Adattamento configurazioni
+    await this.adaptConfigurations()
+    console.log('⚙️ Configurations adapted')
+    
+    // 5. Generazione design tokens
+    await this.generateDesignTokens()
+    console.log('🎨 Design tokens generated')
+    
+    // 6. Validazione finale
+    const validation = await this.validateMigration()
+    console.log(`🔍 Migration validation: ${validation.success ? 'PASSED' : 'FAILED'}`)
+    
+    return {
+      analysis,
+      migratedComponents,
+      validation,
+      summary: this.generateSummary()
+    }
+  }
+
+  async analyzeProject() {
+    const analyzer = new TailwindAnalyzer(this.v4Path, this.v6Path)
+    return await analyzer.analyzeDifferences()
+  }
+
+  async generateConversionRules(analysis) {
+    const rules = new Map()
+    
+    // Carica regole predefinite
+    const baseRules = await this.loadBaseConversionRules()
+    baseRules.forEach((value, key) => rules.set(key, value))
+    
+    // Genera regole personalizzate da analisi
+    for (const incompatible of analysis.incompatibleClasses) {
+      const suggestion = this.generateAutomaticSuggestion(incompatible.original)
+      if (suggestion) {
+        rules.set(incompatible.original, suggestion)
+      }
+    }
+    
+    return rules
+  }
+
+  generateAutomaticSuggestion(className) {
+    // Logica per suggerimenti automatici basata su pattern comuni
+    const patterns = [
+      { from: /^bg-gray-(\d+)$/, to: (match) => `bg-slate-${match[1]}` },
+      { from: /^text-(\d+)xl$/, to: (match) => `text-${match[1]}xl` },
+      // ... altri pattern
+    ]
+    
+    for (const pattern of patterns) {
+      const match = className.match(pattern.from)
+      if (match) {
+        return pattern.to(match)
+      }
+    }
+    
+    return null
+  }
+}
+
+// CLI Usage
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const migrator = new V4ToV6Migrator(
+    process.argv[2] || '../openfav-v4',
+    process.cwd(),
+    {
+      dryRun: process.argv.includes('--dry-run'),
+      componentsToMigrate: process.argv.includes('--components') 
+        ? process.argv[process.argv.indexOf('--components') + 1].split(',')
+        : []
+    }
+  )
+  
+  migrator.migrate().then(result => {
+    console.log('Migration completed:', result.summary)
+  }).catch(error => {
+    console.error('Migration failed:', error)
+    process.exit(1)
+  })
+}
+```
+
+### 4.2 Configurazione Unificata Tailwind
+```javascript
+// config/adapted-configs/tailwind.config.v6.mjs
+import { readFileSync } from 'fs'
+import path from 'path'
+
+// Carica tokens dal design system
+const designTokens = JSON.parse(
+  readFileSync(path.resolve('./src/design-system/tokens/compiled.json'), 'utf-8')
+)
+
+export default {
+  darkMode: ['class'],
+  content: [
+    './src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
+  ],
+  theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1400px',
+      },
+    },
+    extend: {
+      // Colori unificati V3 + V4
+      colors: {
+        ...designTokens.colors,
+        // Mapping V4 legacy
+        'v4-primary': designTokens.colors.primary.DEFAULT,
+        'v4-accent': designTokens.colors.accent.DEFAULT,
+      },
+      
+      // Spaziature unificate
+      spacing: {
+        ...designTokens.spacing,
+        // Mapping V4 legacy
+        'v4-section': designTokens.spacing.xl,
+        'v4-gap': designTokens.spacing.md,
+      },
+      
+      // Typography unificata  
+      fontSize: designTokens.typography.fontSize,
+      fontFamily: designTokens.typography.fontFamily,
+      
+      // Border radius
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+      
+      // Animazioni
+      keyframes: {
+        'accordion-down': {
+          from: { height: 0 },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: 0 },
+        },
+        // Animazioni V4 migrate
+        'v4-fade-in': {
+          from: { opacity: 0, transform: 'translateY(10px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+        'v4-fade-in': 'v4-fade-in 0.3s ease-out',
+      },
+    },
+  },
+  plugins: [
+    require('tailwindcss-animate'),
+    // Plugin personalizzato per supporto V4
+    function({ addUtilities, theme }) {
+      const v4Utilities = {
+        '.v4-card': {
+          padding: theme('spacing.v4-section'),
+          borderRadius: theme('borderRadius.lg'),
+          backgroundColor: theme('colors.v4-primary'),
+        },
+        // ... altre utility V4
+      }
+      addUtilities(v4Utilities)
+    }
+  ],
+}
+```
+
+## 📋 Fase 5: Implementazione e Testing
+
+### 5.1 Esempio Componente Migrato
+```typescript
+// src/react/v4-components/MigratedCard/index.tsx
+import React from 'react'
+import { useV4Component } from '@/react/shared/singleton-loader'
+import { cn } from '@/lib/utils'
+import styles from './styles.module.css'
+
+interface MigratedCardProps {
+  title: string
+  content: string
+  variant?: 'v3' | 'v4' | 'unified'
+  className?: string
+}
+
+export function MigratedCard({ 
+  title, 
+  content, 
+  variant = 'unified',
+  className 
+}: MigratedCardProps) {
+  return (
+    <div 
+      className={cn(
+        // Base styles V3
+        'rounded-lg border bg-card text-card-foreground shadow-sm',
+        // V4 compatibility layer
+        variant === 'v4' && 'v4-card',
+        // Unified styles
+        variant === 'unified' && styles.unifiedCard,
+        className
+      )}
+    >
+      <div className="p-6">
+        <h3 className={cn(
+          'text-2xl font-semibold leading-none tracking-tight',
+          variant === 'v4' && 'text-v4-primary'
+        )}>
+          {title}
+        </h3>
+        <p className={cn(
+          'text-sm text-muted-foreground mt-2',
+          variant === 'v4' && styles.v4Content
+        )}>
+          {content}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// Lazy loading V4 originale se necessario
+export function LazyV4Card(props: MigratedCardProps) {
+  const { Component, loading, error } = useV4Component(
+    'V4Card',
+    () => import('../../../legacy/v4-components/Card')
+  )
+  
+  if (loading) return <div>Loading...</div>
+  if (error) return <MigratedCard {...props} />
+  if (!Component) return <MigratedCard {...props} />
+  
+  return <Component {...props} />
+}
+```
+
+### 5.2 Test di Migrazione
+```typescript
+// src/__tests__/migration/component-migration.test.tsx
+import { describe, it, expect, beforeAll } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { MigratedCard } from '@/react/v4-components/MigratedCard'
+import { DesignSystemProvider } from '@/react/providers/DesignSystemProvider'
+
+describe('Component Migration', () => {
+  beforeAll(() => {
+    // Setup test environment con design tokens
+  })
+
+  it('renders V3 variant correctly', () => {
+    render(
+      <DesignSystemProvider>
+        <MigratedCard 
+          title="Test Card" 
+          content="Test content"
+          variant="v3"
+        />
+      </DesignSystemProvider>
+    )
+    
+    expect(screen.getByText('Test Card')).toBeInTheDocument()
+    expect(screen.getByText('Test content')).toBeInTheDocument()
+  })
+
+  it('applies V4 compatibility styles', () => {
+    const { container } = render(
+      <DesignSystemProvider>
+        <MigratedCard 
+          title="Test Card" 
+          content="Test content"
+          variant="v4"
+        />
+      </DesignSystemProvider>
+    )
+    
+    const cardElement = container.firstChild
+    expect(cardElement).toHaveClass('v4-card')
+  })
+
+  it('maintains visual consistency across variants', async () => {
+    // Visual regression test
+    const v3Render = render(
+      <MigratedCard variant="v3" title="Test" content="Content" />
+    )
+    
+    const v4Render = render(
+      <MigratedCard variant="v4" title="Test" content="Content" />
+    )
+    
+    // Verifica che le dimensioni base siano consistenti
+    const v3Card = v3Render.container.firstChild as HTMLElement
+    const v4Card = v4Render.container.firstChild as HTMLElement
+    
+    expect(v3Card.getBoundingClientRect().width)
+      .toBeCloseTo(v4Card.getBoundingClientRect().width, 5)
+  })
+})
+```
+
+## 🚀 Fase 6: Script di Deploy e Monitoraggio
+
+### 6.1 Script di Deploy
+```bash
+#!/bin/bash
+# deploy-v6.sh
+
+echo "🚀 Deploying OpenFav V6..."
+
+# 1. Verifica pre-deploy
+echo "🔍 Running pre-deploy checks..."
+npm run test
+npm run type-check
+npm run migration:validate
+
+# 2. Build ottimizzato
+echo "🏗️ Building optimized version..."
+npm run build
+
+# 3. Deploy a Vercel con variabili ambiente
+echo "📤 Deploying to Vercel..."
+vercel --prod --env MIGRATION_MODE=production
+
+# 4. Post-deploy validation
+echo "✅ Running post-deploy validation..."
+npm run test:e2e:prod
+
+echo "🎉 OpenFav V6 deployed successfully!"
+```
+
+### 6.2 Monitoraggio Migrazione
+```typescript
+// src/lib/migration-monitor.ts
+class MigrationMonitor {
+  private static metrics = {
+    v4ComponentsLoaded: 0,
+    v3ComponentsUsed: 0,
+    conversionErrors: 0,
+    performanceImpact: []
+  }
+
+  static trackV4Component

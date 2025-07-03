@@ -1,0 +1,1 @@
+riescegui il processo di migrazione di V3 e V4 in V6, anche se i file esistono (in caso salta) documenta i passaggi in un file migration.txt sotto la route di V6, il prompt è questo 
