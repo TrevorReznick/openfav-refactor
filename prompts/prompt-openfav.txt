@@ -13,33 +13,80 @@ Crea un nuovo progetto Astro con React seguendo l'architettura esistente, che in
 
 ## 📁 Struttura del Progetto
 ```
-my-astro-app/
-├── .vscode/              # Configurazioni IDE
-├── public/               # File statici
-├── src/
-│   ├── api/              # Endpoint API
-│   ├── components/       # Componenti Astro
-│   ├── constants/        # Costanti dell'applicazione
-│   ├── layouts/          # Layout Astro
-│   ├── lib/              # Librerie e utilità
-│   ├── middleware/       # Middleware
-│   ├── pages/            # Pagine Astro
-│   ├── providers/        # Provider globali
-│   ├── react/            # Codice React
-│   │   ├── components/   # Componenti React
-│   │   ├── hooks/        # Custom Hooks
-│   │   ├── lib/          # Librerie React
-│   │   └── providers/    # Provider React
-│   ├── scripts/          # Script di utilità
-│   ├── store/            # Gestione stato globale
-│   ├── styles/           # Stili globali
-│   ├── types/            # Definizioni TypeScript
-│   └── utils/            # Funzioni di utilità
-├── .env                 # Variabili d'ambiente
-├── astro.config.mjs     # Configurazione Astro
-├── package.json         # Dipendenze e script
-├── tailwind.config.mjs  # Configurazione Tailwind
-└── tsconfig.json       # Configurazione TypeScript
+Questa la struttura del progetto:
+├── astro.config.mjs                # Configurazione principale di Astro
+├── components.json                 # Configurazione componenti shadcn/ui
+├── package.json                    # Dipendenze e script npm
+├── package-lock.json               # Lockfile npm
+├── postcss.config.js               # Configurazione PostCSS
+├── prompt-openfav.txt              # Questo file di prompt/documentazione
+├── prompt.txt                      # Altri prompt/documentazione
+├── promptV1.txt                    # Versione precedente del prompt
+├── public                          # File statici pubblici (es. favicon)
+│   └── favicon.svg
+├── src                             # Codice sorgente principale
+│   ├── api                         # Client e builder per chiamate API
+│   │   ├── apiBuilder.ts
+│   │   └── apiClient.ts
+│   ├── components                  # Componenti Astro (non React)
+│   │   ├── HeaderTitle.astro
+│   │   ├── ThemeNavBar.astro
+│   │   └── ui                      # Componenti UI Astro
+│   │       └── button.tsx
+│   ├── constants                   # Costanti condivise
+│   │   └── index.ts
+│   ├── layouts                     # Layout Astro
+│   │   └── ThemeLayout.astro
+│   ├── lib                         # Utility generiche lato Astro
+│   │   └── utils.ts
+│   ├── middleware                  # Middleware e logica di routing
+│   │   ├── index.ts
+│   │   └── indexV0.ts
+│   ├── pages                       # Pagine Astro e API routes
+│   │   ├── api                     # API endpoints (REST)
+│   │   │   └── v1
+│   │   │       ├── auth
+│   │   │       └── main
+│   │   ├── build                   # Pagine di build dinamiche
+│   │   │   └── [component].astro
+│   │   ├── index.astro             # Home page
+│   │   ├── index_old.astro         # Vecchia home page
+│   │   ├── test.astro              # Pagina di test
+│   │   ├── test-build              # Test build dinamici
+│   │   │   └── [component].astro
+│   │   └── test-update.astro       # Test update
+│   ├── providers                   # Provider di autenticazione e contesto
+│   │   └── supabaseAuth.ts
+│   ├── react                       # Tutto il codice React/TSX
+│   │   ├── AppClient.tsx
+│   │   ├── components              # Componenti React organizzati per dominio
+│   │   │   ├── auth                # Componenti autenticazione
+│   │   │   │   └── Auth.tsx
+│   │   │   ├── common              # Componenti comuni (navbar, loader, ecc.)
+│   │   │   ├── dashboard           # Componenti dashboard (vuoto/da popolare)
+│   │   │   ├── debug               # Componenti debug e test
+│   │   │   ├── examples            # Esempi e test di componenti
+│   │   │   ├── home                # Componenti homepage
+│   │   │   ├── main                # Componenti principali (vuoto/da popolare)
+│   │   │   ├── TestBuildClient.tsx # Test client build
+│   │   │   ├── ThemeToggle.tsx     # Toggle tema
+│   │   │   ├── ui                  # Componenti UI riusabili (button, container, ecc.)
+│   │   │   └── utils               # Utility componenti
+│   │   ├── DynamicWrapper.tsx      # Wrapper dinamico React
+│   │   ├── hooks                   # Custom hooks React
+│   │   ├── lib                     # Librerie e utility React
+│   │   └── providers               # Provider React (contesti, temi, auth)
+│   ├── scripts                     # Script di utilità (auth, db, http, ecc.)
+│   ├── store                       # Stato globale (es. nanostores)
+│   ├── styles                      # File CSS globali e custom
+│   ├── types                       # Tipi TypeScript condivisi
+│   └── utils                       # Utility generiche
+├── tailwind.config.mjs             # Configurazione Tailwind CSS
+├── tree.txt                        # Esportazione struttura ad albero
+├── tsconfig.json                   # Configurazione TypeScript
+├── various.txt                     # Appunti/varie
+├── vite.config.ts                  # Configurazione Vite
+└── vitest.config.ts                # Configurazione Vitest (test)
 ```
 
 ## 🚀 Configurazione Iniziale
@@ -265,6 +312,50 @@ export function useMediaQuery(query: string): boolean {
     "test:coverage": "vitest run --coverage"
   }
 }
+ Architettura REST API
+L'API è strutturata con i seguenti endpoint principali:
+Autenticazione
+* POST /api/v1/auth/signin - Login utente con email/password o OAuth
+* GET /api/v1/auth/callback - Gestione del callback OAuth
+* GET/POST /api/v1/auth/signout - Logout utente
+Operazioni Principali
+* GET /api/v1/main/doQueries - Recupero dati
+* POST /api/v1/main/doQueries - Creazione risorse
+* PUT /api/v1/main/doQueries - Aggiornamento risorse
+* DELETE /api/v1/main/doQueries - Eliminazione risorse
+Tipi Principali
+1. Autenticazione
+
+Importa i tipi di V3, serviranno per configurare le request dei componenti 
+
+
+
+
+
+component.json per configurare i componenti shadcn,
+
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.mjs",
+    "css": "src/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/react/components",
+    "utils": "@/react/lib/utils",
+    "ui": "@/react/components/ui",
+    "lib": "@/react/lib",
+    "hooks": "@/react/hooks"
+  }
+}
+
+
 ```
 
 ## 📚 Risorse Aggiuntive

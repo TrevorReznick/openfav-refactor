@@ -1,0 +1,301 @@
+Prompt: Migrazione e Tokenizzazione Componenti V4 → V3
+Contesto del Workspace
+
+Progetto V3 (Root): Astro con supporto React
+
+Componenti React in: @/react/components/
+Setup: Tailwind CSS configurato
+
+
+Progetto V4: Componenti sorgente da migrare
+
+Obiettivi
+
+Importare componenti da V4 a V3
+Tokenizzare il CSS Tailwind per renderlo riutilizzabile
+Tokenizzare il CSS dei componenti specifici
+Implementare Singleton Pattern per l'importazione
+Garantire versatilità cross-project
+
+Requisiti Specifici
+Tokenizzazione CSS
+
+ Estrarre variabili CSS da Tailwind
+ Creare design tokens per colori, spaziature, tipografia
+ Separare CSS componenti-specifico da CSS di utility
+ Mantenere consistenza visiva tra progetti
+
+Singleton Pattern
+
+ Implementare lazy-loading per componenti
+ Evitare duplicazioni di CSS
+ Gestire dipendenze condivise
+ Cache intelligente per performance
+
+Struttura Output
+@/react/components/
+├── tokens/
+│   ├── colors.ts
+│   ├── spacing.ts
+│   └── typography.ts
+├── v4-components/
+│   ├── [ComponentName]/
+│   │   ├── index.tsx
+│   │   ├── styles.module.css
+│   │   └── tokens.ts
+│   └── shared/
+│       └── singleton-loader.ts
+Domande Guida
+
+Come gestire conflitti tra design systems V3/V4?
+Quale strategia per il rollback in caso di problemi?
+Come mantenere la type-safety durante la migrazione?
+Performance impact della tokenizzazione?
+
+Fase 2: Analisi e Adattamento Configurazioni Tailwind
+Analisi Differenze V4 → V3
+
+ Audit configurazioni: Confrontare tailwind.config.js tra progetti
+ Identificare breaking changes: Classi deprecate, nuove utilities, modifiche sintassi
+ Mappare differenze: Creare tabella di equivalenza V4 → V3
+ Validare compatibilità: Plugin, preset, configurazioni custom
+
+Tokenizzazione Configurazione V4
+
+ File di regole: Creare sistema rule-based per conversione automatica
+ Estrazione tokens: Automatizzare estrazione da tailwind.config.js V4
+ Normalizzazione: Standardizzare format tra V4/V3
+ Validazione: Verificare integrità post-conversione
+
+Struttura File di Regole
+config/
+├── migration-rules/
+│   ├── class-mapping.json          # Mappatura classi V4 → V3
+│   ├── config-transform.js         # Trasformazione configurazioni
+│   ├── plugin-compatibility.json   # Compatibilità plugin
+│   └── custom-utilities.js         # Utilities custom V4
+├── extracted-tokens/
+│   ├── v4-colors.json
+│   ├── v4-spacing.json
+│   ├── v4-typography.json
+│   └── v4-components.json
+└── adapted-config/
+    └── tailwind.config.v3.js       # Config adattata per V3
+File di Regole Richiesti
+
+class-mapping.json: Equivalenze dirette classi CSS
+config-transform.js: Logica trasformazione configurazioni
+plugin-compatibility.json: Gestione plugin V4 non supportati in V3
+custom-utilities.js: Ricrea utilities custom V4 per V3
+
+Processo di Tokenizzazione
+
+Scan: Analizzare tutti i file V4 per utilizzo classi Tailwind
+Extract: Estrarre configurazioni, custom CSS, plugin utilizzati
+Transform: Applicare regole di conversione V4 → V3
+Generate: Creare tokens compatibili e configurazione V3
+Validate: Testing automatico compatibilità
+
+Deliverables Attesi
+
+ Script di migrazione automatizzata
+ File di regole configurazione (class-mapping, transforms, compatibility)
+ Tailwind config adattata per V3 con tokens V4
+ Report differenze e strategie di fallback
+ Documentazione design tokens
+ Esempi di implementazione Singleton
+ Testing strategy per compatibilità
+
+ Architettura REST API
+L'API è strutturata con i seguenti endpoint principali:
+Autenticazione
+* POST /api/v1/auth/signin - Login utente con email/password o OAuth
+* GET /api/v1/auth/callback - Gestione del callback OAuth
+* GET/POST /api/v1/auth/signout - Logout utente
+Operazioni Principali
+* GET /api/v1/main/doQueries - Recupero dati
+* POST /api/v1/main/doQueries - Creazione risorse
+* PUT /api/v1/main/doQueries - Aggiornamento risorse
+* DELETE /api/v1/main/doQueries - Eliminazione risorse
+Tipi Principali
+1. Autenticazione
+
+Importa i tipi di V3, serviranno per configurare le request dei componenti 
+
+Questa la struttura del progetto:
+├── astro.config.mjs
+├── components.json
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── prompt-openfav.txt
+├── prompt.txt
+├── promptV1.txt
+├── public
+│   └── favicon.svg
+├── src
+│   ├── api
+│   │   ├── apiBuilder.ts
+│   │   └── apiClient.ts
+│   ├── components
+│   │   ├── HeaderTitle.astro
+│   │   ├── ThemeNavBar.astro
+│   │   └── ui
+│   │       └── button.tsx
+│   ├── constants
+│   │   └── index.ts
+│   ├── layouts
+│   │   └── ThemeLayout.astro
+│   ├── lib
+│   │   └── utils.ts
+│   ├── middleware
+│   │   ├── index.ts
+│   │   └── indexV0.ts
+│   ├── pages
+│   │   ├── api
+│   │   │   └── v1
+│   │   │       ├── auth
+│   │   │       └── main
+│   │   ├── build
+│   │   │   └── [component].astro
+│   │   ├── index.astro
+│   │   ├── index_old.astro
+│   │   ├── test.astro
+│   │   ├── test-build
+│   │   │   └── [component].astro
+│   │   └── test-update.astro
+│   ├── providers
+│   │   └── supabaseAuth.ts
+│   ├── react
+│   │   ├── AppClient.tsx
+│   │   ├── components
+│   │   │   ├── auth
+│   │   │   │   └── Auth.tsx
+│   │   │   ├── common
+│   │   │   │   ├── ClientNavbar.tsx
+│   │   │   │   ├── GlobalLoader.tsx
+│   │   │   │   ├── LoadFallback.tsx
+│   │   │   │   ├── LoadingSpinner.tsx
+│   │   │   │   ├── Navbar.tsx
+│   │   │   │   ├── NavigationWrapper.tsx
+│   │   │   │   └── ThemeToggle.tsx
+│   │   │   ├── dashboard
+│   │   │   ├── debug
+│   │   │   │   ├── ApiTest.tsx
+│   │   │   │   ├── DebugAuth.tsx
+│   │   │   │   ├── DebugAuthV0.tsx
+│   │   │   │   ├── DebugAuthV1.tsx
+│   │   │   │   └── DebugSession.tsx
+│   │   │   ├── examples
+│   │   │   │   ├── ApiTestComponent.tsx
+│   │   │   │   ├── ApiTestComponentV0.tsx
+│   │   │   │   ├── old
+│   │   │   │   ├── PostsComponent.tsx
+│   │   │   │   ├── TestComponent.tsx
+│   │   │   │   └── UsersComponent.tsx
+│   │   │   ├── home
+│   │   │   │   ├── FeatureCard.tsx
+│   │   │   │   ├── HeroSection.tsx
+│   │   │   │   ├── HomePage.tsx
+│   │   │   │   ├── StepCard.tsx
+│   │   │   │   └── sub
+│   │   │   ├── main
+│   │   │   ├── TestBuildClient.tsx
+│   │   │   ├── ThemeToggle.tsx
+│   │   │   ├── ui
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── container.tsx
+│   │   │   │   ├── dropdown-menu.tsx
+│   │   │   │   ├── PageContainer.tsx
+│   │   │   │   └── toggle.tsx
+│   │   │   └── utils
+│   │   ├── DynamicWrapper.tsx
+│   │   ├── hooks
+│   │   │   ├── navigationContext.tsx
+│   │   │   ├── old
+│   │   │   │   └── authContextV0.tsx
+│   │   │   ├── useAuthActions.ts
+│   │   │   ├── useTheme.ts
+│   │   │   └── useTheme.tsx
+│   │   ├── lib
+│   │   │   ├── componentLib.tsx
+│   │   │   ├── componentRegistry.tsx
+│   │   │   └── utils
+│   │   │       └── utils.ts
+│   │   └── providers
+│   │       ├── authContext.tsx
+│   │       ├── themeProvider.tsx
+│   │       └── themeWrapper.tsx
+│   ├── scripts
+│   │   ├── auth
+│   │   │   ├── getAuth.ts
+│   │   │   ├── logout.ts
+│   │   │   ├── old
+│   │   │   │   ├── getAuthV1.ts
+│   │   │   │   ├── getAuthV2.ts
+│   │   │   │   └── getAuthV3.ts
+│   │   │   ├── sessionManager.ts
+│   │   │   ├── sessionManagerV0.ts
+│   │   │   └── utils.ts
+│   │   ├── db
+│   │   │   ├── events.ts
+│   │   │   ├── lists.ts
+│   │   │   └── sites.ts
+│   │   ├── db_old
+│   │   │   ├── old
+│   │   │   │   └── postSite.ts
+│   │   │   └── sites.ts
+│   │   ├── http
+│   │   │   └── handleRequest.ts
+│   │   └── supabase.ts
+│   ├── store
+│   │   └── index.ts
+│   ├── styles
+│   │   ├── custom.css
+│   │   ├── globalsV0.css
+│   │   ├── shadcn.css
+│   │   └── theme-layout.css
+│   ├── types
+│   │   ├── api.ts
+│   │   ├── auth
+│   │   │   ├── mapSession.ts
+│   │   │   ├── metadata.ts
+│   │   │   ├── session.ts
+│   │   │   └── userSession.ts
+│   │   ├── components.ts
+│   │   ├── metadata.ts
+│   │   ├── session.ts
+│   │   └── users.ts
+│   └── utils
+├── tailwind.config.mjs
+├── tree.txt
+├── tsconfig.json
+├── various.txt
+├── vite.config.ts
+└── vitest.config.ts
+
+
+
+component.json per configurare i componenti shadcn,
+
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.mjs",
+    "css": "src/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/react/components",
+    "utils": "@/react/lib/utils",
+    "ui": "@/react/components/ui",
+    "lib": "@/react/lib",
+    "hooks": "@/react/hooks"
+  }
+}
+
