@@ -1,0 +1,180 @@
+.
+├── .astro
+│   ├── collections
+│   ├── content-assets.mjs
+│   ├── content.d.ts
+│   ├── content-modules.mjs
+│   ├── data-store.json
+│   ├── settings.json
+│   └── types.d.ts
+├── astro.config.mjs
+├── components.json
+├── .env
+├── .gitignore
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── prompts
+│   ├── migratingV6
+│   ├── prompt-init.txt
+│   ├── prompt-openfav.txt
+│   ├── prompt.txt
+│   ├── promptV1.txt
+│   ├── PromptV2.txt
+│   ├── tokenizer.txt
+│   └── tree.txt
+├── public
+│   └── favicon.svg
+├── src
+│   ├── api
+│   │   ├── apiBuilder.ts
+│   │   └── apiClient.ts
+│   ├── components
+│   │   ├── HeaderTitle.astro
+│   │   ├── ThemeNavBar.astro
+│   │   └── ui
+│   │       └── button.tsx
+│   ├── constants
+│   │   └── index.ts
+│   ├── layouts
+│   │   └── ThemeLayout.astro
+│   ├── lib
+│   │   └── utils.ts
+│   ├── middleware
+│   │   ├── index.ts
+│   │   └── indexV0.ts
+│   ├── pages
+│   │   ├── api
+│   │   │   └── v1
+│   │   │       ├── auth
+│   │   │       │   ├── callback.ts
+│   │   │       │   ├── callbackV0.ts
+│   │   │       │   ├── signin.ts
+│   │   │       │   └── signout.ts
+│   │   │       └── main
+│   │   │           └── doQueries.ts
+│   │   ├── build
+│   │   │   └── [component].astro
+│   │   ├── index.astro
+│   │   ├── index_old.astro
+│   │   ├── test.astro
+│   │   ├── test-build
+│   │   │   └── [component].astro
+│   │   └── test-update.astro
+│   ├── providers
+│   │   └── supabaseAuth.ts
+│   ├── react
+│   │   ├── AppClient.tsx
+│   │   ├── components
+│   │   │   ├── auth
+│   │   │   │   └── Auth.tsx
+│   │   │   ├── common
+│   │   │   │   ├── ClientNavbar.tsx
+│   │   │   │   ├── GlobalLoader.tsx
+│   │   │   │   ├── LoadFallback.tsx
+│   │   │   │   ├── LoadingSpinner.tsx
+│   │   │   │   ├── Navbar.tsx
+│   │   │   │   ├── NavigationWrapper.tsx
+│   │   │   │   └── ThemeToggle.tsx
+│   │   │   ├── dashboard
+│   │   │   ├── debug
+│   │   │   │   ├── ApiTest.tsx
+│   │   │   │   ├── DebugAuth.tsx
+│   │   │   │   ├── DebugAuthV0.tsx
+│   │   │   │   ├── DebugAuthV1.tsx
+│   │   │   │   └── DebugSession.tsx
+│   │   │   ├── examples
+│   │   │   │   ├── ApiTestComponent.tsx
+│   │   │   │   ├── ApiTestComponentV0.tsx
+│   │   │   │   ├── old
+│   │   │   │   │   ├── ApiTestComponentV0.tsx
+│   │   │   │   │   └── ApiTestComponentV1.tsx
+│   │   │   │   ├── PostsComponent.tsx
+│   │   │   │   ├── TestComponent.tsx
+│   │   │   │   └── UsersComponent.tsx
+│   │   │   ├── home
+│   │   │   │   ├── FeatureCard.tsx
+│   │   │   │   ├── HeroSection.tsx
+│   │   │   │   ├── HomePage.tsx
+│   │   │   │   ├── StepCard.tsx
+│   │   │   │   └── sub
+│   │   │   │       ├── HeroSection.tsx
+│   │   │   │       └── StepCard.tsx
+│   │   │   ├── main
+│   │   │   ├── TestBuildClient.tsx
+│   │   │   ├── ThemeToggle.tsx
+│   │   │   ├── ui
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── container.tsx
+│   │   │   │   ├── dropdown-menu.tsx
+│   │   │   │   ├── PageContainer.tsx
+│   │   │   │   └── toggle.tsx
+│   │   │   └── utils
+│   │   ├── DynamicWrapper.tsx
+│   │   ├── hooks
+│   │   │   ├── navigationContext.tsx
+│   │   │   ├── old
+│   │   │   │   └── authContextV0.tsx
+│   │   │   ├── useAuthActions.ts
+│   │   │   ├── useTheme.ts
+│   │   │   └── useTheme.tsx
+│   │   ├── lib
+│   │   │   ├── componentLib.tsx
+│   │   │   ├── componentRegistry.tsx
+│   │   │   └── utils
+│   │   │       └── utils.ts
+│   │   └── providers
+│   │       ├── authContext.tsx
+│   │       ├── themeProvider.tsx
+│   │       └── themeWrapper.tsx
+│   ├── scripts
+│   │   ├── auth
+│   │   │   ├── getAuth.ts
+│   │   │   ├── logout.ts
+│   │   │   ├── old
+│   │   │   │   ├── getAuthV1.ts
+│   │   │   │   ├── getAuthV2.ts
+│   │   │   │   └── getAuthV3.ts
+│   │   │   ├── sessionManager.ts
+│   │   │   ├── sessionManagerV0.ts
+│   │   │   └── utils.ts
+│   │   ├── db
+│   │   │   ├── events.ts
+│   │   │   ├── lists.ts
+│   │   │   └── sites.ts
+│   │   ├── db_old
+│   │   │   ├── old
+│   │   │   │   └── postSite.ts
+│   │   │   └── sites.ts
+│   │   ├── http
+│   │   │   └── handleRequest.ts
+│   │   └── supabase.ts
+│   ├── store
+│   │   └── index.ts
+│   ├── styles
+│   │   ├── custom.css
+│   │   ├── globalsV0.css
+│   │   ├── shadcn.css
+│   │   └── theme-layout.css
+│   ├── types
+│   │   ├── api.ts
+│   │   ├── auth
+│   │   │   ├── mapSession.ts
+│   │   │   ├── metadata.ts
+│   │   │   ├── session.ts
+│   │   │   └── userSession.ts
+│   │   ├── components.ts
+│   │   ├── metadata.ts
+│   │   ├── session.ts
+│   │   ├── users.ts
+│   │   └── .vscode
+│   └── utils
+├── tailwind.config.mjs
+├── tsconfig.json
+├── V3.txt
+├── various.txt
+├── vite.config.ts
+├── vitest.config.ts
+└── .vscode
+
+53 directories, 125 files

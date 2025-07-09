@@ -1,0 +1,105 @@
+k se dovessi usare quei convertitori, che passi dovrei eseguire? mi interessa la parte di tokenizzazione del progetto. supponiamo abbia v3, v4; devo creare una nuova dir *V6, cosa consigli?
+
+Revert
+Thought Process
+
+
+
+
+
+Ecco un flusso di lavoro pragmatico, pensato per:
+
+• sorgenti legacy v3 / v4
+• nuova code-base v6/ (cartella pulita)
+• obiettivo: migrare componenti e, soprattutto, estrarre/razionalizzare i design token.
+
+────────────────────
+
+Preparazione ──────────────────── a. Prerequisiti
+– Node ≥ 18, pnpm / npm installati.
+– Clone/copia dei progetti legacy nelle cartelle v3/ e v4/.
+– Cartella vuota v6/ con repo Git inizializzato (o branch dedicato).
+b. Installazione tooling (una volta sola)
+
+bash
+   pnpm install -D @babel/{parser,traverse,types,generator} \
+                 glob util fs-extra
+   # già in package.json di v6 trovi i converter, ma assicùrati che dip. ci siano
+──────────────────── 2. Analisi del vecchio codice (tailwind-analyzer) ────────────────────
+
+js
+// migration/run-analyze.mjs
+import { TailwindAnalyzer } from './analyzers/tailwind-analyzer.js';
+
+const analyzer = new TailwindAnalyzer('../v4', '../v6');
+const report = await analyzer.analyze();
+await fs.writeFile('./migration/report.json', JSON.stringify(report, null, 2));
+console.log('Report scritto in migration/report.json');
+Output chiave:
+• elenco classi Tailwind usate, custom-class, inline-style frequenti
+• info sul vecchio 
+tailwind.config.js
+ (override di colori, spacing, ecc.)
+
+A cosa serve? È la base per capire quali token ti mancano e che mapping aggiungere.
+
+──────────────────── 3. Definizione dei design token ──────────────────── a. Crea in v6/src/design-system/tokens/ gli stessi file che hai in questo repo (li puoi copiare).
+b. Completa/aggiorna:
+
+• colorTokens.v4Migration → mappa nomi legacy a nuove CSS vars
+• eventuali nuovi scale di colore emerse dal report
+• spacingTokens.v4Migration, ecc.
+
+c. Se vuoi pubblicare i token anche per mobile o Figma, integra Style-Dictionary:
+
+bash
+   pnpm install -D style-dictionary
+   # script "build:tokens": "style-dictionary build"
+──────────────────── 4. Trasformazione componenti (component-transformer) ──────────────────── Esegui folder-by-folder sui componenti v4:
+
+js
+// migration/run-transform.mjs
+import { componentTransformer } from './transformers/component-transformer.cjs';
+
+await componentTransformer.transformComponents(
+  '../v4/src',        // sorgente
+  '../v6/src',        // destinazione
+  true                // isV4
+);
+Cosa fa:
+• sostituisce vecchie utility/className secondo classNameMap
+• converte inline-style ↔️ classi (+ lascia invariato dove non c’è mapping)
+• scrive i nuovi file nella cartella target mantenendo struttura.
+
+Tip: prima git-commit i file generati, così puoi gestire fix manuali.
+
+──────────────────── 5. Wiring dei token in Tailwind ──────────────────── Nel nuovo v6/tailwind.config.mjs importa i token appena creati (già visto nel repo d’esempio):
+
+js
+import { designTokens } from './src/design-system/tokens'
+export default {
+  theme: { extend: { colors: { ...designTokens.colors } } }
+}
+Se hai aggiunto scale nuove basta rieseguire pnpm dev e Tailwind le espone subito (bg-brand-500, ecc.).
+
+──────────────────── 6. Verifica e pulizia ──────────────────── a. Lancia pnpm dev o pnpm build nella V6, risolvi gli errori.
+b. Cerca classi non migrate:
+
+   grep -R --line-number -E "flex-row|gap-tight|blue-primary" v6/src
+Aggiungi mapping o sistema a mano.
+
+c. Aggiorna test / snapshot.
+
+──────────────────── 7. Migrazione v3 (opzionale) ──────────────────── • Se v3 usa naming ancora diverso, crea un secondo mapping (v3Migration) o lancia prima un transformer v3→v4 (molto simile ma con mappature diverse), poi v4→v6.
+• In alternativa, passa l’AST direttamente e aggiungi le regole v3 nella stessa classNameMap.
+
+──────────────────── 8. Automazione CI ──────────────────── • Script npm: "migrate": "node migration/run-analyze.mjs && node migration/run-transform.mjs"
+• Aggiungi step in GitHub Action per fallire se restano classi non migrate.
+
+──────────────────── Best practice riassunte ────────────────────
+
+Analizza prima → sai quali token/utility servono.
+Crea i token e relative v4Migration (o v3) map così mantieni retro-compatibilità.
+Usa i transformer solo sui componenti (non su config/build script).
+Commit step-by-step: report, token, componenti trasformati.
+Mantieni designTokens la “single source of truth”; tutto il resto (Tailwind, Style-Dictionary, ecc.) deve leggerli, non duplicarli.
