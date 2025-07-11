@@ -7,7 +7,7 @@ import { NavigationProvider } from '~/react/hooks/navigationContext'
 import { ThemeProvider } from '@/react/providers/themeProvider'
 import { ThemeToggle } from '@/react/components/ThemeToggle'
 //import { AuthProvider } from '@/react/hooks/authContext'
-import componentLib from '~/react/old/lib/componentRegistry' // Path corretto
+import componentLib from '~/react/lib/componentRegistry' // Path corretto
 import LoadingFallback from '@/react/components/common/LoadFallback'
 
 
