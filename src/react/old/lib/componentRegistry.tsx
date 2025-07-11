@@ -1,4 +1,4 @@
-import { componentLib } from '@/react/lib/componentLib'
+import { componentLib } from '~/react/old/lib/componentLib'
 
 componentLib
     .register('login', {
@@ -8,6 +8,7 @@ componentLib
             group: 'auth'
         }
     })
+    /*
     .register('api-test', {
         import: () => import('~/react/components/examples/ApiTestComponent'),
         metadata: {
@@ -15,6 +16,7 @@ componentLib
             group: 'debug'
         }
     })
+    */
     .register('api-test-V0', {
         import: () => import('~/react/components/examples/ApiTestComponentV0'),
         metadata: {
@@ -29,6 +31,7 @@ componentLib
             group: 'debug'
         }
     })
+
     .register('debug-auth', {
         import: () => import('~/react/components/debug/DebugAuth'),
         metadata: {
@@ -36,6 +39,7 @@ componentLib
             group: 'auth'
         }
     })
+    
     .register('debug-session', {
         import: () => import('~/react/components/debug/DebugSession'),
         metadata: {

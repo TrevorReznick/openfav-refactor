@@ -1,5 +1,5 @@
 import React from 'react'
-import { cn } from '../../lib/utils/utils'
+import { cn } from '../../old/lib/utils/utils'
 import { useLoading } from '@/store'
 
 interface LoadingSpinnerProps {
