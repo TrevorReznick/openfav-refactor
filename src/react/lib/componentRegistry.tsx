@@ -8,6 +8,13 @@ componentLib
             group: 'examples'
         }
     })
+    .register('login', {
+        import: () => import('~/react/components/auth/Auth'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'auth'
+        }
+    })
     .register('users', {
         import: () => import('~/react/components/examples/UsersComponent'),
         metadata: {
