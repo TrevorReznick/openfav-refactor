@@ -252,9 +252,8 @@ Questa la struttura del progetto:
 │   │   └── index.ts
 │   ├── styles
 │   │   ├── custom.css
-│   │   ├── globalsV0.css
+│   │   ├── globals.css
 │   │   ├── shadcn.css
-│   │   └── theme-layout.css
 │   ├── types
 │   │   ├── api.ts
 │   │   ├── auth

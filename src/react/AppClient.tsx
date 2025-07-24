@@ -2,12 +2,12 @@ import type { FC, ComponentType, ReactNode } from 'react'
 import { lazy, Suspense } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
-import DynamicWrapper from '@/react/DynamicWrapper'
+import DynamicWrapper from '@/react/wrappers/dynamicWrapper'
 import { NavigationProvider } from '~/react/hooks/navigationContext'
 import { ThemeProvider } from '@/react/providers/themeProvider'
 import { ThemeToggle } from '@/react/components/ThemeToggle'
 //import { AuthProvider } from '@/react/hooks/authContext'
-import componentLib from '@/react/lib/componentRegistry' // Path corretto
+import componentLib from '~/react/lib/componentRegistry' // Path corretto
 import LoadingFallback from '@/react/components/common/LoadFallback'
 
 
