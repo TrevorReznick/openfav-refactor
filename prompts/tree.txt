@@ -26,7 +26,6 @@
 │   │   └── utils.ts
 │   ├── middleware
 │   │   ├── index.ts
-│   │   └── indexV0.ts
 │   ├── pages
 │   │   ├── api
 │   │   │   └── v1
@@ -35,11 +34,6 @@
 │   │   ├── build
 │   │   │   └── [component].astro
 │   │   ├── index.astro
-│   │   ├── index_old.astro
-│   │   ├── test.astro
-│   │   ├── test-build
-│   │   │   └── [component].astro
-│   │   └── test-update.astro
 │   ├── providers
 │   │   └── supabaseAuth.ts
 │   ├── react
@@ -56,25 +50,13 @@
 │   │   │   │   ├── NavigationWrapper.tsx
 │   │   │   │   └── ThemeToggle.tsx
 │   │   │   ├── dashboard
-│   │   │   ├── debug
-│   │   │   │   ├── ApiTest.tsx
-│   │   │   │   ├── DebugAuth.tsx
-│   │   │   │   ├── DebugAuthV0.tsx
-│   │   │   │   ├── DebugAuthV1.tsx
-│   │   │   │   └── DebugSession.tsx
 │   │   │   ├── examples
-│   │   │   │   ├── ApiTestComponent.tsx
-│   │   │   │   ├── ApiTestComponentV0.tsx
-│   │   │   │   ├── old
-│   │   │   │   ├── PostsComponent.tsx
 │   │   │   │   ├── TestComponent.tsx
-│   │   │   │   └── UsersComponent.tsx
 │   │   │   ├── home
 │   │   │   │   ├── FeatureCard.tsx
 │   │   │   │   ├── HeroSection.tsx
 │   │   │   │   ├── HomePage.tsx
 │   │   │   │   ├── StepCard.tsx
-│   │   │   │   └── sub
 │   │   │   ├── main
 │   │   │   ├── TestBuildClient.tsx
 │   │   │   ├── ThemeToggle.tsx
@@ -84,20 +66,15 @@
 │   │   │   │   ├── dropdown-menu.tsx
 │   │   │   │   ├── PageContainer.tsx
 │   │   │   │   └── toggle.tsx
-│   │   │   └── utils
 │   │   ├── DynamicWrapper.tsx
 │   │   ├── hooks
 │   │   │   ├── navigationContext.tsx
-│   │   │   ├── old
-│   │   │   │   └── authContextV0.tsx
 │   │   │   ├── useAuthActions.ts
 │   │   │   ├── useTheme.ts
 │   │   │   └── useTheme.tsx
 │   │   ├── lib
 │   │   │   ├── componentLib.tsx
 │   │   │   ├── componentRegistry.tsx
-│   │   │   └── utils
-│   │   │       └── utils.ts
 │   │   └── providers
 │   │       ├── authContext.tsx
 │   │       ├── themeProvider.tsx
@@ -117,10 +94,6 @@
 │   │   │   ├── events.ts
 │   │   │   ├── lists.ts
 │   │   │   └── sites.ts
-│   │   ├── db_old
-│   │   │   ├── old
-│   │   │   │   └── postSite.ts
-│   │   │   └── sites.ts
 │   │   ├── http
 │   │   │   └── handleRequest.ts
 │   │   └── supabase.ts
@@ -128,7 +101,7 @@
 │   │   └── index.ts
 │   ├── styles
 │   │   ├── custom.css
-│   │   ├── globalsV0.css
+│   │   ├── globals.css
 │   │   ├── shadcn.css
 │   │   └── theme-layout.css
 │   ├── types
