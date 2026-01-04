@@ -1,180 +1,124 @@
-.
-├── .astro
-│   ├── collections
-│   ├── content-assets.mjs
-│   ├── content.d.ts
-│   ├── content-modules.mjs
-│   ├── data-store.json
-│   ├── settings.json
-│   └── types.d.ts
-├── astro.config.mjs
-├── components.json
-├── .env
-├── .gitignore
-├── package.json
-├── package-lock.json
-├── postcss.config.js
-├── prompts
-│   ├── migratingV6
-│   ├── prompt-init.txt
-│   ├── prompt-openfav.txt
-│   ├── prompt.txt
-│   ├── promptV1.txt
-│   ├── PromptV2.txt
-│   ├── tokenizer.txt
-│   └── tree.txt
-├── public
-│   └── favicon.svg
-├── src
-│   ├── api
-│   │   ├── apiBuilder.ts
-│   │   └── apiClient.ts
-│   ├── components
-│   │   ├── HeaderTitle.astro
-│   │   ├── ThemeNavBar.astro
-│   │   └── ui
-│   │       └── button.tsx
-│   ├── constants
-│   │   └── index.ts
-│   ├── layouts
-│   │   └── ThemeLayout.astro
-│   ├── lib
-│   │   └── utils.ts
-│   ├── middleware
-│   │   ├── index.ts
-│   │   └── indexV0.ts
-│   ├── pages
-│   │   ├── api
-│   │   │   └── v1
-│   │   │       ├── auth
-│   │   │       │   ├── callback.ts
-│   │   │       │   ├── callbackV0.ts
-│   │   │       │   ├── signin.ts
-│   │   │       │   └── signout.ts
-│   │   │       └── main
-│   │   │           └── doQueries.ts
-│   │   ├── build
-│   │   │   └── [component].astro
-│   │   ├── index.astro
-│   │   ├── index_old.astro
-│   │   ├── test.astro
-│   │   ├── test-build
-│   │   │   └── [component].astro
-│   │   └── test-update.astro
-│   ├── providers
-│   │   └── supabaseAuth.ts
-│   ├── react
-│   │   ├── AppClient.tsx
-│   │   ├── components
-│   │   │   ├── auth
-│   │   │   │   └── Auth.tsx
-│   │   │   ├── common
-│   │   │   │   ├── ClientNavbar.tsx
-│   │   │   │   ├── GlobalLoader.tsx
-│   │   │   │   ├── LoadFallback.tsx
-│   │   │   │   ├── LoadingSpinner.tsx
-│   │   │   │   ├── Navbar.tsx
-│   │   │   │   ├── NavigationWrapper.tsx
-│   │   │   │   └── ThemeToggle.tsx
-│   │   │   ├── dashboard
-│   │   │   ├── debug
-│   │   │   │   ├── ApiTest.tsx
-│   │   │   │   ├── DebugAuth.tsx
-│   │   │   │   ├── DebugAuthV0.tsx
-│   │   │   │   ├── DebugAuthV1.tsx
-│   │   │   │   └── DebugSession.tsx
-│   │   │   ├── examples
-│   │   │   │   ├── ApiTestComponent.tsx
-│   │   │   │   ├── ApiTestComponentV0.tsx
-│   │   │   │   ├── old
-│   │   │   │   │   ├── ApiTestComponentV0.tsx
-│   │   │   │   │   └── ApiTestComponentV1.tsx
-│   │   │   │   ├── PostsComponent.tsx
-│   │   │   │   ├── TestComponent.tsx
-│   │   │   │   └── UsersComponent.tsx
-│   │   │   ├── home
-│   │   │   │   ├── FeatureCard.tsx
-│   │   │   │   ├── HeroSection.tsx
-│   │   │   │   ├── HomePage.tsx
-│   │   │   │   ├── StepCard.tsx
+.                                   // Radice del progetto
+├── astro.config.mjs                // Configurazione Astro (framework static site)
+├── components.json                 // Configurazione componenti (probabilmente per Astro o tooling)
+├── .env                            // Variabili d'ambiente (non versionato)
+├── .gitignore                      // File e cartelle da ignorare da git
+├── package.json                    // Configurazione npm: dipendenze, script, metadati progetto
+├── package-lock.json               // Lockfile npm: versioni esatte delle dipendenze
+├── postcss.config.js               // Configurazione PostCSS (tooling CSS)
+├── public                          // File statici pubblici (es. immagini, favicon)
+│   └── favicon.svg                 // Icona del sito
+├── src                             // Sorgente principale dell'applicazione
+│   ├── api                         // Funzioni e client per chiamate API
+│   │   ├── apiBuilder.ts           // Costruttore di API (probabilmente helper)
+│   │   └── apiClient.ts            // Client per chiamate API
+│   ├── components                  // Componenti Astro riutilizzabili
+│   │   ├── HeaderTitle.astro       // Componente header/titolo
+│   │   ├── ThemeNavBar.astro       // Navbar a tema
+│   ├── constants                   // Costanti condivise
+│   │   └── index.ts                // Definizione costanti
+│   ├── layouts                     // Layout di pagina Astro
+│   │   └── ThemeLayout.astro       // Layout principale a tema
+│   ├── lib                         // Librerie/utility generiche
+│   │   └── utils.ts                // Funzioni di utilità
+│   ├── middleware                  // Middleware per logica condivisa (es. autenticazione)
+│   │   ├── index.ts                // Middleware principale
+│   │   └── indexV0.ts              // Versione precedente del middleware
+│   ├── pages                       // Pagine dell'applicazione (routing Astro)
+│   │   ├── api                     // Endpoint API (route serverless)
+│   │   │   └── v1                  // Versione 1 delle API
+│   │   │       ├── auth            // Endpoint autenticazione
+│   │   │       │   ├── callback.ts     // Callback OAuth
+│   │   │       │   ├── callbackV0.ts   // Callback OAuth versione precedente
+│   │   │       │   ├── signin.ts       // Endpoint login
+│   │   │       │   └── signout.ts      // Endpoint logout
+│   │   │       └── main            // Endpoint principali
+│   │   │           └── doQueries.ts    // Gestione query principali
+│   │   ├── build                   // Pagine di build/generazione componenti
+│   │   │   └── [component].astro       // Componente generico di build
+│   │   ├── index.astro             // Homepage Astro
+│   ├── providers                   // Provider di servizi (es. auth, dati)
+│   │   └── supabaseAuth.ts         // Provider autenticazione Supabase
+│   ├── react                       // Componenti React e logica client-side
+│   │   ├── AppClient.tsx           // Entry point client React
+│   │   ├── components              // Componenti React riutilizzabili
+│   │   │   ├── auth                // Componenti autenticazione
+│   │   │   │   └── Auth.tsx            // Form/gestione auth
+│   │   │   ├── common (es Navbar.tsx, LoadingSpinner.tsx, Footer.tsx) // Componenti comuni
+│   │   │   │   ├── ClientNavbar.tsx    // Navbar client
+│   │   │   │   ├── GlobalLoader.tsx    // Loader globale
+│   │   │   │   ├── LoadFallback.tsx    // Fallback caricamento
+│   │   │   │   ├── LoadingSpinner.tsx  // Spinner caricamento
+│   │   │   │   ├── Navbar.tsx          // Navbar
+│   │   │   ├── dashboard           // Componenti dashboard (vuoto o da completare)
+│   │   │   ├── debug               // Componenti debug/testing
+│   │   │   │   ├── ApiTest.tsx         // Test API
+│   │   │   │   └── DebugSession.tsx    // Debug sessione utente
+│   │   │   ├── examples (starter test components) // Esempi di componenti
+│   │   │   ├── home                // Componenti homepage
+│   │   │   │   ├── FeatureCard.tsx     // Card funzionalità
+│   │   │   │   ├── HeroSection.tsx     // Sezione hero
+│   │   │   │   ├── HomePage.tsx        // Pagina home
 │   │   │   │   └── sub
-│   │   │   │       ├── HeroSection.tsx
-│   │   │   │       └── StepCard.tsx
-│   │   │   ├── main
-│   │   │   ├── TestBuildClient.tsx
-│   │   │   ├── ThemeToggle.tsx
-│   │   │   ├── ui
-│   │   │   │   ├── button.tsx
-│   │   │   │   ├── container.tsx
-│   │   │   │   ├── dropdown-menu.tsx
-│   │   │   │   ├── PageContainer.tsx
-│   │   │   │   └── toggle.tsx
-│   │   │   └── utils
-│   │   ├── DynamicWrapper.tsx
-│   │   ├── hooks
-│   │   │   ├── navigationContext.tsx
-│   │   │   ├── old
-│   │   │   │   └── authContextV0.tsx
-│   │   │   ├── useAuthActions.ts
-│   │   │   ├── useTheme.ts
-│   │   │   └── useTheme.tsx
-│   │   ├── lib
-│   │   │   ├── componentLib.tsx
-│   │   │   ├── componentRegistry.tsx
-│   │   │   └── utils
-│   │   │       └── utils.ts
-│   │   └── providers
-│   │       ├── authContext.tsx
-│   │       ├── themeProvider.tsx
-│   │       └── themeWrapper.tsx
-│   ├── scripts
-│   │   ├── auth
-│   │   │   ├── getAuth.ts
-│   │   │   ├── logout.ts
-│   │   │   ├── old
-│   │   │   │   ├── getAuthV1.ts
-│   │   │   │   ├── getAuthV2.ts
-│   │   │   │   └── getAuthV3.ts
-│   │   │   ├── sessionManager.ts
-│   │   │   ├── sessionManagerV0.ts
-│   │   │   └── utils.ts
-│   │   ├── db
-│   │   │   ├── events.ts
-│   │   │   ├── lists.ts
-│   │   │   └── sites.ts
-│   │   ├── db_old
-│   │   │   ├── old
-│   │   │   │   └── postSite.ts
-│   │   │   └── sites.ts
-│   │   ├── http
-│   │   │   └── handleRequest.ts
-│   │   └── supabase.ts
-│   ├── store
-│   │   └── index.ts
-│   ├── styles
-│   │   ├── custom.css
-│   │   ├── globalsV0.css
-│   │   ├── shadcn.css
-│   │   └── theme-layout.css
-│   ├── types
-│   │   ├── api.ts
-│   │   ├── auth
-│   │   │   ├── mapSession.ts
-│   │   │   ├── metadata.ts
-│   │   │   ├── session.ts
-│   │   │   └── userSession.ts
-│   │   ├── components.ts
-│   │   ├── metadata.ts
-│   │   ├── session.ts
-│   │   ├── users.ts
-│   │   └── .vscode
-│   └── utils
-├── tailwind.config.mjs
-├── tsconfig.json
-├── V3.txt
-├── various.txt
-├── vite.config.ts
-├── vitest.config.ts
-└── .vscode
-
-53 directories, 125 files
+│   │   │   │       ├── HeroSection.tsx // Sotto-sezione hero
+│   │   │   │       └── StepCard.tsx    // Card step
+│   │   │   ├── dashboard           // (duplicato, da verificare)
+│   │   │   ├── * (other-pages)     // Altri componenti pagina
+│   │   │   ├── ui                  // Componenti UI generici
+│   │   │   │   ├── button.tsx          // Bottone UI
+│   │   │   │   ├── container.tsx       // Contenitore UI
+│   │   │   │   ├── dropdown-menu.tsx   // Dropdown UI
+│   │   │   │   ├── PageContainer.tsx   // Contenitore pagina
+│   │   │   │   └── toggle.tsx          // Toggle UI
+│   │   │   └── utils               // Utility React
+│   │   ├── DynamicWrapper.tsx      // Wrapper dinamico componenti
+│   │   ├── hooks                   // Custom hook React
+│   │   │   ├── navigationContext.tsx   // Context navigazione
+│   │   │   ├── useAuthActions.ts       // Hook auth
+│   │   │   ├── useTheme.ts             // Hook tema
+│   │   │   └── useTheme.tsx            // Hook tema (JSX)
+│   │   ├── lib                     // Librerie React
+│   │   │   ├── componentLib.tsx        // Libreria componenti
+│   │   │   ├── componentRegistry.tsx   // Registro componenti
+│   │   └── providers               // Provider React (context)
+│   │       ├── authContext.tsx         // Context auth
+│   │       ├── themeProvider.tsx       // Provider tema
+│   │       └── themeWrapper.tsx        // Wrapper tema
+|   |       ├── NavigationWrapper.tsx   // Wrapper navigazione
+│   ├── scripts                      // Script di utilità lato server/client
+│   │   ├── auth                     // Script autenticazione
+│   │   │   ├── getAuth.ts               // Recupero auth
+│   │   │   ├── logout.ts                 // Logout
+│   │   │   ├── sessionManager.ts         // Gestione sessione
+│   │   │   ├── sessionManagerV0.ts       // Gestione sessione v0
+│   │   │   └── utils.ts                  // Utility auth
+│   │   ├── db                       // Script database
+│   │   │   ├── events.ts                // Eventi DB
+│   │   │   ├── lists.ts                 // Liste DB
+│   │   │   └── sites.ts                 // Siti DB
+│   │   ├── http                      // Script HTTP generici
+│   │   │   └── handleRequest.ts           // Gestione richieste HTTP
+│   │   └── supabase.ts                // Script Supabase
+│   ├── store                         // Stato globale (es. Redux, Zustand)
+│   │   └── index.ts                      // Store principale
+│   ├── styles                        // Stili CSS globali/personalizzati
+│   │   ├── custom.css                    // Stili custom
+│   │   ├── globals.css (that one cloned from V3 is globalsV0.css) // Stili globali
+│   ├── types                         // Tipi TypeScript condivisi
+│   │   ├── api.ts                        // Tipi API
+│   │   ├── auth                         // Tipi auth
+│   │   │   ├── mapSession.ts                // Mappatura sessione
+│   │   │   ├── metadata.ts                  // Metadati auth
+│   │   │   ├── session.ts                   // Tipi sessione
+│   │   │   └── userSession.ts               // Tipi user session
+│   │   ├── components.ts                   // Tipi componenti
+│   │   ├── metadata.ts                     // Tipi metadati
+│   │   ├── session.ts                      // Tipi sessione
+│   │   ├── users.ts                        // Tipi utenti
+│   │   └── .vscode                         // Configurazione VS Code (forse errato qui)
+├── tailwind.config.mjs                // Configurazione Tailwind CSS
+├── tsconfig.json                      // Configurazione TypeScript
+├── V3.txt                             // Questo file: struttura progetto
+├── various.txt                        // Appunti vari
+├── vite.config.ts                     // Configurazione Vite (bundler)
+├── vitest.config.ts                   // Configurazione Vitest (test runner)

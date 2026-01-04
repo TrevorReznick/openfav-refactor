@@ -1,0 +1,719 @@
+# Prompt per la Ricreazione del Progetto OpenFav con Astro + React
+
+## 🏗️ Panoramica del Progetto
+Crea un nuovo progetto Astro con React seguendo l'architettura esistente, che include:
+- Astro 5.5+ con React 18+
+- TypeScript
+- Tailwind CSS con configurazione avanzata
+- Vercel come adapter di deploy
+- Strumenti di monitoraggio (Sentry, Spotlight)
+- Gestione dello stato con React Query e Nanostores
+- UI con componenti Radix UI e Lucide Icons
+- Testing con Vitest e Testing Library
+
+🏖️ build a suitable code base for other project
+
+copy the .gitignore file in the new project
+
+copy the v3 .env file
+
+🪩 Config files
+
+-- Package json
+
+{
+  "name": "@example/basics",
+  "type": "module",
+  "version": "1.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@astrojs/react": "^3.6.2",
+    "@astrojs/tailwind": "^5.1.1",
+    "@astrojs/vercel": "^8.1.2",
+    "@nanostores/react": "^0.7.2",
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-toast": "^1.2.6",
+    "@radix-ui/react-toggle": "^1.1.0",
+    "@sentry/astro": "^9.5.0",
+    "@spotlightjs/astro": "^3.1.0",
+    "@supabase/postgrest-js": "^1.19.4",
+    "@supabase/supabase-js": "^2.39.8",
+    "@tanstack/react-query": "^5.66.11",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "@upstash/redis": "^1.34.9",
+    "astro": "^5.5.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.18.1",
+    "install": "^0.13.0",
+    "lucide-react": "^0.446.0",
+    "nanostores": "^0.10.0",
+    "next-themes": "^0.4.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-error-boundary": "^6.0.0",
+    "react-router-dom": "^7.4.0",
+    "sonner": "^2.0.1",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^3.4.13",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__template": "^7.4.4",
+    "@types/babel__traverse": "^7.20.6",
+    "@types/estree": "^1.0.6",
+    "@types/hast": "^3.0.4",
+    "@types/jest": "^29.5.14",
+    "@types/mdast": "^4.0.4",
+    "@types/nlcst": "^2.0.3",
+    "@types/node": "^22.13.10",
+    "@types/phoenix": "^1.6.6",
+    "@types/prop-types": "^15.7.14",
+    "@types/unist": "^3.0.3",
+    "@vitest/coverage-istanbul": "^3.0.9",
+    "jsdom": "^26.1.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.9"
+  }
+}
+
+-- # astro config mjs
+
+import { defineConfig } from 'astro/config'
+import react from '@astrojs/react'
+import tailwind from '@astrojs/tailwind'
+import sentry from '@sentry/astro'
+import spotlightjs from '@spotlightjs/astro'
+import { fileURLToPath } from 'node:url'
+import vercel from '@astrojs/vercel';
+
+export default defineConfig({
+  output: 'server',
+  integrations: [
+    react(),
+    tailwind({ applyBaseStyles: false }),
+    sentry(),
+    spotlightjs()
+  ],
+  adapter: vercel(),
+  vite: {
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      }
+    }
+  }
+})
+
+-- # postcss config 
+module.exports = {
+  plugins: {
+    'tailwindcss/nesting': {},
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+-- #vite config
+// vite.config.ts
+import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
+import tsconfigPaths from 'vite-tsconfig-paths'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [tsconfigPaths()],
+  resolve: {
+    alias: [
+      {
+        find: '@',
+        replacement: resolve(__dirname, 'src')
+      },
+      {
+        find: '~',
+        replacement: resolve(__dirname, 'src')
+      }
+    ]
+  },
+  // Configurazione Vite
+  test: {
+    coverage: {
+      provider: 'istanbul',
+      reporter: ['text', 'html'],
+    },
+    include: ['src/test/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    globals: true,
+    environment: 'jsdom',
+    exclude: [...configDefaults.exclude, '**/e2e/**'],
+  },
+})
+
+-- # astro config mjs
+
+import defaultTheme from 'tailwindcss/defaultTheme'
+
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  darkMode: ['class'],
+  content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+  prefix: '',
+  theme: {
+    container: {
+      center: true,
+      // padding: "2rem",
+      screens: {
+        '2xl': '1400px',
+      },
+    },
+    extend: {
+      borderRadius: {
+        'none': '0',
+        'sm': '0.125rem',
+        'DEFAULT': '0.25rem',
+        'md': '0.375rem',
+        'lg': '0.5rem',
+        'xl': '0.75rem',
+        '2xl': '1rem',
+        'full': '9999px'
+      },
+      fontWeight: {
+        medium: '500',
+      },
+      colors: {
+        'primary-hover': 'hsl(var(--primary-hover))', // Aggiungi questa linea
+        'secondary-light': 'hsl(var(--secondary-light))', // Se necessario  
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+          
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
+        button: {
+          primary: 'hsl(var(--primary))',
+          primaryHover: 'hsl(var(--primary-hover))',
+          secondary: 'hsl(var(--secondary))',
+          secondaryHover: "rgba(255, 255, 255, 0.1)",
+        },
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+      keyframes: {
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+      minHeight: {
+        dynamic_hero: 'calc(100vh - 69px - 76.8px)',
+        static_sidemenu: 'calc(100vh - 69px - 76.8px)',
+      },
+      maxHeight: {
+        static_sidemenu: 'calc(100vh - 69px - 76.8px)',
+        dynamic_search: 'calc(50svh - 124px)',
+        dynamic_hscreen: 'calc(100dvh - 32px - 2rem)',
+      },
+      height: {
+        dynamic_hscreen: 'calc(100dvh - 36px - 2rem)',
+      },
+    },
+    fontFamily: {
+      sans: ['Montserrat', ...defaultTheme.fontFamily.sans],
+      mono: ["'JetBrains Mono'", ...defaultTheme.fontFamily.mono],
+    },
+  },
+  plugins: [require('tailwindcss-animate')],
+}
+
+-- components.json (shadcn config)
+
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.mjs",
+    "css": "src/styles/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/react/components/",
+    "utils": "@/lib/utils",
+    "ui": "@/react/components/ui/",
+    "lib": "@/react/lib",
+    "hooks": "@/react/hooks"
+  }
+}
+
+🎱 copy the files from V3 project that are not configured installing dependencies as above
+
+.                                   // Radice del progetto
+├── astro.config.mjs                // Configurazione Astro (framework static site)
+├── components.json                 // Configurazione componenti (probabilmente per Astro o tooling)
+├── .env                            // Variabili d'ambiente (non versionato)
+├── .gitignore                      // File e cartelle da ignorare da git
+├── package.json                    // Configurazione npm: dipendenze, script, metadati progetto
+├── package-lock.json               // Lockfile npm: versioni esatte delle dipendenze
+├── postcss.config.js               // Configurazione PostCSS (tooling CSS)
+├── public                          // File statici pubblici (es. immagini, favicon)
+│   └── favicon.svg                 // Icona del sito
+├── src                             // Sorgente principale dell'applicazione
+│   ├── api                         // Funzioni e client per chiamate API
+│   │   ├── apiBuilder.ts           // Costruttore di API (probabilmente helper)
+│   │   └── apiClient.ts            // Client per chiamate API
+│   ├── components                  // Componenti Astro riutilizzabili
+│   │   ├── HeaderTitle.astro       // Componente header/titolo
+│   │   ├── ThemeNavBar.astro       // Navbar a tema
+│   ├── constants                   // Costanti condivise
+│   │   └── index.ts                // Definizione costanti
+│   ├── layouts                     // Layout di pagina Astro
+│   │   └── ThemeLayout.astro       // Layout principale a tema
+│   ├── lib                         // Librerie/utility generiche
+│   │   └── utils.ts                // Funzioni di utilità
+│   ├── middleware                  // Middleware per logica condivisa (es. autenticazione)
+│   │   ├── index.ts                // Middleware principale
+│   │   └── indexV0.ts              // Versione precedente del middleware
+│   ├── pages                       // Pagine dell'applicazione (routing Astro)
+│   │   ├── api                     // Endpoint API (route serverless)
+│   │   │   └── v1                  // Versione 1 delle API
+│   │   │       ├── auth            // Endpoint autenticazione
+│   │   │       │   ├── callback.ts     // Callback OAuth
+│   │   │       │   ├── callbackV0.ts   // Callback OAuth versione precedente
+│   │   │       │   ├── signin.ts       // Endpoint login
+│   │   │       │   └── signout.ts      // Endpoint logout
+│   │   │       └── main            // Endpoint principali
+│   │   │           └── doQueries.ts    // Gestione query principali
+│   │   ├── build                   // Pagine di build/generazione componenti
+│   │   │   └── [component].astro       // Componente generico di build
+│   │   ├── index.astro             // Homepage Astro
+│   ├── providers                   // Provider di servizi (es. auth, dati)
+│   │   └── supabaseAuth.ts         // Provider autenticazione Supabase
+│   ├── react                       // Componenti React e logica client-side
+│   │   ├── AppClient.tsx           // Entry point client React
+│   │   ├── components              // Componenti React riutilizzabili
+│   │   │   ├── auth                // Componenti autenticazione
+│   │   │   │   └── Auth.tsx            // Form/gestione auth
+│   │   │   ├── common (es Navbar.tsx, LoadingSpinner.tsx, Footer.tsx) // Componenti comuni
+│   │   │   │   ├── ClientNavbar.tsx    // Navbar client
+│   │   │   │   ├── GlobalLoader.tsx    // Loader globale
+│   │   │   │   ├── LoadFallback.tsx    // Fallback caricamento
+│   │   │   │   ├── LoadingSpinner.tsx  // Spinner caricamento
+│   │   │   │   ├── Navbar.tsx          // Navbar
+│   │   │   ├── dashboard           // Componenti dashboard (vuoto o da completare)
+│   │   │   ├── debug               // Componenti debug/testing
+│   │   │   │   ├── ApiTest.tsx         // Test API
+│   │   │   │   └── DebugSession.tsx    // Debug sessione utente
+│   │   │   ├── examples (starter test components) // Esempi di componenti
+│   │   │   ├── home                // Componenti homepage
+│   │   │   │   ├── FeatureCard.tsx     // Card funzionalità
+│   │   │   │   ├── HeroSection.tsx     // Sezione hero
+│   │   │   │   ├── HomePage.tsx        // Pagina home
+│   │   │   │   └── sub
+│   │   │   │       ├── HeroSection.tsx // Sotto-sezione hero
+│   │   │   │       └── StepCard.tsx    // Card step
+│   │   │   ├── dashboard           // (duplicato, da verificare)
+│   │   │   ├── * (other-pages)     // Altri componenti pagina
+│   │   │   ├── ui                  // Componenti UI generici
+│   │   │   │   ├── button.tsx          // Bottone UI
+│   │   │   │   ├── container.tsx       // Contenitore UI
+│   │   │   │   ├── dropdown-menu.tsx   // Dropdown UI
+│   │   │   │   ├── PageContainer.tsx   // Contenitore pagina
+│   │   │   │   └── toggle.tsx          // Toggle UI
+│   │   │   └── utils               // Utility React
+│   │   ├── DynamicWrapper.tsx      // Wrapper dinamico componenti
+│   │   ├── hooks                   // Custom hook React
+│   │   │   ├── navigationContext.tsx   // Context navigazione
+│   │   │   ├── useAuthActions.ts       // Hook auth
+│   │   │   ├── useTheme.ts             // Hook tema
+│   │   │   └── useTheme.tsx            // Hook tema (JSX)
+│   │   ├── lib                     // Librerie React
+│   │   │   ├── componentLib.tsx        // Libreria componenti
+│   │   │   ├── componentRegistry.tsx   // Registro componenti
+│   │   └── providers               // Provider React (context)
+│   │       ├── authContext.tsx         // Context auth
+│   │       ├── themeProvider.tsx       // Provider tema
+│   │       └── themeWrapper.tsx        // Wrapper tema
+|   |       ├── NavigationWrapper.tsx   // Wrapper navigazione
+│   ├── scripts                      // Script di utilità lato server/client
+│   │   ├── auth                     // Script autenticazione
+│   │   │   ├── getAuth.ts               // Recupero auth
+│   │   │   ├── logout.ts                 // Logout
+│   │   │   ├── sessionManager.ts         // Gestione sessione
+│   │   │   ├── sessionManagerV0.ts       // Gestione sessione v0
+│   │   │   └── utils.ts                  // Utility auth
+│   │   ├── db                       // Script database
+│   │   │   ├── events.ts                // Eventi DB
+│   │   │   ├── lists.ts                 // Liste DB
+│   │   │   └── sites.ts                 // Siti DB
+│   │   ├── http                      // Script HTTP generici
+│   │   │   └── handleRequest.ts           // Gestione richieste HTTP
+│   │   └── supabase.ts                // Script Supabase
+│   ├── store                         // Stato globale (es. Redux, Zustand)
+│   │   └── index.ts                      // Store principale
+│   ├── styles                        // Stili CSS globali/personalizzati
+│   │   ├── custom.css                    // Stili custom
+│   │   ├── globals.css (that one cloned from V3 is globalsV0.css) // Stili globali
+│   ├── types                         // Tipi TypeScript condivisi
+│   │   ├── api.ts                        // Tipi API
+│   │   ├── auth                         // Tipi auth
+│   │   │   ├── mapSession.ts                // Mappatura sessione
+│   │   │   ├── metadata.ts                  // Metadati auth
+│   │   │   ├── session.ts                   // Tipi sessione
+│   │   │   └── userSession.ts               // Tipi user session
+│   │   ├── components.ts                   // Tipi componenti
+│   │   ├── metadata.ts                     // Tipi metadati
+│   │   ├── session.ts                      // Tipi sessione
+│   │   ├── users.ts                        // Tipi utenti
+│   │   └── .vscode                         // Configurazione VS Code (forse errato qui)
+├── tailwind.config.mjs                // Configurazione Tailwind CSS
+├── tsconfig.json                      // Configurazione TypeScript
+├── V3.txt                             // Questo file: struttura progetto
+├── various.txt                        // Appunti vari
+├── vite.config.ts                     // Configurazione Vite (bundler)
+├── vitest.config.ts                   // Configurazione Vitest (test runner)
+
+use the component registry /src/react/lib files to add dynamic react component
+
+import type { ComponentConfig, ComponentRegistry } from '@/types/components'
+
+class ComponentLibrary {
+  private registry: ComponentRegistry = new Map()
+
+  register(name: string, config: ComponentConfig) {
+    console.log(`Registering component: ${name}`)
+    this.registry.set(name, config)
+    return this
+  }
+
+  get(name: string) {
+    const component = this.registry.get(name)
+    if (!component) {
+      console.error(`Component not found: ${name}`)
+      throw new Error(`Component "${name}" not found in registry`)
+    }
+    console.log(`Component loaded: ${name}`)
+    return component
+  }
+
+  has(name: string): boolean {
+    return this.registry.has(name)
+  }
+
+  list(): string[] {
+    return Array.from(this.registry.keys())
+  }
+
+  getMetadata(name: string) {
+    return this.get(name).metadata || {}
+  }
+}
+
+export const componentLib = new ComponentLibrary()
+
+
+example of component registry
+
+import { componentLib } from '@/react/lib/componentLib'
+
+componentLib
+    .register('login', {
+        import: () => import('~/react/components/auth/Auth'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'auth'
+        }
+    })
+    .register('api-test', {
+        import: () => import('~/react/components/examples/ApiTestComponent'),
+        metadata: {
+            description: 'API Test Console',
+            group: 'debug'
+        }
+    })
+    .register('api-test-V0', {
+        import: () => import('~/react/components/examples/ApiTestComponentV0'),
+        metadata: {
+            description: 'API Test Console',
+            group: 'debug'
+        }
+    })
+    .register('debug-api', {
+        import: () => import('~/react/components/debug/ApiTest'),
+        metadata: {
+            description: 'API Test Console',
+            group: 'debug'
+        }
+    })
+    .register('debug-auth', {
+        import: () => import('~/react/components/debug/DebugAuth'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'auth'
+        }
+    })
+    .register('debug-session', {
+        import: () => import('~/react/components/debug/DebugSession'),
+        metadata: {
+            description: 'Session Debug Component',
+            group: 'debug'
+        }
+    })
+    .register('posts', {
+        import: () => import('~/react/components/examples/PostsComponent'),
+        metadata: {
+            description: 'Auth Form Component',
+            group: 'examples'
+        }
+    })
+    .register('users', {
+        import: () => import('~/react/components/examples/UsersComponent'),
+        metadata: {
+            description: 'Users List Component',
+            group: 'examples'
+        }
+    })
+    .register('test-nanostore', {
+        import: () => import('~/react/components/examples/TestComponent'),
+        metadata: {
+            description: 'Test Counter Component',
+            group: 'examples'
+        }
+    })
+
+export default componentLib
+
+build in a index.astro, dark mode, welcome page, V3 style similar (dark) with included index page
+
+git init
+
+git add *
+
+git commit -m "builded code base version"
+
+the folder refactor-v6 exists, rm -rf refactor-v6 && mkir refactor-v6 or use the existing refactor-v6, at your choise
+
+*** fixing ***
+install this packages:
+@tanstack/react-query-devtools (imported by /home/default/develop-env/prod/openfav-refactor/refactor-V6/src/react/AppClient.tsx)
+@radix-ui/react-tooltip (imported by /home/default/develop-env/prod/openfav-refactor/refactor-V6/src/react/components/ui/tooltip.tsx)
+@radix-ui/react-label (imported by /home/default/develop-env/prod/openfav-refactor/refactor-V6/src/react/components/ui/label.tsx)
+npm install @radix-ui/themes
+
+Guide: Dynamic React Components in Astro with AppClient Wrapper
+Based on the project analysis, here's how to implement dynamic React component loading with the AppClient wrapper in your Astro + React setup:
+
+1. Dynamic Route Setup
+Create a new dynamic route at src/pages/[...path].astro to handle all dynamic component loading:
+
+astro
+---
+// src/pages/[...path].astro
+import Layout from '@/layouts/ThemeLayout.astro';
+import AppClient from '@/react/AppClient';
+import { componentLib } from '@/react/lib/componentLib';
+import type { AppClientProps } from '@/types/components';
+
+const { path } = Astro.params;
+const componentName = path?.join('/') || 'Home';
+
+// Check if component exists
+const componentExists = componentLib.has(componentName);
+const metadata = componentExists ? componentLib.getMetadata(componentName) : null;
+
+// Prepare client props
+const clientProps: AppClientProps = {
+  componentName,
+  showThemeToggle: true,
+  showToaster: true
+};
+---
+
+<Layout title={metadata?.title || 'Dynamic Component'}>
+  {componentExists ? (
+    <AppClient client:load {...clientProps} />
+  ) : (
+    <div class="text-center py-12">
+      <p class="text-destructive text-lg">
+        The requested component "{componentName}" was not found.
+      </p>
+    </div>
+  )}
+</Layout>
+2. Component Registration
+Register your React components in the component library:
+
+typescript
+// src/react/lib/componentLib.ts
+import type { ComponentType } from 'react';
+
+interface ComponentMetadata {
+  title: string;
+  description?: string;
+  category?: string;
+}
+
+const componentRegistry = new Map<string, {
+  component: ComponentType<any>;
+  metadata?: ComponentMetadata;
+}>();
+
+// Example registration
+export function registerComponent(
+  name: string, 
+  component: ComponentType<any>, 
+  metadata?: ComponentMetadata
+) {
+  componentRegistry.set(name, { component, metadata });
+}
+
+// Check if component exists
+export function hasComponent(name: string): boolean {
+  return componentRegistry.has(name);
+}
+
+// Get component
+export function getComponent(name: string) {
+  return componentRegistry.get(name)?.component;
+}
+
+// Get component metadata
+export function getMetadata(name: string) {
+  return componentRegistry.get(name)?.metadata;
+}
+
+// Register all components
+import Button from '@/react/components/Button';
+import Card from '@/react/components/Card';
+// Import other components...
+
+// Register components
+registerComponent('Button', Button, {
+  title: 'Button',
+  description: 'A customizable button component',
+  category: 'Basic'
+});
+
+registerComponent('Card', Card, {
+  title: 'Card',
+  description: 'A card component',
+  category: 'Layout'
+});
+
+// Export the component library
+export const componentLib = {
+  has: hasComponent,
+  get: getComponent,
+  getMetadata,
+  register: registerComponent
+};
+3. Using AppClient with Dynamic Components
+The 
+AppClient
+ component is already set up to handle dynamic components. Here's how it works:
+
+It accepts a componentName prop that matches a registered component
+It provides essential providers (Theme, Query, etc.)
+It handles loading and error states
+4. Creating a New Dynamic Page
+To create a new page that uses a dynamic component:
+
+Register your component in componentLib.ts
+Access it via the dynamic route: /your-component-name
+5. Direct Component Usage
+For direct usage in an Astro file:
+
+astro
+---
+// src/pages/index.astro
+import AppClient from '@/react/AppClient';
+---
+
+<AppClient 
+  client:load 
+  componentName="YourComponent" 
+  showThemeToggle={true}
+/>
+6. Best Practices
+Lazy Loading: Components are automatically lazy-loaded by the 
+AppClient
+Error Boundaries: Consider adding error boundaries in 
+AppClient
+Type Safety: Ensure all components have proper TypeScript types
+Performance: Use client:visible or client:idle for below-the-fold components
+Testing: Test your dynamic components in isolation
+7. Advanced: Custom Providers
+To add custom providers:
+
+typescript
+// In your page or layout
+import { AuthProvider } from '@/react/providers/authContext';
+
+// In your client props
+const clientProps: AppClientProps = {
+  componentName: 'YourComponent',
+  additionalProviders: [AuthProvider]
+};
+This setup provides a robust foundation for dynamic component loading in your Astro + React application while maintaining type safety and developer experience.
+
+Copy the /src/pages/build/[component].astro as from v3 project
+
+
+
